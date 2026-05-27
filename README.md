@@ -1,10 +1,10 @@
 # LEGAL IT CHATBOT
 
-Hệ thống RAG hỗ trợ tra cứu và phân tích văn bản pháp luật trong lĩnh vực công nghệ thông tin, an toàn thông tin, dữ liệu cá nhân, giao dịch điện tử, viễn thông và các văn bản liên quan.
+Hệ thống RAG hỗ trợ tra cứu và phân tích văn bản pháp luật, tập trung chính vào lĩnh vực sở hữu trí tuệ. Ngoài ra, hệ thống mở rộng sang các lĩnh vực công nghệ thông tin có liên quan như an toàn thông tin, dữ liệu cá nhân, giao dịch điện tử, viễn thông và công nghiệp công nghệ số.
 
 Project hiện tập trung vào phần nền tảng dữ liệu cho RAG:
 
-- Chuẩn hóa và chia nhỏ văn bản pháp luật theo cấu trúc Điều - Khoản - Điểm.
+- Chuẩn hóa và chia nhỏ văn bản pháp luật về sở hữu trí tuệ và công nghệ thông tin theo cấu trúc Điều - Khoản - Điểm.
 - Tạo parent/child chunks để truy xuất đúng đoạn nhỏ nhưng vẫn khôi phục đầy đủ ngữ cảnh của Điều luật.
 - Sinh embedding tiếng Việt bằng `AITeamVN/Vietnamese_Embedding_v2`.
 - Ingest dữ liệu vào Supabase `pgvector` hoặc Qdrant local.
