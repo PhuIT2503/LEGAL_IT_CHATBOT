@@ -1,1 +1,213 @@
-# LEGAL_IT_CHATBOT
+# LEGAL IT CHATBOT
+
+Hệ thống RAG hỗ trợ tra cứu và phân tích văn bản pháp luật trong lĩnh vực công nghệ thông tin, an toàn thông tin, dữ liệu cá nhân, giao dịch điện tử, viễn thông và các văn bản liên quan.
+
+Project hiện tập trung vào phần nền tảng dữ liệu cho RAG:
+
+- Chuẩn hóa và chia nhỏ văn bản pháp luật theo cấu trúc Điều - Khoản - Điểm.
+- Tạo parent/child chunks để truy xuất đúng đoạn nhỏ nhưng vẫn khôi phục đầy đủ ngữ cảnh của Điều luật.
+- Sinh embedding tiếng Việt bằng `AITeamVN/Vietnamese_Embedding_v2`.
+- Ingest dữ liệu vào Supabase `pgvector` hoặc Qdrant local.
+- Kiểm thử truy xuất vector search từ Supabase.
+
+## Kiến trúc tổng quan
+
+![RAG system architecture](docs/assets/rag-system-architecture.jpg)
+
+Hướng triển khai đề xuất:
+
+- Google Colab xử lý logic nặng: load LLM, embedding model, agent orchestration và đánh giá.
+- Supabase `pgvector` lưu trữ vector chunks và phục vụ hybrid/vector search.
+- Neo4j AuraDB lưu knowledge graph cho quan hệ pháp lý như điều khoản, hành vi, chế tài, nghĩa vụ và ngoại lệ.
+- Router/agent quyết định luồng xử lý: chitchat, retrieval, đánh giá đủ thông tin, tổng hợp câu trả lời.
+
+## Luồng xử lý truy vấn
+
+![RAG query flow](docs/assets/rag-query-flow.jpg)
+
+Luồng RAG mục tiêu:
+
+1. Người dùng gửi câu hỏi pháp lý.
+2. Router phân loại câu hỏi: hội thoại thông thường hoặc cần truy xuất luật.
+3. Retrieval agent tách câu hỏi nhỏ, viết lại truy vấn và gọi hybrid search.
+4. Vector database trả về top-k child chunks liên quan.
+5. Hệ thống mở rộng child chunks sang parent chunks để lấy trọn ngữ cảnh Điều luật.
+6. Critic agent kiểm tra độ đầy đủ dựa trên knowledge graph.
+7. Final response LLM tổng hợp câu trả lời có căn cứ.
+
+## Cấu trúc thư mục
+
+```text
+.
+├── chunking.py                 # Chunker cho VBPL theo Điều/Khoản/Điểm
+├── ingest_supabase.py          # Ingest parent/child chunks vào Supabase pgvector
+├── qdrant_local_ingest.py      # Ingest parent/child chunks vào Qdrant local
+├── supabase_schema.sql         # Schema bảng Supabase + pgvector index
+├── test_supabase_search.py     # Script kiểm thử truy xuất vector từ Supabase
+├── data/                       # Tập văn bản pháp luật và bộ QA
+└── docs/assets/                # Sơ đồ kiến trúc và luồng xử lý
+```
+
+## Dữ liệu
+
+Thư mục `data/` chứa các văn bản pháp luật dạng `.docx`, `.pdf` và bộ câu hỏi đánh giá `.jsonl`.
+
+Lưu ý: chunker hiện chỉ xử lý file `.docx`. Các file `.pdf` đang được lưu như nguồn tài liệu gốc, chưa được parse trong pipeline hiện tại.
+
+## Yêu cầu môi trường
+
+- Python 3.10+
+- Supabase project đã bật extension `pgvector` nếu dùng cloud vector database
+- Hoặc Qdrant local nếu muốn chạy thử offline
+
+Cài đặt thư viện:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install python-docx sentence-transformers supabase qdrant-client
+```
+
+## Thiết lập Supabase
+
+1. Tạo project Supabase.
+2. Mở SQL Editor.
+3. Chạy nội dung trong `supabase_schema.sql`.
+4. Thiết lập biến môi trường:
+
+```bash
+export SUPABASE_URL="https://your-project.supabase.co"
+export SUPABASE_SERVICE_KEY="your-service-role-key"
+```
+
+Để dùng `test_supabase_search.py`, cần có RPC `match_legal_child_chunks`. Có thể tạo thêm function sau trong Supabase SQL Editor:
+
+```sql
+create or replace function match_legal_child_chunks(
+    query_embedding vector(1024),
+    match_count int default 5
+)
+returns table (
+    id text,
+    dieu_id text,
+    parent_id text,
+    van_ban_id text,
+    chunk_type text,
+    content text,
+    metadata jsonb,
+    similarity float
+)
+language sql stable
+as $$
+    select
+        c.id,
+        c.dieu_id,
+        c.parent_id,
+        c.van_ban_id,
+        c.chunk_type,
+        c.content,
+        c.metadata,
+        1 - (c.embedding <=> query_embedding) as similarity
+    from legal_child_chunks c
+    where c.embedding is not null
+    order by c.embedding <=> query_embedding
+    limit match_count;
+$$;
+```
+
+## Chạy chunking
+
+Kiểm tra quá trình tách văn bản:
+
+```bash
+python chunking.py
+```
+
+Chunker tạo hai cấp dữ liệu:
+
+- `children`: chunk nhỏ theo lời dẫn Điều, Khoản, Điểm.
+- `parents`: chunk gộp theo từng Điều để giữ đầy đủ ngữ cảnh khi trả lời.
+
+## Ingest vào Supabase
+
+```bash
+python ingest_supabase.py --data-dir data --batch-size 200 --embed-batch-size 8
+```
+
+Các bảng được ghi:
+
+- `legal_parent_chunks`: lưu parent chunks theo từng Điều.
+- `legal_child_chunks`: lưu child chunks kèm embedding 1024 chiều.
+
+## Ingest vào Qdrant local
+
+```bash
+python qdrant_local_ingest.py --data-dir data --db-path data/.qdrant
+```
+
+Script tạo hai collection:
+
+- `legal_child_chunks`: lưu child chunks và embedding.
+- `legal_parent_chunks`: lưu parent chunks để mở rộng ngữ cảnh.
+
+Thư mục `data/.qdrant/` đã được đưa vào `.gitignore`.
+
+## Kiểm thử tìm kiếm Supabase
+
+Chạy một truy vấn mẫu:
+
+```bash
+python test_supabase_search.py \
+  --query "Doanh nghiệp cần làm gì khi xử lý dữ liệu cá nhân?" \
+  --match-count 5 \
+  --include-parent
+```
+
+Nếu không truyền `--query`, script sẽ chuyển sang chế độ nhập câu hỏi tương tác.
+
+## Công nghệ chính
+
+- Python
+- `python-docx`
+- `sentence-transformers`
+- `AITeamVN/Vietnamese_Embedding_v2`
+- Supabase `pgvector`
+- Qdrant local
+
+Các thành phần định hướng cho bản hoàn chỉnh:
+
+- Qwen2.5-7B hoặc LLM tương đương
+- LangGraph/LlamaIndex orchestration
+- Neo4j AuraDB knowledge graph
+- RAGAS hoặc bộ QA nội bộ để đánh giá chất lượng trả lời
+
+## Trạng thái hiện tại
+
+Đã có:
+
+- Bộ dữ liệu văn bản pháp luật trong `data/`.
+- Logic chunking parent/child cho văn bản `.docx`.
+- Pipeline ingest Supabase.
+- Pipeline ingest Qdrant local.
+- Script kiểm thử vector search trên Supabase.
+- Sơ đồ kiến trúc và luồng truy vấn.
+
+Chưa có trong repo hiện tại:
+
+- API/backend chatbot hoàn chỉnh.
+- UI/frontend cho người dùng cuối.
+- LangGraph agent runtime.
+- Neo4j knowledge graph ingestion/query script.
+- Hybrid search BM25 + vector trong code production.
+
+## Bảo mật
+
+Không commit các file sau:
+
+- `.env`
+- `.env.*`
+- `.venv/`
+- `data/.qdrant/`
+- API keys, service role keys hoặc database passwords
+
+Các mục trên đã được cấu hình trong `.gitignore`.
