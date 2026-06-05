@@ -93,6 +93,8 @@ class VBPLChunker:
         current_chunk_lines = []
         current_chunk_type = None
         current_chunk_id = None
+        dieu_occurrences: Dict[str, int] = {}
+        chunk_id_occurrences: Dict[str, int] = {}
         
         def save_chunk():
             if current_chunk_lines and current_dieu_id and current_chunk_type:
@@ -110,12 +112,17 @@ class VBPLChunker:
                         
                 content_text = "\n".join(current_chunk_lines)
                 content_with_prefix = f"{prefix} {content_text}"
+                chunk_id_occurrences[current_chunk_id] = chunk_id_occurrences.get(current_chunk_id, 0) + 1
+                unique_chunk_id = current_chunk_id
+                if chunk_id_occurrences[current_chunk_id] > 1:
+                    unique_chunk_id = f"{current_chunk_id}_C{chunk_id_occurrences[current_chunk_id]}"
                 
                 chunks.append({
-                    "id": current_chunk_id,
+                    "id": unique_chunk_id,
                     "dieu_id": current_dieu_id,
                     "type": current_chunk_type,
                     "content": content_with_prefix,
+                    "order": len(chunks),
                     "metadata": {
                         "doc_id": doc_id,
                         "dieu_title": current_dieu_title,
@@ -139,7 +146,11 @@ class VBPLChunker:
                 current_diem_char = None # Reset Điểm
                 
                 # Tạo dieu_id giống mẫu "95_2015_QH13_D114"
-                current_dieu_id = f"{doc_id}_D{current_dieu_num}"
+                base_dieu_id = f"{doc_id}_D{current_dieu_num}"
+                dieu_occurrences[base_dieu_id] = dieu_occurrences.get(base_dieu_id, 0) + 1
+                current_dieu_id = base_dieu_id
+                if dieu_occurrences[base_dieu_id] > 1:
+                    current_dieu_id = f"{base_dieu_id}_O{dieu_occurrences[base_dieu_id]}"
                 current_dieu_title = f"Điều {current_dieu_num}. {dieu_title}".strip()
                 
                 # Bắt đầu chunk mới: Phần lời dẫn của Điều (preamble)
@@ -191,8 +202,8 @@ class VBPLChunker:
 
         parent_chunks = []
         for dieu_id, items in by_dieu.items():
-            # Giữ thứ tự theo id chunk (preamble -> khoản -> điểm) khi ghép
-            items_sorted = sorted(items, key=lambda x: x["id"])
+            # Giữ đúng thứ tự xuất hiện trong văn bản khi ghép parent context.
+            items_sorted = sorted(items, key=lambda x: x.get("order", 0))
             content_text = "\n".join([i["content"] for i in items_sorted])
             meta = items_sorted[0]["metadata"] if items_sorted else {}
             parent_chunks.append({

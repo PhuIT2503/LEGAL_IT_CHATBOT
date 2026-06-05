@@ -6,9 +6,9 @@ Project hiện tập trung vào phần nền tảng dữ liệu cho RAG:
 
 - Chuẩn hóa và chia nhỏ văn bản pháp luật về sở hữu trí tuệ và công nghệ thông tin theo cấu trúc Điều - Khoản - Điểm.
 - Tạo parent/child chunks để truy xuất đúng đoạn nhỏ nhưng vẫn khôi phục đầy đủ ngữ cảnh của Điều luật.
-- Sinh embedding tiếng Việt bằng `AITeamVN/Vietnamese_Embedding_v2`.
+- Sinh embedding tiếng Việt bằng model finetune trong `references/`.
 - Ingest dữ liệu vào Supabase `pgvector` hoặc Qdrant local.
-- Kiểm thử truy xuất vector search từ Supabase.
+- Kiểm thử truy xuất hybrid search từ Qdrant local hoặc vector search từ Supabase.
 
 ## Kiến trúc tổng quan
 
@@ -41,7 +41,10 @@ Luồng RAG mục tiêu:
 .
 ├── chunking.py                 # Chunker cho VBPL theo Điều/Khoản/Điểm
 ├── ingest_supabase.py          # Ingest parent/child chunks vào Supabase pgvector
+├── bm25_sparse.py              # BM25 sparse encoder lưu cùng Qdrant local
+├── embedding_model.py          # Resolve/extract/load embedding model finetune
 ├── qdrant_local_ingest.py      # Ingest parent/child chunks vào Qdrant local
+├── qdrant_hybrid_search.py     # Kiểm thử hybrid search Qdrant: dense + BM25
 ├── supabase_schema.sql         # Schema bảng Supabase + pgvector index
 ├── test_supabase_search.py     # Script kiểm thử truy xuất vector từ Supabase
 ├── data/                       # Tập văn bản pháp luật và bộ QA
@@ -65,7 +68,8 @@ Cài đặt thư viện:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install python-docx sentence-transformers supabase qdrant-client
+pip install -r requirements.txt
+pip install supabase
 ```
 
 ## Thiết lập Supabase
@@ -147,10 +151,61 @@ python qdrant_local_ingest.py --data-dir data --db-path data/.qdrant
 
 Script tạo hai collection:
 
-- `legal_child_chunks`: lưu child chunks và embedding.
+- `legal_child_chunks`: lưu child chunks với named vectors:
+  - `dense`: embedding 1024 chiều từ model finetune.
+  - `bm25`: sparse vector BM25 để keyword/legal citation matching.
 - `legal_parent_chunks`: lưu parent chunks để mở rộng ngữ cảnh.
 
+Nếu cần rebuild sạch collection cũ:
+
+```bash
+python qdrant_local_ingest.py \
+  --data-dir data \
+  --db-path data/.qdrant \
+  --recreate
+```
+
+Nếu chạy CPU-only và muốn rebuild nhanh hơn, có thể giới hạn số token model đọc mỗi child chunk:
+
+```bash
+python qdrant_local_ingest.py \
+  --data-dir data \
+  --db-path data/.qdrant \
+  --recreate \
+  --max-seq-length 512
+```
+
+Mặc định script dùng model finetune tại:
+
+```text
+references/ai_vietnamese_embedding_v2_finetuned_final
+```
+
+Nếu thư mục model chưa được giải nén, script tự tìm và extract từ:
+
+```text
+references/ai_vietnamese_embedding_v2_finetuned_final (1).zip
+```
+
 Thư mục `data/.qdrant/` đã được đưa vào `.gitignore`.
+
+## Kiểm thử hybrid search Qdrant local
+
+```bash
+python qdrant_hybrid_search.py \
+  --db-path data/.qdrant \
+  --query "Doanh nghiệp cần làm gì khi xử lý dữ liệu cá nhân?" \
+  --limit 5 \
+  --include-parent
+```
+
+Luồng retrieval:
+
+1. Encode query bằng embedding finetune.
+2. Encode query thành BM25 sparse vector từ index lưu trong `data/.qdrant/legal_child_chunks.bm25.json`.
+3. Qdrant chạy song song dense search và BM25 sparse search trên child chunks.
+4. Qdrant hợp nhất kết quả bằng RRF.
+5. Script lấy `parent_id` từ child hits để trả về parent chunk đầy đủ ngữ cảnh Điều luật.
 
 ## Kiểm thử tìm kiếm Supabase
 
@@ -188,7 +243,8 @@ Các thành phần định hướng cho bản hoàn chỉnh:
 - Bộ dữ liệu văn bản pháp luật trong `data/`.
 - Logic chunking parent/child cho văn bản `.docx`.
 - Pipeline ingest Supabase.
-- Pipeline ingest Qdrant local.
+- Pipeline ingest Qdrant local với dense embedding + BM25 sparse vector.
+- Script kiểm thử hybrid search Qdrant local.
 - Script kiểm thử vector search trên Supabase.
 - Sơ đồ kiến trúc và luồng truy vấn.
 
@@ -198,7 +254,7 @@ Chưa có trong repo hiện tại:
 - UI/frontend cho người dùng cuối.
 - LangGraph agent runtime.
 - Neo4j knowledge graph ingestion/query script.
-- Hybrid search BM25 + vector trong code production.
+- API/backend chatbot hoàn chỉnh dùng hybrid search trong runtime production.
 
 ## Bảo mật
 

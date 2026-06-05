@@ -9,6 +9,7 @@ __pycache__/
 
 data/.qdrant/
 .qdrant/
+references/
 
 .pytest_cache/
 .mypy_cache/
