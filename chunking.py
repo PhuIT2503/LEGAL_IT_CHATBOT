@@ -295,9 +295,9 @@ class VBPLChunker:
 if __name__ == "__main__":
     # Ví dụ sử dụng
     chunker = VBPLChunker()
-    # Đường dẫn thư mục data/ nằm cạnh file chunking.py
+    # Đường dẫn thư mục data/keep nằm cạnh file chunking.py
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    data_directory = os.path.join(base_dir, "data")
+    data_directory = os.path.join(base_dir, "data", "keep")
     
     chunks = chunker.process_directory(data_directory)
     logger.info(f"Tổng số chunks (Lời dẫn Điều, Khoản, Điểm): {len(chunks)}")

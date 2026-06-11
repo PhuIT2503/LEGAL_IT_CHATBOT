@@ -46,7 +46,7 @@ def _make_record_ids_unique(records: List[Dict[str, Any]]) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest VBPL parent/child chunks into Supabase")
-    parser.add_argument("--data-dir", default="/Users/nguyengiahuy/data/data")
+    parser.add_argument("--data-dir", default="data/keep")
     parser.add_argument("--batch-size", type=int, default=200)
     parser.add_argument("--embed-batch-size", type=int, default=8)
     parser.add_argument("--max-seq-length", type=int, default=512)

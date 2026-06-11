@@ -51,7 +51,7 @@ def _ensure_child_collection(client: QdrantClient, name: str, size: int, recreat
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest VBPL parent/child chunks into local Qdrant")
-    parser.add_argument("--data-dir", default="data")
+    parser.add_argument("--data-dir", default="data/keep")
     parser.add_argument("--db-path", default="data/.qdrant")
     parser.add_argument("--child-collection", default="legal_child_chunks")
     parser.add_argument("--parent-collection", default="legal_parent_chunks")

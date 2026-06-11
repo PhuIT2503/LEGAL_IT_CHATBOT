@@ -47,13 +47,13 @@ Luồng RAG mục tiêu:
 ├── qdrant_hybrid_search.py     # Kiểm thử hybrid search Qdrant: dense + BM25
 ├── supabase_schema.sql         # Schema bảng Supabase + pgvector index
 ├── test_supabase_search.py     # Script kiểm thử truy xuất vector từ Supabase
-├── data/                       # Tập văn bản pháp luật và bộ QA
+├── data/                       # Tập văn bản pháp luật đã tách keep/remove và bộ QA
 └── docs/assets/                # Sơ đồ kiến trúc và luồng xử lý
 ```
 
 ## Dữ liệu
 
-Thư mục `data/` chứa các văn bản pháp luật dạng `.docx`, `.pdf` và bộ câu hỏi đánh giá `.jsonl`.
+Thư mục `data/keep/` chứa văn bản nên ingest vào corpus chính. Thư mục `data/remove/` giữ văn bản hết hiệu lực, bị thay thế, trùng lặp hoặc không chính thức để tra cứu lịch sử. Các bộ câu hỏi đánh giá `.jsonl` vẫn nằm trong `data/`.
 
 Lưu ý: chunker hiện chỉ xử lý file `.docx`. Các file `.pdf` đang được lưu như nguồn tài liệu gốc, chưa được parse trong pipeline hiện tại.
 
@@ -135,7 +135,7 @@ Chunker tạo hai cấp dữ liệu:
 ## Ingest vào Supabase
 
 ```bash
-python ingest_supabase.py --data-dir data --batch-size 200 --embed-batch-size 8
+python ingest_supabase.py --data-dir data/keep --batch-size 200 --embed-batch-size 8
 ```
 
 Các bảng được ghi:
@@ -146,7 +146,7 @@ Các bảng được ghi:
 ## Ingest vào Qdrant local
 
 ```bash
-python qdrant_local_ingest.py --data-dir data --db-path data/.qdrant
+python qdrant_local_ingest.py --data-dir data/keep --db-path data/.qdrant
 ```
 
 Script tạo hai collection:
@@ -160,7 +160,7 @@ Nếu cần rebuild sạch collection cũ:
 
 ```bash
 python qdrant_local_ingest.py \
-  --data-dir data \
+  --data-dir data/keep \
   --db-path data/.qdrant \
   --recreate
 ```
@@ -169,7 +169,7 @@ Nếu chạy CPU-only và muốn rebuild nhanh hơn, có thể giới hạn số
 
 ```bash
 python qdrant_local_ingest.py \
-  --data-dir data \
+  --data-dir data/keep \
   --db-path data/.qdrant \
   --recreate \
   --max-seq-length 512
