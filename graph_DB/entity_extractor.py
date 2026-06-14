@@ -371,6 +371,7 @@ class LegalEntityExtractor:
         max_new_tokens: int = 1536,
         max_retry: int = 3,
         verbose: bool = True,
+        use_2pass: bool = True,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -378,6 +379,194 @@ class LegalEntityExtractor:
         self.max_new_tokens = max_new_tokens
         self.max_retry = max_retry
         self.verbose = verbose
+        self.use_2pass = use_2pass  # True = 2-pass (entities rồi relations), False = single-pass
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # 2-PASS EXTRACTION INTERNALS
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _extract_entities(
+        self,
+        van_ban_name: str,
+        van_ban_id: str,
+        chunk_id: str,
+        content: str,
+    ) -> Optional[dict]:
+        """
+        Pass 1: Chỉ extract entities (compact format).
+        max_new_tokens=1024 — đủ cho bất kỳ Điều nào, không bị truncate.
+        """
+        from prompts import build_entities_only_prompt
+        import torch
+
+        messages = build_entities_only_prompt(
+            van_ban_name=van_ban_name,
+            van_ban_id=van_ban_id,
+            chunk_id=chunk_id,
+            content=content,
+        )
+
+        for attempt in range(self.max_retry):
+            try:
+                raw_output = run_inference(
+                    self.model, self.tokenizer, messages,
+                    temperature=self.temperature,
+                    max_new_tokens=1024,  # Đủ cho entities compact
+                )
+                result = extract_json_from_output(raw_output)
+                if result and isinstance(result, dict) and "entities" in result:
+                    # Đảm bảo van_ban_id được gắn vào entity Dieu
+                    for e in result["entities"]:
+                        if e.get("type") == "Dieu":
+                            e.setdefault("van_ban_id", van_ban_id)
+                        e.setdefault("source_chunk_id", chunk_id)
+                    logger.info(
+                        f"  [Pass1] {chunk_id}: "
+                        f"{len(result['entities'])} entities"
+                    )
+                    return result
+                logger.warning(f"  [Pass1] Invalid output (attempt {attempt+1}): {chunk_id}")
+            except RuntimeError as e:
+                if "out of memory" in str(e).lower():
+                    logger.error(f"  [Pass1] OOM (attempt {attempt+1}): {chunk_id}")
+                    gc.collect()
+                    torch.cuda.empty_cache()
+                    time.sleep(2)
+                else:
+                    logger.error(f"  [Pass1] RuntimeError (attempt {attempt+1}): {e}")
+            except Exception as e:
+                logger.error(f"  [Pass1] Error (attempt {attempt+1}): {e}")
+            if attempt < self.max_retry - 1:
+                gc.collect()
+                torch.cuda.empty_cache()
+                time.sleep(1)
+
+        logger.error(f"  [Pass1] All {self.max_retry} attempts failed: {chunk_id}")
+        return None
+
+    def _extract_relations(
+        self,
+        entity_ids: list[str],
+        content: str,
+        chunk_id: str,
+    ) -> Optional[dict]:
+        """
+        Pass 2: Chỉ extract relations dựa trên entity IDs từ Pass 1.
+        max_new_tokens=768 — output cực nhỏ (chỉ list tuples), không bao giờ truncate.
+        """
+        from prompts import build_relations_only_prompt
+        import torch
+
+        if not entity_ids:
+            return {"relations": []}
+
+        messages = build_relations_only_prompt(
+            entity_ids=entity_ids,
+            content=content,
+            chunk_id=chunk_id,
+        )
+
+        for attempt in range(self.max_retry):
+            try:
+                raw_output = run_inference(
+                    self.model, self.tokenizer, messages,
+                    temperature=self.temperature,
+                    max_new_tokens=768,  # Chỉ cần cho list relations
+                )
+                result = extract_json_from_output(raw_output)
+                if result and isinstance(result, dict):
+                    relations = result.get("relations", [])
+                    # Lọc bỏ relations có source/target không nằm trong entity_ids
+                    valid_ids = set(entity_ids)
+                    filtered = [
+                        r for r in relations
+                        if r.get("source_id") in valid_ids
+                        and r.get("target_id") in valid_ids
+                    ]
+                    if len(filtered) < len(relations):
+                        logger.warning(
+                            f"  [Pass2] Filtered {len(relations)-len(filtered)} "
+                            f"invalid relations (unknown IDs): {chunk_id}"
+                        )
+                    logger.info(
+                        f"  [Pass2] {chunk_id}: {len(filtered)} relations"
+                    )
+                    return {"relations": filtered}
+                logger.warning(f"  [Pass2] Invalid output (attempt {attempt+1}): {chunk_id}")
+            except RuntimeError as e:
+                if "out of memory" in str(e).lower():
+                    logger.error(f"  [Pass2] OOM (attempt {attempt+1}): {chunk_id}")
+                    gc.collect()
+                    torch.cuda.empty_cache()
+                    time.sleep(2)
+                else:
+                    logger.error(f"  [Pass2] RuntimeError (attempt {attempt+1}): {e}")
+            except Exception as e:
+                logger.error(f"  [Pass2] Error (attempt {attempt+1}): {e}")
+            if attempt < self.max_retry - 1:
+                gc.collect()
+                torch.cuda.empty_cache()
+                time.sleep(1)
+
+        logger.error(f"  [Pass2] All {self.max_retry} attempts failed: {chunk_id}")
+        return {"relations": []}  # Trả về rỗng thay vì None — không discard entities
+
+    def extract_from_chunk_2pass(
+        self,
+        van_ban_name: str,
+        van_ban_id: str,
+        chunk_id: str,
+        content: str,
+    ) -> Optional[dict]:
+        """
+        2-pass extraction:
+          Pass 1 → entities (compact, max_new_tokens=1024, không truncate)
+          Pass 2 → relations (tiny output, max_new_tokens=768, không truncate)
+          Merge  → {entities: [...], relations: [...]}
+
+        Đảm bảo LUÔN có đủ cả entities lẫn relations cho Critic Agent.
+        Nếu Pass 2 fail → vẫn giữ entities + relations=[] (log warning).
+        """
+        import torch
+
+        if self.verbose:
+            logger.info(f"[2-pass] {chunk_id}")
+
+        # Pass 1: entities
+        entities_result = self._extract_entities(
+            van_ban_name=van_ban_name,
+            van_ban_id=van_ban_id,
+            chunk_id=chunk_id,
+            content=content,
+        )
+        if not entities_result:
+            return None
+
+        entities = entities_result.get("entities", [])
+        entity_ids = [e["id"] for e in entities if "id" in e]
+
+        # Giải phóng VRAM giữa 2 pass
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        # Pass 2: relations
+        relations_result = self._extract_relations(
+            entity_ids=entity_ids,
+            content=content,
+            chunk_id=chunk_id,
+        )
+        relations = relations_result.get("relations", []) if relations_result else []
+
+        if not relations:
+            logger.warning(
+                f"  [2-pass] No relations for {chunk_id} — "
+                f"graph edges may be incomplete for Critic Agent."
+            )
+
+        return {
+            "entities": entities,
+            "relations": relations,
+        }
 
     def extract_from_chunk(
         self,
@@ -537,16 +726,31 @@ class LegalEntityExtractor:
                         results.append(json.load(f))
                     continue
 
-            result = self.extract_from_chunk(
-                van_ban_name=van_ban_name,
-                van_ban_id=van_ban_id,
-                chunk_id=chunk_id,
-                content=content,
-            )
+            # Chọn method: 2-pass (default) hoặc single-pass
+            if self.use_2pass:
+                result = self.extract_from_chunk_2pass(
+                    van_ban_name=van_ban_name,
+                    van_ban_id=van_ban_id,
+                    chunk_id=chunk_id,
+                    content=content,
+                )
+            else:
+                result = self.extract_from_chunk(
+                    van_ban_name=van_ban_name,
+                    van_ban_id=van_ban_id,
+                    chunk_id=chunk_id,
+                    content=content,
+                )
 
             if result:
                 result["chunk_id"] = chunk_id
                 result["van_ban_id"] = van_ban_id
+                n_e = len(result.get("entities", []))
+                n_r = len(result.get("relations", []))
+                logger.info(
+                    f"  ✓ {chunk_id[:50]:<50} "
+                    f"{n_e:>3} entities | {n_r:>3} relations"
+                )
                 results.append(result)
 
                 # Lưu JSON trung gian
@@ -555,11 +759,10 @@ class LegalEntityExtractor:
                     save_path = os.path.join(save_dir, f"{chunk_id}.json")
                     with open(save_path, "w", encoding="utf-8") as f:
                         json.dump(result, f, ensure_ascii=False, indent=2)
-                    logger.info(f"Saved: {save_path}")
             else:
-                logger.warning(f"Extraction failed for chunk: {chunk_id}")
+                logger.warning(f"  ✗ Extraction failed: {chunk_id}")
 
             if self.verbose:
-                logger.info(f"Progress: {i + 1}/{len(chunks)} chunks")
+                logger.info(f"  Progress: {i + 1}/{len(chunks)} chunks")
 
         return results

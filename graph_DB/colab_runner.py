@@ -89,6 +89,11 @@ TEST_FILE = "Luật An ninh mạng 2025.docx"
 # Tiếp tục từ chỗ dở nếu Colab bị ngắt
 RESUME = True
 
+# 2-pass extraction (để đảm bảo luôn có đủ entities + relations cho Critic Agent)
+# True  = Pass1 (entities, max 1024 tokens) rồi Pass2 (relations, max 768 tokens)
+# False = single-pass cũ (chỉ dùng nếu cần debug hoặc so sánh)
+USE_2PASS = True
+
 # ══════════════════════════════════════════════════════════════
 # SETUP PATHS
 # ══════════════════════════════════════════════════════════════
@@ -153,9 +158,10 @@ extractor = LegalEntityExtractor(
     model=model,
     tokenizer=tokenizer,
     temperature=0.0,
-    max_new_tokens=1536,   # Đủ để sinh JSON đầy đủ, không OOM trên T4
+    max_new_tokens=1536,   # Dùng cho single-pass fallback (không ảnh hưởng 2-pass)
     max_retry=3,
-    verbose=False,
+    verbose=True,
+    use_2pass=USE_2PASS,
 )
 
 all_results = []

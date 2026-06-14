@@ -652,6 +652,203 @@ Trả về một JSON object DUY NHẤT (không bọc trong code block, không g
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 2-PASS EXTRACTION — PASS 1: ENTITIES ONLY
+# ─────────────────────────────────────────────────────────────────────────────
+
+ENTITIES_ONLY_SYSTEM_PROMPT = """Bạn là chuyên gia trích xuất thực thể từ văn bản pháp luật Việt Nam.
+
+## Nhiệm vụ: Chỉ trích xuất THỰC THỂ (entities), KHÔNG cần quan hệ.
+
+## Loại thực thể cần trích xuất:
+- **Dieu**: Điều luật → id: "D<số>" (ví dụ: "D25", "D114")
+- **Khoan**: Khoản trong điều → id: "D<số>_K<số>" (ví dụ: "D25_K1")
+- **Diem**: Điểm trong khoản → id: "D<số>_K<số>_P<ký_hiệu>" (ví dụ: "D25_K1_Pa")
+- **HanhVi**: Hành vi vi phạm hoặc được pháp luật điều chỉnh
+- **CheTai**: Chế tài, hình phạt (bắt buộc có field `loai`: "chinh"|"bo_sung"|"hanh_chinh"|"hinh_su")
+- **ChuThe**: Chủ thể pháp lý (cá nhân, tổ chức, cơ quan)
+- **NghiaVu**: Nghĩa vụ pháp lý phải thực hiện
+- **QuyenHan**: Quyền hạn hoặc quyền được phép làm
+- **KhaiNiem**: Khái niệm/thuật ngữ được định nghĩa
+- **DieuKien**: Điều kiện áp dụng quy định
+
+## Quy tắc output COMPACT (quan trọng để tránh truncation):
+1. Mỗi entity CHỈ CẦN: `id`, `type`, và TỐI ĐA 2 field ngắn (ví dụ: `so`, `ten`, `loai`, `mo_ta` ngắn).
+2. KHÔNG sinh field `content`, `dinh_nghia`, `chu_thich` dài dòng.
+3. Trả về JSON: `{"entities": [...]}` — KHÔNG có `relations`.
+
+## Định dạng output BẮT BUỘC:
+<thinking>
+[suy nghĩ ngắn gọn về cấu trúc Điều/Khoản/Điểm và các thực thể]
+</thinking>
+{"entities": [...]}
+"""
+
+# Few-shot cho Pass 1: compact entities only
+ENTITIES_ONLY_FEW_SHOT = [
+    {
+        "role": "user",
+        "content": """Trích xuất THỰC THỂ từ đoạn văn bản sau (không cần quan hệ).
+
+Văn bản: Nghị định 100/2019/NĐ-CP | van_ban_id: nd_100_2019 | chunk: nd_100_2019_D5_PARENT
+
+Nội dung:
+Điều 5. Xử phạt người điều khiển xe ô tô và các loại xe tương tự xe ô tô vi phạm quy tắc giao thông đường bộ
+1. Phạt tiền từ 800.000 đồng đến 1.000.000 đồng đối với người điều khiển xe thực hiện một trong các hành vi sau đây:
+a) Vượt đèn tín hiệu giao thông;
+b) Không tuân thủ hiệu lệnh của người điều khiển giao thông.
+2. Phạt tiền từ 4.000.000 đồng đến 6.000.000 đồng đối với người điều khiển xe có một trong các hành vi sau:
+a) Điều khiển xe chạy quá tốc độ quy định từ 20 km/h đến dưới 35 km/h;
+3. Ngoài bị phạt tiền, người điều khiển xe còn bị áp dụng các hình thức xử phạt bổ sung: tước quyền sử dụng Giấy phép lái xe từ 01 đến 03 tháng đối với hành vi quy định tại khoản 2 điều này."""
+    },
+    {
+        "role": "assistant",
+        "content": """<thinking>
+Điều 5 có 3 khoản. Khoản 1,2 quy định phạt tiền cho các hành vi vi phạm. Khoản 3 là hình phạt bổ sung.
+Entities: D5, K1, K2, K3, điểm a/b của K1 và K2, các HanhVi, các CheTai, ChuThe.
+</thinking>
+{"entities":[{"id":"D5","type":"Dieu","so":"5","ten":"Xử phạt người điều khiển xe ô tô vi phạm quy tắc giao thông","van_ban_id":"nd_100_2019"},{"id":"D5_K1","type":"Khoan","so":"1","dieu_id":"D5"},{"id":"D5_K2","type":"Khoan","so":"2","dieu_id":"D5"},{"id":"D5_K3","type":"Khoan","so":"3","dieu_id":"D5"},{"id":"D5_K1_Pa","type":"Diem","ky_hieu":"a","khoan_id":"D5_K1"},{"id":"D5_K1_Pb","type":"Diem","ky_hieu":"b","khoan_id":"D5_K1"},{"id":"D5_K2_Pa","type":"Diem","ky_hieu":"a","khoan_id":"D5_K2"},{"id":"hv_vuot_den_do","type":"HanhVi","mo_ta":"Vượt đèn tín hiệu giao thông","bi_cam":true},{"id":"hv_khong_tuan_hieu_lenh","type":"HanhVi","mo_ta":"Không tuân thủ hiệu lệnh người điều khiển giao thông","bi_cam":true},{"id":"hv_qua_toc_do_20_35","type":"HanhVi","mo_ta":"Chạy quá tốc độ từ 20km/h đến dưới 35km/h","bi_cam":true},{"id":"ct_phat_tien_800k_1tr","type":"CheTai","loai":"hanh_chinh","mo_ta":"Phạt tiền 800.000đ–1.000.000đ"},{"id":"ct_phat_tien_4tr_6tr","type":"CheTai","loai":"hanh_chinh","mo_ta":"Phạt tiền 4.000.000đ–6.000.000đ"},{"id":"ct_tuoc_gplx_1_3_thang","type":"CheTai","loai":"bo_sung","mo_ta":"Tước GPLX từ 1 đến 3 tháng"},{"id":"chu_the_nguoi_dieu_khien_oto","type":"ChuThe","ten":"Người điều khiển xe ô tô","loai":"ca_nhan"}]}"""
+    }
+]
+
+
+def build_entities_only_prompt(
+    van_ban_name: str,
+    van_ban_id: str,
+    chunk_id: str,
+    content: str,
+) -> list[dict]:
+    """
+    Pass 1: Chỉ extract entities (compact format, không có relations).
+    Output nhỏ hơn ~60% so với single-pass → không bị truncate.
+
+    Args:
+        van_ban_name: Tên văn bản pháp luật
+        van_ban_id: ID văn bản (snake_case)
+        chunk_id: ID chunk
+        content: Nội dung chunk (Điều + Khoản/Điểm)
+
+    Returns:
+        List messages theo chat format của Qwen
+    """
+    messages = [
+        {"role": "system", "content": ENTITIES_ONLY_SYSTEM_PROMPT},
+        *ENTITIES_ONLY_FEW_SHOT,
+        {
+            "role": "user",
+            "content": f"""Trích xuất THỰC THỂ từ đoạn văn bản sau (không cần quan hệ).
+
+Văn bản: {van_ban_name} | van_ban_id: {van_ban_id} | chunk: {chunk_id}
+
+Nội dung:
+{content}"""
+        }
+    ]
+    return messages
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2-PASS EXTRACTION — PASS 2: RELATIONS ONLY
+# ─────────────────────────────────────────────────────────────────────────────
+
+RELATIONS_ONLY_SYSTEM_PROMPT = """Bạn là chuyên gia phân tích quan hệ pháp lý.
+
+## Nhiệm vụ: Chỉ xác định QUAN HỆ (relations) giữa các thực thể đã cho.
+
+## Loại quan hệ cần tìm:
+- CO_KHOAN: Dieu → Khoan
+- CO_DIEM: Khoan → Diem
+- QUY_DINH_HANH_VI: Dieu/Khoan/Diem → HanhVi
+- CHE_TAI_CHINH: HanhVi → CheTai (hình phạt chính)
+- CHE_TAI_BO_SUNG: HanhVi → CheTai (hình phạt bổ sung/tước quyền)
+- AP_DUNG_VOI: Dieu/Khoan → ChuThe
+- CO_NGHIA_VU: ChuThe → NghiaVu
+- CO_QUYEN: ChuThe → QuyenHan
+- DINH_NGHIA: Dieu/Khoan → KhaiNiem
+- THAM_CHIEU: Dieu/Khoan/Diem → Dieu/Khoan (tham chiếu chéo)
+- CO_DIEU_KIEN: CheTai/QuyenHan → DieuKien
+
+## Quy tắc:
+1. Chỉ tạo quan hệ giữa các entity IDs ĐÃ ĐƯỢC CUNG CẤP.
+2. Mỗi relation: {"source_id": "...", "relation_type": "...", "target_id": "..."}
+3. Trả về JSON: {"relations": [...]}
+
+## Định dạng output BẮT BUỘC:
+<thinking>
+[suy nghĩ ngắn về các quan hệ chính]
+</thinking>
+{"relations": [...]}
+"""
+
+# Few-shot cho Pass 2: relations only
+RELATIONS_ONLY_FEW_SHOT = [
+    {
+        "role": "user",
+        "content": """Xác định QUAN HỆ giữa các thực thể đã biết dựa trên nội dung.
+
+Entity IDs đã có:
+D5, D5_K1, D5_K2, D5_K3, D5_K1_Pa, D5_K1_Pb, D5_K2_Pa,
+hv_vuot_den_do, hv_khong_tuan_hieu_lenh, hv_qua_toc_do_20_35,
+ct_phat_tien_800k_1tr, ct_phat_tien_4tr_6tr, ct_tuoc_gplx_1_3_thang,
+chu_the_nguoi_dieu_khien_oto
+
+Nội dung:
+Điều 5. Xử phạt người điều khiển xe ô tô...
+1. Phạt tiền từ 800.000đ đến 1.000.000đ đối với:
+a) Vượt đèn tín hiệu giao thông;
+b) Không tuân thủ hiệu lệnh người điều khiển giao thông.
+2. Phạt tiền từ 4.000.000đ đến 6.000.000đ đối với:
+a) Chạy quá tốc độ từ 20km/h đến dưới 35km/h;
+3. Hình thức xử phạt bổ sung: tước GPLX 1–3 tháng đối với hành vi tại khoản 2."""
+    },
+    {
+        "role": "assistant",
+        "content": """<thinking>
+CO_KHOAN: D5→K1,K2,K3. CO_DIEM: K1→Pa,Pb; K2→Pa.
+K1 áp dụng với chu_the. K1_Pa→hv_vuot_den_do→ct_phat_tien_800k_1tr (CHE_TAI_CHINH).
+K2_Pa→hv_qua_toc_do→ct_phat_tien_4tr_6tr (CHE_TAI_CHINH). K3→hv_qua_toc_do→ct_tuoc_gplx (CHE_TAI_BO_SUNG).
+THAM_CHIEU: K3→K2.
+</thinking>
+{"relations":[{"source_id":"D5","relation_type":"CO_KHOAN","target_id":"D5_K1"},{"source_id":"D5","relation_type":"CO_KHOAN","target_id":"D5_K2"},{"source_id":"D5","relation_type":"CO_KHOAN","target_id":"D5_K3"},{"source_id":"D5_K1","relation_type":"CO_DIEM","target_id":"D5_K1_Pa"},{"source_id":"D5_K1","relation_type":"CO_DIEM","target_id":"D5_K1_Pb"},{"source_id":"D5_K2","relation_type":"CO_DIEM","target_id":"D5_K2_Pa"},{"source_id":"D5_K1","relation_type":"AP_DUNG_VOI","target_id":"chu_the_nguoi_dieu_khien_oto"},{"source_id":"D5_K1_Pa","relation_type":"QUY_DINH_HANH_VI","target_id":"hv_vuot_den_do"},{"source_id":"D5_K1_Pb","relation_type":"QUY_DINH_HANH_VI","target_id":"hv_khong_tuan_hieu_lenh"},{"source_id":"D5_K2_Pa","relation_type":"QUY_DINH_HANH_VI","target_id":"hv_qua_toc_do_20_35"},{"source_id":"hv_vuot_den_do","relation_type":"CHE_TAI_CHINH","target_id":"ct_phat_tien_800k_1tr"},{"source_id":"hv_khong_tuan_hieu_lenh","relation_type":"CHE_TAI_CHINH","target_id":"ct_phat_tien_800k_1tr"},{"source_id":"hv_qua_toc_do_20_35","relation_type":"CHE_TAI_CHINH","target_id":"ct_phat_tien_4tr_6tr"},{"source_id":"hv_qua_toc_do_20_35","relation_type":"CHE_TAI_BO_SUNG","target_id":"ct_tuoc_gplx_1_3_thang"},{"source_id":"D5_K3","relation_type":"THAM_CHIEU","target_id":"D5_K2"}]}"""
+    }
+]
+
+
+def build_relations_only_prompt(
+    entity_ids: list[str],
+    content: str,
+    chunk_id: str,
+) -> list[dict]:
+    """
+    Pass 2: Chỉ extract relations dựa trên entity IDs đã có từ Pass 1.
+    Output cực nhỏ (~400–800 tokens) — không bao giờ bị truncate.
+
+    Args:
+        entity_ids: Danh sách ID của các entities từ Pass 1
+        content: Nội dung chunk gốc (để model hiểu ngữ cảnh)
+        chunk_id: ID chunk (dùng để log)
+
+    Returns:
+        List messages theo chat format của Qwen
+    """
+    entity_ids_str = ", ".join(entity_ids)
+    messages = [
+        {"role": "system", "content": RELATIONS_ONLY_SYSTEM_PROMPT},
+        *RELATIONS_ONLY_FEW_SHOT,
+        {
+            "role": "user",
+            "content": f"""Xác định QUAN HỆ giữa các thực thể đã biết dựa trên nội dung.
+
+Entity IDs đã có:
+{entity_ids_str}
+
+Nội dung (chunk: {chunk_id}):
+{content}"""
+        }
+    ]
+    return messages
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # CROSS-REFERENCE DETECTION PROMPT
 # ─────────────────────────────────────────────────────────────────────────────
 
