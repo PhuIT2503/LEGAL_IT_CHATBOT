@@ -44,13 +44,22 @@ một đối tượng JSON hợp lệ chứa danh sách thực thể (entities) 
 - **CO_DIEU_KIEN**: CheTai/QuyenHan → DieuKien (có điều kiện áp dụng)
 
 ## Quy tắc bắt buộc:
-1. Chỉ trả về JSON, không giải thích thêm.
-2. Mỗi entity phải có trường `id` (duy nhất, snake_case) và `type`.
-3. Mỗi relation phải có `source_id`, `target_id`, `relation_type`.
-4. Nếu không tìm thấy thực thể nào, trả về `{"entities": [], "relations": []}`.
-5. `id` của Điều/Khoản/Điểm phải dùng chuẩn: `D<số>`, `D<số>_K<số>`, `D<số>_K<số>_P<ký_hiệu>`.
-6. Đối với CheTai, bắt buộc điền `loai`: "chinh" | "bo_sung" | "hanh_chinh" | "hinh_su".
-7. **QUAN TRỌNG**: Sau khi phân tích, trả về đúng 1 JSON object duy nhất bắt đầu bằng `{` và kết thúc bằng `}`. Không bọc trong markdown code block.
+1. Mỗi entity phải có trường `id` (duy nhất, snake_case) và `type`.
+2. Mỗi relation phải có `source_id`, `target_id`, `relation_type`.
+3. Nếu không tìm thấy thực thể nào, trả về `{"entities": [], "relations": []}`.
+4. `id` của Điều/Khoản/Điểm phải dùng chuẩn: `D<số>`, `D<số>_K<số>`, `D<số>_K<số>_P<ký_hiệu>`.
+5. Đối với CheTai, bắt buộc điền `loai`: "chinh" | "bo_sung" | "hanh_chinh" | "hinh_su".
+
+## Định dạng output BẮT BUỘC:
+Bước 1 — Suy nghĩ bên trong thẻ `<thinking>` (phân tích cấu trúc, xác định entity/relation).
+Bước 2 — Sau thẻ `</thinking>`, trả về ĐÚNG 1 JSON object thô, bắt đầu bằng `{`, kết thúc bằng `}`.
+TUYỆT ĐỐI KHÔNG bọc JSON trong markdown code block.
+
+Ví dụ cấu trúc output:
+<thinking>
+[phân tích ở đây]
+</thinking>
+{"entities": [...], "relations": [...]}
 """
 
 
@@ -83,122 +92,11 @@ Trong Luật này, các từ ngữ dưới đây được hiểu như sau:
     },
     {
         "role": "assistant",
-        "content": """**Bước 1 - Xác định văn bản và Điều:**
-- Văn bản: "Luật An ninh mạng 2025" → entity VanBan
-- Điều 2 có chức năng "Giải thích từ ngữ" → entity Dieu, quan hệ DINH_NGHIA
-
-**Bước 2 - Xác định các Khoản:**
-- Khoản 1: định nghĩa "An ninh mạng"
-- Khoản 2: định nghĩa "An ninh thông tin mạng"
-- Khoản 5: định nghĩa "Không gian mạng"
-- Khoản 12: định nghĩa "Tội phạm mạng" → có entity ChuThe (cá nhân, tổ chức)
-
-**Bước 3 - Xác định KhaiNiem được định nghĩa:**
-- "An ninh mạng", "An ninh thông tin mạng", "Không gian mạng", "Tội phạm mạng"
-
-**Bước 4 - Xác định quan hệ:**
-- Điều 2 → CO_KHOAN → Khoản 1, 2, 5, 12
-- Khoản 1, 2, 5, 12 → DINH_NGHIA → các KhaiNiem tương ứng
-- Khoản 12: tội phạm mạng do ChuThe (cá nhân/tổ chức) thực hiện → AP_DUNG_VOI
-
-```json
-{
-  "entities": [
-    {
-      "id": "van_ban_luat_an_ninh_mang_2025",
-      "type": "VanBan",
-      "ten": "Luật An ninh mạng 2025",
-      "loai": "Luat",
-      "so_hieu": "Luật An ninh mạng",
-      "nam": 2025
-    },
-    {
-      "id": "D2",
-      "type": "Dieu",
-      "so": "2",
-      "ten": "Giải thích từ ngữ",
-      "van_ban_id": "van_ban_luat_an_ninh_mang_2025",
-      "chunk_id": "Luat_An_ninh_mang_2025_D2_preamble"
-    },
-    {
-      "id": "D2_K1",
-      "type": "Khoan",
-      "so": "1",
-      "dieu_id": "D2",
-      "content": "An ninh mạng là sự ổn định, an ninh, an toàn của không gian mạng..."
-    },
-    {
-      "id": "D2_K2",
-      "type": "Khoan",
-      "so": "2",
-      "dieu_id": "D2",
-      "content": "An ninh thông tin mạng là sự bảo đảm tính nguyên vẹn, tính bảo mật..."
-    },
-    {
-      "id": "D2_K5",
-      "type": "Khoan",
-      "so": "5",
-      "dieu_id": "D2",
-      "content": "Không gian mạng là môi trường được hình thành bởi hệ thống mạng lưới kết nối..."
-    },
-    {
-      "id": "D2_K12",
-      "type": "Khoan",
-      "so": "12",
-      "dieu_id": "D2",
-      "content": "Tội phạm mạng là hành vi nguy hiểm cho xã hội..."
-    },
-    {
-      "id": "kn_an_ninh_mang",
-      "type": "KhaiNiem",
-      "ten": "An ninh mạng",
-      "dinh_nghia": "Sự ổn định, an ninh, an toàn của không gian mạng; bảo vệ hệ thống thông tin và bảo đảm thông tin, dữ liệu không gây phương hại đến an ninh quốc gia."
-    },
-    {
-      "id": "kn_an_ninh_thong_tin_mang",
-      "type": "KhaiNiem",
-      "ten": "An ninh thông tin mạng",
-      "dinh_nghia": "Sự bảo đảm tính nguyên vẹn, tính bảo mật, tính khả dụng của thông tin trên không gian mạng."
-    },
-    {
-      "id": "kn_khong_gian_mang",
-      "type": "KhaiNiem",
-      "ten": "Không gian mạng",
-      "dinh_nghia": "Môi trường được hình thành bởi hệ thống mạng lưới kết nối của cơ sở hạ tầng công nghệ thông tin."
-    },
-    {
-      "id": "kn_toi_pham_mang",
-      "type": "KhaiNiem",
-      "ten": "Tội phạm mạng",
-      "dinh_nghia": "Hành vi nguy hiểm cho xã hội được quy định trong Bộ luật Hình sự, do cá nhân hoặc tổ chức thực hiện trên không gian mạng."
-    },
-    {
-      "id": "chu_the_ca_nhan",
-      "type": "ChuThe",
-      "ten": "Cá nhân",
-      "loai": "ca_nhan"
-    },
-    {
-      "id": "chu_the_to_chuc",
-      "type": "ChuThe",
-      "ten": "Tổ chức",
-      "loai": "to_chuc"
-    }
-  ],
-  "relations": [
-    {"source_id": "D2", "relation_type": "CO_KHOAN", "target_id": "D2_K1"},
-    {"source_id": "D2", "relation_type": "CO_KHOAN", "target_id": "D2_K2"},
-    {"source_id": "D2", "relation_type": "CO_KHOAN", "target_id": "D2_K5"},
-    {"source_id": "D2", "relation_type": "CO_KHOAN", "target_id": "D2_K12"},
-    {"source_id": "D2_K1", "relation_type": "DINH_NGHIA", "target_id": "kn_an_ninh_mang"},
-    {"source_id": "D2_K2", "relation_type": "DINH_NGHIA", "target_id": "kn_an_ninh_thong_tin_mang"},
-    {"source_id": "D2_K5", "relation_type": "DINH_NGHIA", "target_id": "kn_khong_gian_mang"},
-    {"source_id": "D2_K12", "relation_type": "DINH_NGHIA", "target_id": "kn_toi_pham_mang"},
-    {"source_id": "D2_K12", "relation_type": "AP_DUNG_VOI", "target_id": "chu_the_ca_nhan"},
-    {"source_id": "D2_K12", "relation_type": "AP_DUNG_VOI", "target_id": "chu_the_to_chuc"}
-  ]
-}
-```"""
+        "content": """<thinking>
+Điều 2 là điều giải thích từ ngữ, gồm Khoản 1, 2, 5, 12. Mỗi khoản định nghĩa 1 KhaiNiem.
+Khoản 12 có ChuThe là cá nhân và tổ chức thực hiện tội phạm mạng → AP_DUNG_VOI.
+</thinking>
+{"entities":[{"id":"van_ban_luat_an_ninh_mang_2025","type":"VanBan","ten":"Luật An ninh mạng 2025","loai":"Luat","so_hieu":"Luật An ninh mạng","nam":2025},{"id":"D2","type":"Dieu","so":"2","ten":"Giải thích từ ngữ","van_ban_id":"van_ban_luat_an_ninh_mang_2025","chunk_id":"Luat_An_ninh_mang_2025_D2_preamble"},{"id":"D2_K1","type":"Khoan","so":"1","dieu_id":"D2","content":"An ninh mạng là sự ổn định, an ninh, an toàn của không gian mạng..."},{"id":"D2_K2","type":"Khoan","so":"2","dieu_id":"D2","content":"An ninh thông tin mạng là sự bảo đảm tính nguyên vẹn, tính bảo mật..."},{"id":"D2_K5","type":"Khoan","so":"5","dieu_id":"D2","content":"Không gian mạng là môi trường được hình thành bởi hệ thống mạng lưới kết nối..."},{"id":"D2_K12","type":"Khoan","so":"12","dieu_id":"D2","content":"Tội phạm mạng là hành vi nguy hiểm cho xã hội..."},{"id":"kn_an_ninh_mang","type":"KhaiNiem","ten":"An ninh mạng","dinh_nghia":"Sự ổn định, an ninh, an toàn của không gian mạng."},{"id":"kn_an_ninh_thong_tin_mang","type":"KhaiNiem","ten":"An ninh thông tin mạng","dinh_nghia":"Sự bảo đảm tính nguyên vẹn, tính bảo mật, tính khả dụng của thông tin."},{"id":"kn_khong_gian_mang","type":"KhaiNiem","ten":"Không gian mạng","dinh_nghia":"Môi trường được hình thành bởi hệ thống mạng lưới kết nối của cơ sở hạ tầng công nghệ thông tin."},{"id":"kn_toi_pham_mang","type":"KhaiNiem","ten":"Tội phạm mạng","dinh_nghia":"Hành vi nguy hiểm cho xã hội được quy định trong Bộ luật Hình sự, do cá nhân hoặc tổ chức thực hiện."},{"id":"chu_the_ca_nhan","type":"ChuThe","ten":"Cá nhân","loai":"ca_nhan"},{"id":"chu_the_to_chuc","type":"ChuThe","ten":"Tổ chức","loai":"to_chuc"}],"relations":[{"source_id":"D2","relation_type":"CO_KHOAN","target_id":"D2_K1"},{"source_id":"D2","relation_type":"CO_KHOAN","target_id":"D2_K2"},{"source_id":"D2","relation_type":"CO_KHOAN","target_id":"D2_K5"},{"source_id":"D2","relation_type":"CO_KHOAN","target_id":"D2_K12"},{"source_id":"D2_K1","relation_type":"DINH_NGHIA","target_id":"kn_an_ninh_mang"},{"source_id":"D2_K2","relation_type":"DINH_NGHIA","target_id":"kn_an_ninh_thong_tin_mang"},{"source_id":"D2_K5","relation_type":"DINH_NGHIA","target_id":"kn_khong_gian_mang"},{"source_id":"D2_K12","relation_type":"DINH_NGHIA","target_id":"kn_toi_pham_mang"},{"source_id":"D2_K12","relation_type":"AP_DUNG_VOI","target_id":"chu_the_ca_nhan"},{"source_id":"D2_K12","relation_type":"AP_DUNG_VOI","target_id":"chu_the_to_chuc"}]}"""
     },
 
     # ════════════════════════════════════════════════════════════════════════

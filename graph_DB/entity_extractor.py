@@ -171,9 +171,13 @@ def _repair_truncated_json(text: str) -> Optional[dict]:
                 last_safe_pos = i + 1
 
     # Nếu JSON hoàn chỉnh (depth=0), thử parse trực tiếp
-    if depth == 0 and last_safe_pos != -1:
+    if depth == 0:
         try:
-            return json.loads(text)
+            result = json.loads(text)
+            if isinstance(result, dict):
+                result.setdefault('entities', [])
+                result.setdefault('relations', [])
+                return result
         except json.JSONDecodeError:
             pass  # Có lỗi syntax khác, tiếp tục với repair
 
@@ -217,71 +221,132 @@ def _repair_truncated_json(text: str) -> Optional[dict]:
 
     try:
         result = json.loads(repaired)
-        if isinstance(result, dict) and ('entities' in result or 'relations' in result):
-            result.setdefault('entities', [])
-            result.setdefault('relations', [])
-            n_e = len(result['entities'])
-            n_r = len(result['relations'])
-            logger.info(
-                f"Repaired truncated JSON → {n_e} entities, "
-                f"{n_r} relations (partial, cut at safe boundary)"
-            )
-            return result
+        if isinstance(result, dict):
+            # Chấp nhận nếu có ít nhất 1 trong 2 key (partial JSON do bị truncate)
+            if 'entities' in result or 'relations' in result:
+                result.setdefault('entities', [])
+                result.setdefault('relations', [])
+                n_e = len(result['entities'])
+                n_r = len(result['relations'])
+                logger.info(
+                    f"Repaired truncated JSON → {n_e} entities, "
+                    f"{n_r} relations (partial, cut at safe boundary)"
+                )
+                return result
     except json.JSONDecodeError:
         pass
 
     return None
 
 
+def _find_json_candidates(text: str) -> list[str]:
+    """
+    Tìm TẤT CẢ các vị trí '{' trong text và trả về danh sách substring
+    từ mỗi '{' đó, ưu tiên từ cuối lên (để bỏ qua { trong CoT text).
+    """
+    candidates = []
+    positions = [i for i, ch in enumerate(text) if ch == '{']
+    # Ưu tiên tìm từ cuối lên (JSON thường nằm sau phần CoT)
+    for pos in reversed(positions):
+        candidate = text[pos:]
+        if len(candidate) > 20:  # Bỏ qua quá ngắn
+            candidates.append(candidate)
+    return candidates
+
+
+
+def _strip_thinking(text: str) -> str:
+    """
+    Strip thẻ <thinking>...</thinking> ra khỏi output.
+    Trả về phần text còn lại (thường là JSON thô).
+    Hỗ trợ cả trường hợp </thinking> bị truncate (không tìm thấy thẻ đóng).
+    """
+    import re
+    # Xóa toàn bộ khối <thinking>...</thinking> (kể cả multiline)
+    stripped = re.sub(r'<thinking>.*?</thinking>', '', text, flags=re.DOTALL)
+    # Nếu vẫn còn thẻ <thinking> mở mà không có đóng → xóa từ <thinking> đến hết
+    stripped = re.sub(r'<thinking>.*', '', stripped, flags=re.DOTALL)
+    return stripped.strip()
+
 
 def extract_json_from_output(raw_output: str) -> Optional[dict]:
     """
     Trích xuất JSON từ output LLM.
-    Hỗ trợ: json trong code block, raw JSON, và JSON bị truncate.
+    Ưu tiên strip thẻ <thinking>...</thinking> trước, rồi parse phần còn lại.
+    Fallback: tìm JSON trong code block, hoặc tìm { từ cuối output lên.
 
     Returns:
         dict hoặc None nếu parse thất bại
     """
-    # Thử 1: tìm ```json ... ``` block (kể cả bị cắt → không dùng regex greedy)
+    def _try_parse_and_repair(candidate: str) -> Optional[dict]:
+        """Thử parse trực tiếp, nếu fail thì repair."""
+        candidate = candidate.strip()
+        if not candidate:
+            return None
+        try:
+            result = json.loads(candidate)
+            if isinstance(result, dict):
+                result.setdefault('entities', [])
+                result.setdefault('relations', [])
+                return result
+        except json.JSONDecodeError:
+            pass
+        return _repair_truncated_json(candidate)
+
+    # ── Bước 0 (ƯU TIÊN CAO NHẤT): Strip <thinking> rồi parse JSON thô ──
+    # Model được dạy: <thinking>CoT</thinking>{...json...}
+    if '<thinking>' in raw_output:
+        after_thinking = _strip_thinking(raw_output)
+        if after_thinking:
+            result = _try_parse_and_repair(after_thinking)
+            if result is not None:
+                logger.debug("Parsed JSON after stripping <thinking> block.")
+                return result
+            # Nếu after_thinking không phải JSON thuần → fallthrough sang các bước dưới
+            # nhưng dùng after_thinking thay vì raw_output để loại bỏ CoT
+            raw_output = after_thinking
+
+    # ── Bước 1: tìm ```json ... ``` block (Model bọc trong code block) ──
     code_start = raw_output.find('```json')
     if code_start != -1:
         inner = raw_output[code_start + 7:]
         code_end = inner.find('```')
         candidate = inner[:code_end].strip() if code_end != -1 else inner.strip()
-        try:
-            return json.loads(candidate)
-        except json.JSONDecodeError:
-            repaired = _repair_truncated_json(candidate)
-            if repaired:
-                return repaired
+        result = _try_parse_and_repair(candidate)
+        if result is not None:
+            return result
 
-    # Thử 2: tìm ``` ... ``` block thông thường
+    # ── Bước 2: tìm ``` ... ``` block thông thường ──
     if '```' in raw_output:
         parts = raw_output.split('```')
         for part in parts:
             part = part.strip()
             if part.startswith('{'):
-                try:
-                    return json.loads(part)
-                except json.JSONDecodeError:
-                    repaired = _repair_truncated_json(part)
-                    if repaired:
-                        return repaired
+                result = _try_parse_and_repair(part)
+                if result is not None:
+                    return result
 
-    # Thử 3: tìm JSON object từ { đầu tiên
-    start = raw_output.find('{')
-    if start != -1:
+    # Thử 3: Tìm tất cả vị trí '{' và thử từng vị trí (ưu tiên từ CUỐI output lên)
+    # Mục đích: bỏ qua '{' trong phần CoT text, JSON thường nằm ở cuối
+    all_starts = [i for i, ch in enumerate(raw_output) if ch == '{']
+    for start in reversed(all_starts):
         candidate = raw_output[start:]
-        # Thử parse với } cuối cùng
+        if len(candidate) < 20:
+            continue
+        # Thử parse với } cuối cùng trước
         end = candidate.rfind('}')
         if end != -1:
             try:
-                return json.loads(candidate[:end + 1])
+                result = json.loads(candidate[:end + 1])
+                if isinstance(result, dict) and ('entities' in result or 'relations' in result):
+                    result.setdefault('entities', [])
+                    result.setdefault('relations', [])
+                    return result
             except json.JSONDecodeError:
                 pass
         # JSON bị truncate → thử repair
         repaired = _repair_truncated_json(candidate)
-        if repaired:
+        if repaired is not None:
             return repaired
 
     logger.warning(f"Failed to parse JSON from output: {raw_output[:200]}...")
@@ -365,14 +430,24 @@ class LegalEntityExtractor:
 
                 result = extract_json_from_output(raw_output)
 
-                if result and "entities" in result and "relations" in result:
+                # Chấp nhận kết quả nếu có 'entities' (relations có thể rỗng do truncate)
+                if result and isinstance(result, dict) and "entities" in result:
+                    result.setdefault('relations', [])
                     # Thêm metadata vào các entity
                     for entity in result["entities"]:
                         entity.setdefault("van_ban_id", van_ban_id)
                         entity.setdefault("source_chunk_id", chunk_id)
+                    if not result["relations"]:
+                        logger.warning(
+                            f"No relations extracted (truncated?) for {chunk_id}, "
+                            f"keeping {len(result['entities'])} entities."
+                        )
                     return result
                 else:
                     logger.warning(f"Invalid JSON structure (attempt {attempt + 1}): {chunk_id}")
+                    if self.verbose:
+                        # Log 300 chars để debug
+                        logger.warning(f"  Raw output preview: {raw_output[:300]}")
                     if attempt < self.max_retry - 1:
                         gc.collect()
                         torch.cuda.empty_cache()
