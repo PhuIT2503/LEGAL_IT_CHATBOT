@@ -166,8 +166,8 @@ def _repair_truncated_json(text: str) -> Optional[dict]:
             depth += 1
         elif ch in ('}', ']'):
             depth -= 1
-            # depth=1 nghĩa là vừa đóng xong 1 element trong array/object con
-            if depth == 1:
+            # depth >= 1 nghĩa là vừa đóng xong 1 element (object/array) bên trong JSON tổng
+            if depth >= 1:
                 last_safe_pos = i + 1
 
     # Nếu JSON hoàn chỉnh (depth=0), thử parse trực tiếp
@@ -411,7 +411,7 @@ class LegalEntityExtractor:
                 raw_output = run_inference(
                     self.model, self.tokenizer, messages,
                     temperature=self.temperature,
-                    max_new_tokens=1024,  # Đủ cho entities compact
+                    max_new_tokens=2048,  # Tăng lên 2048 cho các Điều lớn (như Điều 3)
                 )
                 result = extract_json_from_output(raw_output)
                 if result and isinstance(result, dict) and "entities" in result:
@@ -471,7 +471,7 @@ class LegalEntityExtractor:
                 raw_output = run_inference(
                     self.model, self.tokenizer, messages,
                     temperature=self.temperature,
-                    max_new_tokens=768,  # Chỉ cần cho list relations
+                    max_new_tokens=1024,  # Tăng lên 1024 cho chắc
                 )
                 result = extract_json_from_output(raw_output)
                 if result and isinstance(result, dict):
