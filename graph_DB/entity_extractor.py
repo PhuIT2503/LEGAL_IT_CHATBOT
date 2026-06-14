@@ -78,7 +78,7 @@ def run_inference(
     tokenizer,
     messages: list[dict],
     temperature: float = 0.0,
-    max_new_tokens: int = 1024,
+    max_new_tokens: int = 1536,
 ) -> str:
     """
     Chạy inference với Qwen2.5-7B-Instruct.
@@ -126,46 +126,118 @@ def run_inference(
 # JSON PARSER
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _repair_truncated_json(text: str) -> Optional[dict]:
+    """
+    Sửa JSON bị cắt giữa chừng do max_new_tokens hết.
+    Chiến lược: xóa entry dở dang cuối, đóng các bracket còn mở.
+    """
+    if not text or not text.strip().startswith('{'):
+        return None
+
+    text = text.rstrip().rstrip(',').rstrip()
+
+    # Đếm bracket còn mở (tính đúng kể cả trong string)
+    open_braces = 0
+    open_brackets = 0
+    in_string = False
+    escape_next = False
+
+    for ch in text:
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == '\\' and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == '{':
+            open_braces += 1
+        elif ch == '}':
+            open_braces -= 1
+        elif ch == '[':
+            open_brackets += 1
+        elif ch == ']':
+            open_brackets -= 1
+
+    # Nếu đã cân bằng → parse trực tiếp
+    if open_braces == 0 and open_brackets == 0:
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return None
+
+    # Đóng các bracket còn mở theo đúng thứ tự
+    closing = ']' * max(0, open_brackets) + '}' * max(0, open_braces)
+    repaired = text + closing
+
+    try:
+        result = json.loads(repaired)
+        if isinstance(result, dict) and ('entities' in result or 'relations' in result):
+            result.setdefault('entities', [])
+            result.setdefault('relations', [])
+            n_e = len(result['entities'])
+            n_r = len(result['relations'])
+            logger.info(f"Repaired truncated JSON → {n_e} entities, {n_r} relations (may be partial)")
+            return result
+    except json.JSONDecodeError:
+        pass
+
+    return None
+
+
 def extract_json_from_output(raw_output: str) -> Optional[dict]:
     """
     Trích xuất JSON từ output LLM.
-    LLM có thể thêm text giải thích trước/sau JSON block.
-    
-    Thứ tự ưu tiên:
-    1. Tìm ```json ... ``` block
-    2. Tìm { ... } block lớn nhất
-    3. Parse trực tiếp
-    
+    Hỗ trợ: json trong code block, raw JSON, và JSON bị truncate.
+
     Returns:
         dict hoặc None nếu parse thất bại
     """
-    # Thử 1: tìm ```json ... ```
-    json_block_pattern = re.compile(r'```json\s*(.*?)\s*```', re.DOTALL)
-    match = json_block_pattern.search(raw_output)
-    if match:
+    # Thử 1: tìm ```json ... ``` block (kể cả bị cắt → không dùng regex greedy)
+    code_start = raw_output.find('```json')
+    if code_start != -1:
+        inner = raw_output[code_start + 7:]
+        code_end = inner.find('```')
+        candidate = inner[:code_end].strip() if code_end != -1 else inner.strip()
         try:
-            return json.loads(match.group(1))
+            return json.loads(candidate)
         except json.JSONDecodeError:
-            pass
+            repaired = _repair_truncated_json(candidate)
+            if repaired:
+                return repaired
 
-    # Thử 2: tìm ``` ... ``` (không có json label)
-    code_block_pattern = re.compile(r'```\s*(.*?)\s*```', re.DOTALL)
-    match = code_block_pattern.search(raw_output)
-    if match:
-        try:
-            return json.loads(match.group(1))
-        except json.JSONDecodeError:
-            pass
+    # Thử 2: tìm ``` ... ``` block thông thường
+    if '```' in raw_output:
+        parts = raw_output.split('```')
+        for part in parts:
+            part = part.strip()
+            if part.startswith('{'):
+                try:
+                    return json.loads(part)
+                except json.JSONDecodeError:
+                    repaired = _repair_truncated_json(part)
+                    if repaired:
+                        return repaired
 
-    # Thử 3: tìm JSON object { ... } lớn nhất
-    # Tìm từ dấu { đầu tiên đến } cuối cùng
+    # Thử 3: tìm JSON object từ { đầu tiên
     start = raw_output.find('{')
-    end = raw_output.rfind('}')
-    if start != -1 and end != -1 and end > start:
-        try:
-            return json.loads(raw_output[start:end + 1])
-        except json.JSONDecodeError:
-            pass
+    if start != -1:
+        candidate = raw_output[start:]
+        # Thử parse với } cuối cùng
+        end = candidate.rfind('}')
+        if end != -1:
+            try:
+                return json.loads(candidate[:end + 1])
+            except json.JSONDecodeError:
+                pass
+        # JSON bị truncate → thử repair
+        repaired = _repair_truncated_json(candidate)
+        if repaired:
+            return repaired
 
     logger.warning(f"Failed to parse JSON from output: {raw_output[:200]}...")
     return None
@@ -186,7 +258,7 @@ class LegalEntityExtractor:
         model,
         tokenizer,
         temperature: float = 0.0,
-        max_new_tokens: int = 1024,
+        max_new_tokens: int = 1536,
         max_retry: int = 3,
         verbose: bool = True,
     ):

@@ -153,7 +153,7 @@ extractor = LegalEntityExtractor(
     model=model,
     tokenizer=tokenizer,
     temperature=0.0,
-    max_new_tokens=1024,   # Giảm xuống 1024 để tránh OOM trên T4
+    max_new_tokens=1536,   # Đủ để sinh JSON đầy đủ, không OOM trên T4
     max_retry=3,
     verbose=False,
 )
