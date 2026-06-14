@@ -697,19 +697,39 @@ class LegalEntityExtractor:
     ) -> list[dict]:
         """
         Trích xuất từ danh sách chunks của một văn bản.
-        
-        Args:
-            chunks: Danh sách chunks từ VBPLChunker (parent chunks)
-            van_ban_name: Tên văn bản
-            van_ban_id: ID văn bản
-            save_dir: Thư mục lưu JSON trung gian (để debug / resume)
-            
-        Returns:
-            Danh sách kết quả extraction
+        Lưu kết quả tuần tự vào 1 file `extracted_results.jsonl` duy nhất để dễ quản lý.
         """
         import os
 
         results = []
+        processed_chunks = {}
+        jsonl_path = None
+
+        if save_dir:
+            os.makedirs(save_dir, exist_ok=True)
+            jsonl_path = os.path.join(save_dir, "extracted_results.jsonl")
+            
+            # Đọc file jsonl cũ để resume
+            if os.path.exists(jsonl_path):
+                with open(jsonl_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if line.strip():
+                            try:
+                                obj = json.loads(line)
+                                processed_chunks[obj.get("chunk_id")] = obj
+                            except json.JSONDecodeError:
+                                pass
+            
+            # (Backward compatibility) Đọc các file .json lẻ cũ nếu có
+            for fname in os.listdir(save_dir):
+                if fname.endswith(".json") and fname != "legal_knowledge_graph.json":
+                    chunk_id = fname[:-5]
+                    if chunk_id not in processed_chunks:
+                        try:
+                            with open(os.path.join(save_dir, fname), "r", encoding="utf-8") as f:
+                                processed_chunks[chunk_id] = json.load(f)
+                        except Exception:
+                            pass
 
         for i, chunk in enumerate(chunks):
             chunk_id = chunk.get("id", f"chunk_{i}")
@@ -718,14 +738,11 @@ class LegalEntityExtractor:
             if not content.strip():
                 continue
 
-            # Kiểm tra file đã extract chưa (để resume)
-            if save_dir:
-                save_path = os.path.join(save_dir, f"{chunk_id}.json")
-                if os.path.exists(save_path):
-                    logger.info(f"[SKIP] Already extracted: {chunk_id}")
-                    with open(save_path, "r", encoding="utf-8") as f:
-                        results.append(json.load(f))
-                    continue
+            # Kiểm tra xem đã extract chưa (resume)
+            if chunk_id in processed_chunks:
+                logger.info(f"[SKIP] Already extracted: {chunk_id}")
+                results.append(processed_chunks[chunk_id])
+                continue
 
             # Chọn method: 2-pass (default) hoặc single-pass
             if self.use_2pass:
@@ -754,12 +771,10 @@ class LegalEntityExtractor:
                 )
                 results.append(result)
 
-                # Lưu JSON trung gian
-                if save_dir:
-                    os.makedirs(save_dir, exist_ok=True)
-                    save_path = os.path.join(save_dir, f"{chunk_id}.json")
-                    with open(save_path, "w", encoding="utf-8") as f:
-                        json.dump(result, f, ensure_ascii=False, indent=2)
+                # Lưu nối vào file jsonl duy nhất
+                if jsonl_path:
+                    with open(jsonl_path, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(result, ensure_ascii=False) + "\n")
             else:
                 logger.warning(f"  ✗ Extraction failed: {chunk_id}")
 
