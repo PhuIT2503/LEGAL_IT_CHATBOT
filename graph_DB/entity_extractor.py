@@ -129,20 +129,68 @@ def run_inference(
 def _repair_truncated_json(text: str) -> Optional[dict]:
     """
     Sửa JSON bị cắt giữa chừng do max_new_tokens hết.
-    Chiến lược: xóa entry dở dang cuối, đóng các bracket còn mở.
+
+    Vấn đề: text có thể bị cắt ngay GIỮA một string (ví dụ: `{"id": "D4_K...`)
+    khiến việc đếm bracket trực tiếp từ đầu đến cuối bị sai (vì in_string=True).
+
+    Chiến lược đúng:
+    1. Scan từng ký tự, track depth và in_string state
+    2. Ghi lại "last_safe_pos" = vị trí SAU KHI đóng một object ở depth=1
+       (tức là vừa hoàn thành 1 entry trong array)
+    3. Cắt tại last_safe_pos, bỏ phần dở dang sau đó
+    4. Đóng các bracket còn mở (array ] và root object })
     """
     if not text or not text.strip().startswith('{'):
         return None
 
-    text = text.rstrip().rstrip(',').rstrip()
+    # Bước 1: Tìm last_safe_pos
+    depth = 0
+    in_string = False
+    escape_next = False
+    last_safe_pos = -1  # vị trí sau khi đóng element ở depth=1
 
-    # Đếm bracket còn mở (tính đúng kể cả trong string)
+    for i, ch in enumerate(text):
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == '\\' and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+
+        if ch in ('{', '['):
+            depth += 1
+        elif ch in ('}', ']'):
+            depth -= 1
+            # depth=1 nghĩa là vừa đóng xong 1 element trong array/object con
+            if depth == 1:
+                last_safe_pos = i + 1
+
+    # Nếu JSON hoàn chỉnh (depth=0), thử parse trực tiếp
+    if depth == 0 and last_safe_pos != -1:
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass  # Có lỗi syntax khác, tiếp tục với repair
+
+    # Nếu không tìm được điểm cắt an toàn → từ bỏ
+    if last_safe_pos == -1:
+        return None
+
+    # Bước 2: Cắt tại điểm an toàn, bỏ phần dở dang
+    truncated = text[:last_safe_pos].rstrip().rstrip(',').rstrip()
+
+    # Bước 3: Đếm lại bracket trong phần đã cắt sạch (không còn unclosed string)
     open_braces = 0
     open_brackets = 0
     in_string = False
     escape_next = False
 
-    for ch in text:
+    for ch in truncated:
         if escape_next:
             escape_next = False
             continue
@@ -163,16 +211,9 @@ def _repair_truncated_json(text: str) -> Optional[dict]:
         elif ch == ']':
             open_brackets -= 1
 
-    # Nếu đã cân bằng → parse trực tiếp
-    if open_braces == 0 and open_brackets == 0:
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            return None
-
-    # Đóng các bracket còn mở theo đúng thứ tự
+    # Bước 4: Đóng bracket còn mở
     closing = ']' * max(0, open_brackets) + '}' * max(0, open_braces)
-    repaired = text + closing
+    repaired = truncated + closing
 
     try:
         result = json.loads(repaired)
@@ -181,12 +222,16 @@ def _repair_truncated_json(text: str) -> Optional[dict]:
             result.setdefault('relations', [])
             n_e = len(result['entities'])
             n_r = len(result['relations'])
-            logger.info(f"Repaired truncated JSON → {n_e} entities, {n_r} relations (may be partial)")
+            logger.info(
+                f"Repaired truncated JSON → {n_e} entities, "
+                f"{n_r} relations (partial, cut at safe boundary)"
+            )
             return result
     except json.JSONDecodeError:
         pass
 
     return None
+
 
 
 def extract_json_from_output(raw_output: str) -> Optional[dict]:
