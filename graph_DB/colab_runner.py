@@ -70,7 +70,10 @@ if USE_DRIVE:
     PROJECT_ROOT = "/content/drive/MyDrive/LEGAL_IT_CHATBOT"
 else:
     # Cách 1: git clone (mặc định)
-    PROJECT_ROOT = "/content/LEGAL_IT_CHATBOT"
+    if os.path.exists("/kaggle/working"):
+        PROJECT_ROOT = "/kaggle/working/LEGAL_IT_CHATBOT"
+    else:
+        PROJECT_ROOT = "/content/LEGAL_IT_CHATBOT"
 
 # Đường dẫn cụ thể (thường không cần đổi)
 DATA_DIR     = f"{PROJECT_ROOT}/data/keep"
