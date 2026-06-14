@@ -476,22 +476,23 @@ class LegalEntityExtractor:
                 result = extract_json_from_output(raw_output)
                 if result and isinstance(result, dict):
                     relations = result.get("relations", [])
-                    # Lọc bỏ relations có source/target không nằm trong entity_ids
+                    # Không filter bỏ nữa, vì target có thể là THAM_CHIEU ra ngoài chunk
+                    # hoặc ID hơi sai lệch. Graph builder sẽ xử lý dangling edges.
                     valid_ids = set(entity_ids)
-                    filtered = [
-                        r for r in relations
-                        if r.get("source_id") in valid_ids
-                        and r.get("target_id") in valid_ids
-                    ]
-                    if len(filtered) < len(relations):
+                    unknown_count = sum(
+                        1 for r in relations
+                        if r.get("source_id") not in valid_ids or (r.get("target_id") not in valid_ids and r.get("relation_type") != "THAM_CHIEU")
+                    )
+                    
+                    if unknown_count > 0:
                         logger.warning(
-                            f"  [Pass2] Filtered {len(relations)-len(filtered)} "
-                            f"invalid relations (unknown IDs): {chunk_id}"
+                            f"  [Pass2] Kept {unknown_count} relations with unknown IDs "
+                            f"(cross-refs or slight hallucinations): {chunk_id}"
                         )
                     logger.info(
-                        f"  [Pass2] {chunk_id}: {len(filtered)} relations"
+                        f"  [Pass2] {chunk_id}: {len(relations)} relations"
                     )
-                    return {"relations": filtered}
+                    return {"relations": relations}
                 logger.warning(f"  [Pass2] Invalid output (attempt {attempt+1}): {chunk_id}")
             except RuntimeError as e:
                 if "out of memory" in str(e).lower():
