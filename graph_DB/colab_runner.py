@@ -48,6 +48,9 @@ import json
 import time
 import logging
 
+# Giảm memory fragmentation cho CUDA allocator (phải set trước khi import torch)
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -150,7 +153,7 @@ extractor = LegalEntityExtractor(
     model=model,
     tokenizer=tokenizer,
     temperature=0.0,
-    max_new_tokens=2048,
+    max_new_tokens=1024,   # Giảm xuống 1024 để tránh OOM trên T4
     max_retry=3,
     verbose=False,
 )
@@ -179,6 +182,10 @@ for fn, parent_chunks in all_doc_chunks.items():
         f"{done}/{total_dieu} Điều | "
         f"{mins:.1f} phút"
     )
+    # Giải phóng VRAM giữa các văn bản
+    import torch, gc
+    gc.collect()
+    torch.cuda.empty_cache()
 
 # Giải phóng GPU
 import torch

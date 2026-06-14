@@ -7,11 +7,16 @@ từ các chunks văn bản pháp luật IT.
 Thiết kế cho Google Colab với GPU T4 (16GB VRAM).
 """
 
+import os
+import gc
 import json
 import re
 import time
 import logging
 from typing import Optional
+
+# Giảm memory fragmentation cho CUDA allocator
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +78,7 @@ def run_inference(
     tokenizer,
     messages: list[dict],
     temperature: float = 0.0,
-    max_new_tokens: int = 2048,
+    max_new_tokens: int = 1024,
 ) -> str:
     """
     Chạy inference với Qwen2.5-7B-Instruct.
@@ -107,7 +112,14 @@ def run_inference(
         for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
     ]
 
-    return tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+    # Giải phóng bộ nhớ GPU ngay sau inference
+    del model_inputs, generated_ids
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    return result
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -174,7 +186,7 @@ class LegalEntityExtractor:
         model,
         tokenizer,
         temperature: float = 0.0,
-        max_new_tokens: int = 2048,
+        max_new_tokens: int = 1024,
         max_retry: int = 3,
         verbose: bool = True,
     ):
@@ -207,19 +219,24 @@ class LegalEntityExtractor:
             dict {"entities": [...], "relations": [...]} hoặc None
         """
         from prompts import build_extraction_prompt
+        import torch
 
         if self.verbose:
             logger.info(f"Extracting: {chunk_id}")
 
-        messages = build_extraction_prompt(
-            van_ban_name=van_ban_name,
-            chunk_id=chunk_id,
-            content=content,
-            van_ban_id=van_ban_id,
-            use_few_shot=use_few_shot,
-        )
-
         for attempt in range(self.max_retry):
+            # Lần đầu dùng few-shot, lần sau fallback sang no-shot để tiết kiệm VRAM
+            attempt_few_shot = use_few_shot and (attempt == 0)
+
+            # Rebuild messages cho mỗi attempt (có thể đổi few-shot)
+            messages = build_extraction_prompt(
+                van_ban_name=van_ban_name,
+                chunk_id=chunk_id,
+                content=content,
+                van_ban_id=van_ban_id,
+                use_few_shot=attempt_few_shot,
+            )
+
             try:
                 raw_output = run_inference(
                     self.model,
@@ -240,11 +257,25 @@ class LegalEntityExtractor:
                 else:
                     logger.warning(f"Invalid JSON structure (attempt {attempt + 1}): {chunk_id}")
                     if attempt < self.max_retry - 1:
+                        gc.collect()
+                        torch.cuda.empty_cache()
                         time.sleep(1)
 
+            except RuntimeError as e:
+                if "out of memory" in str(e).lower():
+                    logger.error(f"OOM (attempt {attempt + 1}), clearing cache and retrying without few-shot: {chunk_id}")
+                    gc.collect()
+                    torch.cuda.empty_cache()
+                    time.sleep(2)
+                else:
+                    logger.error(f"Error during extraction (attempt {attempt + 1}): {e}")
+                    if attempt < self.max_retry - 1:
+                        time.sleep(2)
             except Exception as e:
                 logger.error(f"Error during extraction (attempt {attempt + 1}): {e}")
                 if attempt < self.max_retry - 1:
+                    gc.collect()
+                    torch.cuda.empty_cache()
                     time.sleep(2)
 
         logger.error(f"All {self.max_retry} attempts failed for chunk: {chunk_id}")

@@ -50,6 +50,7 @@ một đối tượng JSON hợp lệ chứa danh sách thực thể (entities) 
 4. Nếu không tìm thấy thực thể nào, trả về `{"entities": [], "relations": []}`.
 5. `id` của Điều/Khoản/Điểm phải dùng chuẩn: `D<số>`, `D<số>_K<số>`, `D<số>_K<số>_P<ký_hiệu>`.
 6. Đối với CheTai, bắt buộc điền `loai`: "chinh" | "bo_sung" | "hanh_chinh" | "hinh_su".
+7. **QUAN TRỌNG**: Sau khi phân tích, trả về đúng 1 JSON object duy nhất bắt đầu bằng `{` và kết thúc bằng `}`. Không bọc trong markdown code block.
 """
 
 
@@ -724,14 +725,13 @@ def build_extraction_prompt(
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     if use_few_shot:
-        # Chỉ lấy 2 few-shot examples phù hợp nhất để tiết kiệm tokens
-        # Example 1: định nghĩa khái niệm
-        # Example 3: chế tài (quan trọng nhất cho use-case)
-        selected_examples = [FEW_SHOT_EXAMPLES[0], FEW_SHOT_EXAMPLES[1], FEW_SHOT_EXAMPLES[2]]
+        # Chỉ lấy 1 few-shot example để tiết kiệm VRAM trên Colab T4
+        # Example 1: định nghĩa khái niệm (đại diện cấu trúc tổng quát nhất)
+        selected_examples = [FEW_SHOT_EXAMPLES[0]]
         messages.extend(selected_examples)
 
     # User message thực tế
-    user_message = f"""Hãy phân tích đoạn văn bản pháp luật sau và trích xuất thực thể, quan hệ.
+    user_message = f"""Phân tích đoạn văn bản pháp luật sau và trích xuất thực thể, quan hệ.
 
 ## Văn bản nguồn:
 - Tên văn bản: {van_ban_name}
@@ -741,14 +741,13 @@ def build_extraction_prompt(
 ## Nội dung:
 {content}
 
-## Hãy suy nghĩ từng bước (Chain-of-Thought):
-Phân tích từng khoản, điểm. Xác định hành vi, chế tài, chủ thể, nghĩa vụ và tham chiếu.
-Sau khi phân tích xong, trả về JSON với format chuẩn.
-LƯU Ý QUAN TRỌNG:
-- id của Điều phải là "D<số>" (ví dụ: "D7", "D24")
-- id của Khoản phải là "D<số>_K<số>" (ví dụ: "D7_K1")
-- id của Điểm phải là "D<số>_K<số>_P<ký_hiệu>" (ví dụ: "D7_K1_Pa")
-- Nếu có THAM_CHIEU đến Điều khác, phải tạo entity Dieu placeholder cho điều đó với van_ban_id tương ứng.
+## Yêu cầu:
+Xác định Khoản, Điểm, hành vi, chế tài, chủ thể, nghĩa vụ và tham chiếu.
+Trả về một JSON object DUY NHẤT (không bọc trong code block, không giải thích trước hay sau):
+- id của Điều: "D<số>" (ví dụ: "D7", "D24")
+- id của Khoản: "D<số>_K<số>" (ví dụ: "D7_K1")
+- id của Điểm: "D<số>_K<số>_P<ký_hiệu>" (ví dụ: "D7_K1_Pa")
+- Nếu có THAM_CHIEU đến Điều khác, phải tạo entity Dieu placeholder với van_ban_id tương ứng.
 """
     messages.append({"role": "user", "content": user_message})
     return messages
