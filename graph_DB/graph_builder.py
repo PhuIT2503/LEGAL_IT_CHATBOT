@@ -8,6 +8,7 @@ Normalize entities, resolve cross-references, deduplicate.
 import re
 import json
 import logging
+import unicodedata
 from typing import Optional
 from collections import defaultdict
 
@@ -398,7 +399,8 @@ VAN_BAN_REGISTRY = [
 
 def get_van_ban_meta(filename: str) -> Optional[dict]:
     """Lấy metadata văn bản từ filename."""
+    normalized_filename = unicodedata.normalize("NFC", filename)
     for meta in VAN_BAN_REGISTRY:
-        if meta["filename"] == filename:
+        if unicodedata.normalize("NFC", meta["filename"]) == normalized_filename:
             return meta
     return None

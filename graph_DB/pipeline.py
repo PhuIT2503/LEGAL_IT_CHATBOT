@@ -238,18 +238,45 @@ def step4_ingest_neo4j(
 
 def load_extracted_results_from_dir(extracted_json_dir: str) -> list[dict]:
     """
-    Load tất cả JSON extraction results từ thư mục (để resume).
+    Load tất cả JSON/JSONL extraction results từ thư mục (để resume).
     Hữu ích khi Step 2 đã chạy xong nhưng Step 3/4 cần chạy lại.
     """
     all_results = []
+    seen_keys = set()
+
+    def add_result(result: dict, fpath: str):
+        if not isinstance(result, dict):
+            logger.warning(f"Invalid extraction result in {fpath}: expected object")
+            return
+
+        key = (result.get("van_ban_id"), result.get("chunk_id"))
+        if all(key):
+            if key in seen_keys:
+                return
+            seen_keys.add(key)
+
+        all_results.append(result)
+
     for root, dirs, files in os.walk(extracted_json_dir):
         for fname in files:
-            if fname.endswith(".json"):
-                fpath = os.path.join(root, fname)
+            fpath = os.path.join(root, fname)
+            if fname.endswith(".jsonl"):
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        for line_no, line in enumerate(f, 1):
+                            if not line.strip():
+                                continue
+                            try:
+                                add_result(json.loads(line), f"{fpath}:{line_no}")
+                            except json.JSONDecodeError as e:
+                                logger.warning(f"Failed to parse {fpath}:{line_no}: {e}")
+                except Exception as e:
+                    logger.warning(f"Failed to load {fpath}: {e}")
+            elif fname.endswith(".json"):
                 try:
                     with open(fpath, "r", encoding="utf-8") as f:
                         result = json.load(f)
-                    all_results.append(result)
+                    add_result(result, fpath)
                 except Exception as e:
                     logger.warning(f"Failed to load {fpath}: {e}")
     
