@@ -30,6 +30,8 @@ class VBPLChunker:
     """
     Class hỗ trợ chunking văn bản pháp luật (VBPL) theo cấu trúc Điều - Khoản - Điểm.
     Mỗi phần nhỏ (Lời dẫn Điều, Khoản, Điểm) được chia thành một chunk riêng biệt.
+    Tiêu đề Điều đứng một mình được gộp vào chunk nội dung đầu tiên của Điều đó
+    để giảm nhiễu khi retrieval; Điều bị bãi bỏ/không có nội dung con vẫn được giữ.
     
     Tất cả các chunk thuộc cùng một Điều sẽ chia sẻ chung một trường `dieu_id`.
     Khi truy xuất (retrieval) trúng một chunk bất kỳ (VD: Điểm), ta dùng `dieu_id` 
@@ -39,10 +41,15 @@ class VBPLChunker:
         # Regular expressions để bắt các thành phần của VBPL
         # Bắt "Điều 114.", "Điều 1.", "Điều 1a."
         self.dieu_pattern = re.compile(r'^Điều\s+(\d+[a-zA-Z]*)\s*[\.\:\-]?\s*(.*)', re.IGNORECASE)
-        # Bắt "1.", "2."
-        self.khoan_pattern = re.compile(r'^(\d+)\.\s+(.*)')
-        # Bắt "a)", "b)", "đ)"
-        self.diem_pattern = re.compile(r'^([a-zđ])\)\s+(.*)', re.IGNORECASE)
+        # Bắt "1.", "2.", cả trường hợp văn bản hợp nhất gắn chú thích như "4.[16]"
+        self.khoan_pattern = re.compile(r'^(\d+)\.(?:\[\d+\]|\d+)?\s*(.+)')
+        # Bắt "a)", "b)", "đ)", cả trường hợp "c)[15]"
+        self.diem_pattern = re.compile(r'^([a-zđ])\)(?:\[\d+\]|\d+)?\s*(.+)', re.IGNORECASE)
+        # Chú thích cuối văn bản thường không thuộc thân Điều và dễ bị dính vào Điều cuối.
+        self.trailing_note_pattern = re.compile(
+            r'^(?:\d+\s+|\[\d+\]\s*)(?:Tên|Luật|Nghị định|Thông tư|Quyết định|Điểm|Khoản|Điều|Cụm từ|Từ|Các|Mục)\b',
+            re.IGNORECASE
+        )
 
     def extract_doc_id(self, filename: str) -> str:
         """
@@ -70,6 +77,12 @@ class VBPLChunker:
             logger.error(f"Lỗi khi đọc file {file_path}: {e}")
             return []
 
+    def _is_trailing_note(self, line: str) -> bool:
+        """
+        Nhận diện chú thích/cuối văn bản hợp nhất để không nhập vào Điều cuối.
+        """
+        return bool(self.trailing_note_pattern.match(line))
+
     def chunk_document(self, file_path: str) -> List[Dict[str, Any]]:
         """
         Phân tách nội dung file thành các chunk nhỏ (lời dẫn, khoản, điểm).
@@ -95,42 +108,93 @@ class VBPLChunker:
         current_chunk_id = None
         dieu_occurrences: Dict[str, int] = {}
         chunk_id_occurrences: Dict[str, int] = {}
+        pending_title_preamble = None
         
-        def save_chunk():
-            if current_chunk_lines and current_dieu_id and current_chunk_type:
-                # Tạo prefix để BM25 bắt keyword dễ hơn
-                prefix = ""
-                if current_chunk_type == "dieu_preamble":
-                    prefix = f"[Điều {current_dieu_num}, {doc_name}]"
-                elif current_chunk_type == "khoan":
-                    prefix = f"[Khoản {current_khoan_num}, Điều {current_dieu_num}, {doc_name}]"
-                elif current_chunk_type == "diem":
-                    if current_khoan_num:
-                        prefix = f"[Điểm {current_diem_char}, Khoản {current_khoan_num}, Điều {current_dieu_num}, {doc_name}]"
-                    else:
-                        prefix = f"[Điểm {current_diem_char}, Điều {current_dieu_num}, {doc_name}]"
-                        
-                content_text = "\n".join(current_chunk_lines)
-                content_with_prefix = f"{prefix} {content_text}"
-                chunk_id_occurrences[current_chunk_id] = chunk_id_occurrences.get(current_chunk_id, 0) + 1
-                unique_chunk_id = current_chunk_id
-                if chunk_id_occurrences[current_chunk_id] > 1:
-                    unique_chunk_id = f"{current_chunk_id}_C{chunk_id_occurrences[current_chunk_id]}"
-                
-                chunks.append({
-                    "id": unique_chunk_id,
-                    "dieu_id": current_dieu_id,
-                    "type": current_chunk_type,
-                    "content": content_with_prefix,
-                    "order": len(chunks),
-                    "metadata": {
-                        "doc_id": doc_id,
-                        "dieu_title": current_dieu_title,
-                        "source": filename
-                    }
-                })
+        def build_prefix(chunk_type, dieu_num, khoan_num=None, diem_char=None):
+            if chunk_type == "dieu_preamble":
+                return f"[Điều {dieu_num}, {doc_name}]"
+            if chunk_type == "khoan":
+                return f"[Khoản {khoan_num}, Điều {dieu_num}, {doc_name}]"
+            if chunk_type == "diem":
+                if khoan_num:
+                    return f"[Điểm {diem_char}, Khoản {khoan_num}, Điều {dieu_num}, {doc_name}]"
+                return f"[Điểm {diem_char}, Điều {dieu_num}, {doc_name}]"
+            return f"[Điều {dieu_num}, {doc_name}]"
 
+        def append_chunk(chunk_data):
+            if not chunk_data["lines"]:
+                return
+
+            prefix = build_prefix(
+                chunk_data["type"],
+                chunk_data["dieu_num"],
+                chunk_data.get("khoan_num"),
+                chunk_data.get("diem_char"),
+            )
+            content_text = "\n".join(chunk_data["lines"])
+            content_with_prefix = f"{prefix} {content_text}"
+            base_chunk_id = chunk_data["id"]
+            chunk_id_occurrences[base_chunk_id] = chunk_id_occurrences.get(base_chunk_id, 0) + 1
+            unique_chunk_id = base_chunk_id
+            if chunk_id_occurrences[base_chunk_id] > 1:
+                unique_chunk_id = f"{base_chunk_id}_C{chunk_id_occurrences[base_chunk_id]}"
+
+            chunks.append({
+                "id": unique_chunk_id,
+                "dieu_id": chunk_data["dieu_id"],
+                "type": chunk_data["type"],
+                "content": content_with_prefix,
+                "order": len(chunks),
+                "metadata": {
+                    "doc_id": doc_id,
+                    "dieu_title": chunk_data["dieu_title"],
+                    "source": filename
+                }
+            })
+
+        def flush_pending_title_preamble():
+            nonlocal pending_title_preamble
+            if pending_title_preamble:
+                append_chunk(pending_title_preamble)
+                pending_title_preamble = None
+
+        def save_chunk():
+            nonlocal pending_title_preamble
+            if not (current_chunk_lines and current_dieu_id and current_chunk_type):
+                return
+
+            chunk_data = {
+                "id": current_chunk_id,
+                "dieu_id": current_dieu_id,
+                "type": current_chunk_type,
+                "lines": list(current_chunk_lines),
+                "dieu_title": current_dieu_title,
+                "dieu_num": current_dieu_num,
+                "khoan_num": current_khoan_num,
+                "diem_char": current_diem_char,
+            }
+
+            if current_chunk_type == "dieu_preamble" and len(current_chunk_lines) == 1:
+                flush_pending_title_preamble()
+                pending_title_preamble = chunk_data
+                return
+
+            if pending_title_preamble and pending_title_preamble["dieu_id"] == current_dieu_id:
+                chunk_data["lines"] = pending_title_preamble["lines"] + chunk_data["lines"]
+                pending_title_preamble = None
+            elif pending_title_preamble:
+                flush_pending_title_preamble()
+
+            append_chunk(chunk_data)
+
+        stopped_at_tail = False
         for line in lines:
+            if current_dieu_id and self._is_trailing_note(line):
+                save_chunk()
+                flush_pending_title_preamble()
+                stopped_at_tail = True
+                break
+
             dieu_match = self.dieu_pattern.match(line)
             khoan_match = self.khoan_pattern.match(line)
             diem_match = self.diem_pattern.match(line)
@@ -138,6 +202,7 @@ class VBPLChunker:
             if dieu_match:
                 # Lưu lại chunk trước đó
                 save_chunk()
+                flush_pending_title_preamble()
                 
                 current_dieu_num = dieu_match.group(1)
                 dieu_title = dieu_match.group(2)
@@ -188,7 +253,9 @@ class VBPLChunker:
                     current_chunk_lines.append(line)
                     
         # Lưu chunk cuối cùng
-        save_chunk()
+        if not stopped_at_tail:
+            save_chunk()
+            flush_pending_title_preamble()
         
         return chunks
 
@@ -262,7 +329,7 @@ class VBPLChunker:
             logger.error(f"Thư mục {data_dir} không tồn tại!")
             return []
             
-        for filename in os.listdir(data_dir):
+        for filename in sorted(os.listdir(data_dir)):
             if filename.endswith(".docx"):
                 file_path = os.path.join(data_dir, filename)
                 logger.info(f"Processing: {filename}")
@@ -282,7 +349,7 @@ class VBPLChunker:
             logger.error(f"Thư mục {data_dir} không tồn tại!")
             return {"parents": [], "children": []}
 
-        for filename in os.listdir(data_dir):
+        for filename in sorted(os.listdir(data_dir)):
             if filename.endswith(".docx"):
                 file_path = os.path.join(data_dir, filename)
                 logger.info(f"Processing: {filename}")
