@@ -64,6 +64,16 @@ def build_judge_llm() -> ChatOpenAI:
     return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.0)
 
 
+# Tên hiển thị RÕ RÀNG cho từng chỉ số RAGAS khi in ra console — key thật trả
+# về từ ragas.evaluate() là tên ngắn (faithfulness, answer_relevancy, ...).
+RAGAS_METRIC_LABELS = {
+    "faithfulness": "Faithfulness (độ trung thực với ngữ cảnh)",
+    "answer_relevancy": "Answer Relevancy (độ liên quan của câu trả lời)",
+    "context_precision": "Context Precision (độ chính xác ngữ cảnh, theo RAGAS)",
+    "answer_correctness": "Answer Correctness (độ đúng đắn câu trả lời)",
+}
+
+
 class _LocalSentenceTransformerEmbeddings:
     """
     Wrapper Embeddings kiểu LangChain (embed_documents/embed_query) quanh
@@ -297,7 +307,8 @@ def main():
         if ragas_scores:
             print(f"\n--- RAGAS (mode={mode}) ---")
             for k, v in ragas_scores.items():
-                print(f"  {k}: {v:.3f}")
+                label = RAGAS_METRIC_LABELS.get(k, k)
+                print(f"  {label}: {v:.3f}")
                 summary_rows.append({"mode": mode, "category": "ALL", "metric": f"ragas_{k}", "value": v, "n": len(rows)})
 
     summary_path = PROJECT_ROOT / "data" / f"eval_summary{args.suffix}.csv"
