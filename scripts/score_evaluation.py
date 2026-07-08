@@ -1,0 +1,312 @@
+"""
+scripts/score_evaluation.py
+=============================
+Tính điểm cho kết quả đã chạy (data/eval_results_<mode>.jsonl, xem
+run_evaluation.py) — gồm 2 lớp chỉ số:
+
+1. RAGAS chuẩn (nếu đã `pip install ragas`): faithfulness, answer_relevancy,
+   context_precision, answer_correctness (cần `reference` — đã có sẵn trong
+   test set). Bọc trong try/except: nếu chưa cài ragas hoặc lệch API version,
+   script vẫn chạy tiếp phần chỉ số tùy biến bên dưới, không crash toàn bộ.
+
+2. Legal Completeness Rate (tùy biến, LLM-as-judge) — chỉ số TRUNG TÂM của
+   khóa luận: với mỗi fact trong required_facts của từng câu hỏi, hỏi LLM xem
+   câu trả lời (response) có thể hiện đúng nội dung fact đó không. Tỷ lệ fact
+   được thể hiện đúng = Legal Completeness Rate của câu đó.
+
+Output: in bảng tổng hợp theo mode x category, lưu CSV chi tiết từng câu tại
+data/eval_scores_<mode>.csv và bảng tổng hợp tại data/eval_summary.csv.
+
+Cách dùng:
+    python scripts/score_evaluation.py --modes naive article_expand critic
+    python scripts/score_evaluation.py --modes critic --skip-ragas   # chỉ tính Completeness Rate, bỏ qua RAGAS
+
+    # RAGAS cần 1 LLM riêng để chấm (faithfulness/answer_relevancy/context_precision/
+    # answer_correctness) — tự do chọn provider, KHÔNG hardcode:
+    python scripts/score_evaluation.py --modes critic --ragas-provider openai --ragas-model gpt-4o-mini
+        (cần set OPENAI_API_KEY trong môi trường)
+    python scripts/score_evaluation.py --modes critic --ragas-provider gemini --ragas-model gemini-1.5-flash
+        (cần set GOOGLE_API_KEY trong môi trường)
+    python scripts/score_evaluation.py --modes critic --ragas-provider ollama
+        (dùng lại Ollama local đang chạy sẵn — miễn phí, không cần API key)
+"""
+import argparse
+import csv
+import json
+import os
+import sys
+from collections import defaultdict
+from pathlib import Path
+from typing import List
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from langchain_openai import ChatOpenAI  # noqa: E402
+
+
+def build_judge_llm() -> ChatOpenAI:
+    """
+    LLM riêng cho việc CHẤM ĐIỂM (judge_fact_covered) — dùng temperature=0,
+    KHÁC với LLM sinh câu trả lời (build_llm(), temperature=0.2).
+
+    Lý do: judge_fact_covered là tác vụ PHÂN LOẠI yes/no đơn giản, không phải
+    sinh văn bản tự do — không cần đa dạng hoá đầu ra. Temperature=0.2 gây
+    nhiễu không cần thiết ở đúng bước cần ổn định nhất: quan sát được qua test
+    thật là CÙNG 1 câu trả lời (chữ giống hệt nhau giữa 2 mode) nhưng judge
+    chấm khác nhau giữa các lần chạy — hoàn toàn không phải khác biệt chất
+    lượng thật, mà là nhiễu ngẫu nhiên của chính bước chấm điểm. Áp dụng
+    temperature=0 cho MỌI mode như nhau (không thiên vị mode nào) để số liệu
+    completeness_rate đáng tin cậy/tái lập được hơn.
+    """
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+    model = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+    return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.0)
+
+
+class _LocalSentenceTransformerEmbeddings:
+    """
+    Wrapper Embeddings kiểu LangChain (embed_documents/embed_query) quanh
+    SentenceTransformer cục bộ (model fine-tune VBPL) — dùng cho RAGAS thay vì
+    bắt buộc phải có thêm 1 API key riêng cho embeddings. Dùng CHUNG cho mọi
+    provider LLM (openai/gemini/ollama) vì embeddings và LLM chấm là 2 việc
+    độc lập trong RAGAS.
+    """
+
+    def __init__(self, model):
+        self._model = model
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        return self._model.encode(list(texts), normalize_embeddings=True).tolist()
+
+    def embed_query(self, text: str) -> List[float]:
+        return self._model.encode([text], normalize_embeddings=True)[0].tolist()
+
+
+def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
+    """
+    Dựng (llm, embeddings) cho RAGAS — TỰ DO chọn provider qua --ragas-provider,
+    KHÔNG hardcode 1 dịch vụ trả phí cố định:
+      - "openai": ChatOpenAI thật, cần OPENAI_API_KEY trong môi trường.
+      - "gemini": ChatGoogleGenerativeAI, cần GOOGLE_API_KEY trong môi trường.
+      - "ollama": dùng lại Ollama local đang chạy sẵn (build_judge_llm) — free,
+        không cần API key nào, phù hợp khi không muốn tốn phí ngoài.
+    Embeddings LUÔN dùng model fine-tune VBPL cục bộ (miễn phí, nhất quán với
+    embeddings dùng cho retrieval) — không phụ thuộc provider LLM ở trên.
+    """
+    from ragas.llms import LangchainLLMWrapper
+    from ragas.embeddings import LangchainEmbeddingsWrapper
+    from src.llm.embedding_model import load_embedding_model
+
+    if provider == "openai":
+        if not os.getenv("OPENAI_API_KEY"):
+            raise RuntimeError("--ragas-provider openai cần biến môi trường OPENAI_API_KEY.")
+        llm = ChatOpenAI(model=model_name or "gpt-4o-mini", temperature=0.0)
+    elif provider == "gemini":
+        if not os.getenv("GOOGLE_API_KEY"):
+            raise RuntimeError("--ragas-provider gemini cần biến môi trường GOOGLE_API_KEY.")
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        llm = ChatGoogleGenerativeAI(model=model_name or "gemini-1.5-flash", temperature=0.0)
+    elif provider == "ollama":
+        llm = build_judge_llm()
+        if model_name:
+            llm.model_name = model_name
+    else:
+        raise ValueError(f"--ragas-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama)")
+
+    embed_model = load_embedding_model(
+        os.getenv("RAGAS_EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final")
+    )
+    embeddings = LangchainEmbeddingsWrapper(_LocalSentenceTransformerEmbeddings(embed_model))
+    return LangchainLLMWrapper(llm), embeddings
+
+
+def load_results(mode: str, suffix: str = ""):
+    path = PROJECT_ROOT / "data" / f"eval_results_{mode}{suffix}.jsonl"
+    if not path.exists():
+        print(f"CẢNH BÁO: chưa có {path} — hãy chạy run_evaluation.py --mode {mode} trước.")
+        return []
+    rows = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    return rows
+
+
+def judge_fact_covered(llm, response: str, fact: str) -> bool:
+    """LLM-as-judge: fact có được thể hiện ĐÚNG trong response hay không (yes/no)."""
+    prompt = (
+        "Bạn là giám khảo chấm điểm câu trả lời pháp luật. Cho một CÂU TRẢ LỜI và một YÊU CẦU "
+        "(1 fact bắt buộc phải có), hãy xác định xem CÂU TRẢ LỜI có thể hiện ĐÚNG nội dung của YÊU CẦU "
+        "hay không — chấp nhận diễn đạt khác nhau miễn là ĐÚNG Ý và ĐÚNG SỐ LIỆU cụ thể (nếu yêu cầu có số "
+        "liệu). Nếu câu trả lời thiếu hẳn ý đó, diễn đạt mơ hồ né tránh, hoặc nêu sai số liệu/nội dung thì "
+        "tính là KHÔNG đạt.\n\n"
+        f"YÊU CẦU (fact bắt buộc): {fact}\n\n"
+        f"CÂU TRẢ LỜI CẦN CHẤM:\n{response}\n\n"
+        "Chỉ trả lời đúng 1 từ: 'yes' nếu câu trả lời có thể hiện đúng fact này, 'no' nếu không."
+    )
+    resp = llm.invoke(prompt)
+    return "yes" in resp.content.strip().lower()
+
+
+def compute_completeness(llm, rows: list) -> list:
+    """Gắn thêm completeness_rate + facts_covered vào từng row (mutate + return)."""
+    for row in rows:
+        facts = row.get("required_facts", [])
+        if not facts:
+            row["completeness_rate"] = None
+            continue
+        covered = [judge_fact_covered(llm, row["response"], f) for f in facts]
+        row["facts_covered"] = covered
+        row["completeness_rate"] = sum(covered) / len(covered)
+    return rows
+
+
+def try_compute_ragas(rows: list, ragas_provider: str, ragas_model: str = None) -> dict:
+    """Trả về dict {metric_name: avg_score} nếu ragas cài được và chạy được, ngược lại {}.
+
+    ragas_provider: "openai" | "gemini" | "ollama" — xem build_ragas_llm_and_embeddings()
+    và docstring đầu file để biết cách truyền API key cho từng provider.
+    """
+    try:
+        from datasets import Dataset
+        from ragas import evaluate
+        from ragas.metrics import faithfulness, answer_relevancy, context_precision, answer_correctness
+    except ImportError as e:
+        print(f"Bỏ qua RAGAS (chưa cài đặt hoặc thiếu dependency): {e}")
+        print("Cài đặt: pip install ragas datasets")
+        return {}
+
+    try:
+        llm, embeddings = build_ragas_llm_and_embeddings(ragas_provider, ragas_model)
+    except Exception as e:
+        print(f"Bỏ qua RAGAS (không dựng được LLM/embeddings cho provider={ragas_provider!r}): {e}")
+        return {}
+
+    ds = Dataset.from_list([
+        {
+            "question": r["user_input"],
+            "answer": r["response"],
+            "contexts": r["retrieved_contexts"] or [""],
+            "ground_truth": r["reference"],
+        }
+        for r in rows
+    ])
+    try:
+        result = evaluate(
+            ds,
+            metrics=[faithfulness, answer_relevancy, context_precision, answer_correctness],
+            llm=llm,
+            embeddings=embeddings,
+        )
+        return {k: float(v) for k, v in result.items()}
+    except Exception as e:
+        print(f"RAGAS evaluate() lỗi (có thể do khác version API) — báo cáo lỗi để tự điều chỉnh: {e}")
+        return {}
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Tính điểm đánh giá (RAGAS + Legal Completeness Rate tùy biến)")
+    parser.add_argument("--modes", nargs="+", default=["naive", "article_expand", "critic"])
+    parser.add_argument("--skip-ragas", action="store_true")
+    parser.add_argument("--suffix", type=str, default="", help="Hậu tố file input/output (vd '_stratified10'), phải khớp với --output-suffix đã dùng ở run_evaluation.py")
+    parser.add_argument("--ragas-provider", choices=["openai", "gemini", "ollama"], default="openai",
+                         help="LLM dùng để RAGAS chấm điểm — xem docstring đầu file để biết API key cần set cho từng provider")
+    parser.add_argument("--ragas-model", type=str, default=None,
+                         help="Tên model cụ thể cho --ragas-provider (vd gpt-4o-mini, gemini-1.5-flash, qwen2.5:7b). Bỏ trống dùng mặc định của provider.")
+    args = parser.parse_args()
+
+    llm = build_judge_llm()  # temperature=0 — xem docstring build_judge_llm()
+
+    summary_rows = []
+    for mode in args.modes:
+        rows = load_results(mode, args.suffix)
+        if not rows:
+            continue
+
+        print(f"\n=== Chấm điểm mode={mode} ({len(rows)} câu) ===")
+        rows = compute_completeness(llm, rows)
+
+        ragas_scores = {}
+        if not args.skip_ragas:
+            ragas_scores = try_compute_ragas(rows, args.ragas_provider, args.ragas_model)
+
+        # Lưu chi tiết từng câu
+        detail_path = PROJECT_ROOT / "data" / f"eval_scores_{mode}{args.suffix}.csv"
+        with open(detail_path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["id", "category", "completeness_rate", "response_preview"])
+            for r in rows:
+                writer.writerow([r["id"], r["category"], r.get("completeness_rate"), r["response"][:200].replace("\n", " ")])
+        print(f"Đã lưu chi tiết: {detail_path}")
+
+        # Tổng hợp theo category
+        by_cat = defaultdict(list)
+        for r in rows:
+            if r.get("completeness_rate") is not None:
+                by_cat[r["category"]].append(r["completeness_rate"])
+
+        print(f"\n--- Legal Completeness Rate theo nhóm (mode={mode}) ---")
+        for cat, vals in by_cat.items():
+            avg = sum(vals) / len(vals) if vals else 0
+            print(f"  {cat}: {avg:.2%} (n={len(vals)})")
+            summary_rows.append({"mode": mode, "category": cat, "metric": "completeness_rate", "value": avg, "n": len(vals)})
+
+        all_vals = [r["completeness_rate"] for r in rows if r.get("completeness_rate") is not None]
+        overall = sum(all_vals) / len(all_vals) if all_vals else 0
+        print(f"  TỔNG: {overall:.2%} (n={len(all_vals)})")
+        summary_rows.append({"mode": mode, "category": "ALL", "metric": "completeness_rate", "value": overall, "n": len(all_vals)})
+
+        # Chi phí token (prompt+completion cộng dồn qua MỌI lệnh gọi LLM trong 1 câu
+        # hỏi — xem token_usage ghi bởi run_evaluation.py) — so sánh chi phí thực tế
+        # giữa 3 kịch bản, không chỉ completeness_rate.
+        token_totals = [r["token_usage"]["total_tokens"] for r in rows if r.get("token_usage")]
+        prompt_totals = [r["token_usage"]["prompt_tokens"] for r in rows if r.get("token_usage")]
+        completion_totals = [r["token_usage"]["completion_tokens"] for r in rows if r.get("token_usage")]
+        call_counts = [r["token_usage"]["call_count"] for r in rows if r.get("token_usage")]
+        if token_totals:
+            avg_total = sum(token_totals) / len(token_totals)
+            avg_prompt = sum(prompt_totals) / len(prompt_totals)
+            avg_completion = sum(completion_totals) / len(completion_totals)
+            avg_calls = sum(call_counts) / len(call_counts)
+            print(f"  Token TB/câu: total={avg_total:.0f} (prompt={avg_prompt:.0f}, completion={avg_completion:.0f}), "
+                  f"số lệnh gọi LLM TB={avg_calls:.1f} (n={len(token_totals)})")
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_total_tokens", "value": avg_total, "n": len(token_totals)})
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_prompt_tokens", "value": avg_prompt, "n": len(token_totals)})
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_completion_tokens", "value": avg_completion, "n": len(token_totals)})
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_llm_calls", "value": avg_calls, "n": len(token_totals)})
+
+        # Token của ĐÚNG lệnh gọi sinh câu trả lời cuối cùng (không cộng router/gate/
+        # draft-bị-bỏ) — chỉ số đúng cho "hiệu quả ngữ cảnh" khi so sánh 3 kịch bản,
+        # tách biệt khỏi avg_total_tokens (tổng chi phí cả pipeline) ở trên.
+        final_totals = [r["final_answer_token_usage"]["total_tokens"] for r in rows if r.get("final_answer_token_usage")]
+        final_prompt = [r["final_answer_token_usage"]["prompt_tokens"] for r in rows if r.get("final_answer_token_usage")]
+        final_completion = [r["final_answer_token_usage"]["completion_tokens"] for r in rows if r.get("final_answer_token_usage")]
+        if final_totals:
+            avg_final_total = sum(final_totals) / len(final_totals)
+            avg_final_prompt = sum(final_prompt) / len(final_prompt)
+            avg_final_completion = sum(final_completion) / len(final_completion)
+            print(f"  Token TB/câu (CHỈ lệnh gọi sinh câu trả lời cuối): total={avg_final_total:.0f} "
+                  f"(prompt={avg_final_prompt:.0f}, completion={avg_final_completion:.0f}) (n={len(final_totals)})")
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_final_answer_tokens", "value": avg_final_total, "n": len(final_totals)})
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_final_answer_prompt_tokens", "value": avg_final_prompt, "n": len(final_totals)})
+            summary_rows.append({"mode": mode, "category": "ALL", "metric": "avg_final_answer_completion_tokens", "value": avg_final_completion, "n": len(final_totals)})
+
+        if ragas_scores:
+            print(f"\n--- RAGAS (mode={mode}) ---")
+            for k, v in ragas_scores.items():
+                print(f"  {k}: {v:.3f}")
+                summary_rows.append({"mode": mode, "category": "ALL", "metric": f"ragas_{k}", "value": v, "n": len(rows)})
+
+    summary_path = PROJECT_ROOT / "data" / f"eval_summary{args.suffix}.csv"
+    with open(summary_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["mode", "category", "metric", "value", "n"])
+        writer.writeheader()
+        writer.writerows(summary_rows)
+    print(f"\nĐã lưu bảng tổng hợp: {summary_path}")
+
+
+if __name__ == "__main__":
+    main()

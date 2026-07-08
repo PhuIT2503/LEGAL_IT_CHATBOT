@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], operator.add]
     query: str
-    retrieved_chunk_ids: list[str]
+    retrieved_dieu_ids: list[str]  # id Dieu chuẩn Neo4j — xem docstring critic_query.py
     draft_response: str
     critic_feedback: str
     is_complete: bool
@@ -55,34 +55,37 @@ class LegalCriticAgent:
 
     def evaluate_with_kg(self, state: AgentState):
         """
-        Dùng Neo4j để kiểm tra xem retrieved_chunk_ids có thiếu hình phạt bổ sung hoặc biện pháp khắc phục không.
+        Dùng Neo4j để kiểm tra xem các Điều đã retrieve có thiếu hình phạt bổ sung
+        hoặc tham chiếu chéo quan trọng không.
         """
         logger.info("Evaluating retrieved context using Neo4j...")
-        chunk_ids = state.get("retrieved_chunk_ids", [])
-        
-        if not chunk_ids:
-            return {"critic_feedback": "Không có retrieved chunk nào được cung cấp."}
-            
-        # Tìm thông tin hình phạt thiếu sót bằng Neo4j
-        missing_penalties = self.query_engine.find_incomplete_penalty_info(chunk_ids)
-        missing_refs = self.query_engine.find_missing_references(chunk_ids)
-        
+        dieu_ids = state.get("retrieved_dieu_ids", [])
+
+        if not dieu_ids:
+            return {"critic_feedback": "Không có Điều nào được xác định từ retrieval."}
+
+        # Tìm hành vi có chế tài kép (chính+bổ sung, thường nằm ở 2 Khoản khác nhau) bằng Neo4j
+        compound_penalties = self.query_engine.find_compound_penalty_behaviors(dieu_ids)
+        missing_refs = self.query_engine.find_missing_references(dieu_ids)
+
         feedback_context = ""
-        if missing_penalties:
-            feedback_context += "Thiếu hình phạt bổ sung hoặc hình phạt chính cho các vi phạm sau:\n"
-            for mp in missing_penalties:
-                feedback_context += f"- Hành vi: {mp.get('hv_mo_ta', 'Unknown')}\n"
-                if mp.get('hinh_phat_bo_sung'):
-                    feedback_context += f"  + Hình phạt bổ sung bị thiếu: {mp['hinh_phat_bo_sung']}\n"
-        
+        if compound_penalties:
+            feedback_context += "Hành vi có chế tài kép (chính+bổ sung) — cần lấy lại toàn văn Điều để đủ cả 2 phần:\n"
+            for p in compound_penalties:
+                feedback_context += (
+                    f"- Hành vi: {p.get('hanh_vi_mo_ta', 'Unknown')} (Điều {p.get('dieu_id', '')})\n"
+                    f"  + Chính: {p.get('mo_ta_hinh_phat_chinh')}\n"
+                    f"  + Bổ sung: {p.get('mo_ta_hinh_phat_bo_sung')}\n"
+                )
+
         if missing_refs:
-            feedback_context += "\nThiếu các điều khoản được tham chiếu:\n"
+            feedback_context += "\nThiếu các Điều được tham chiếu:\n"
             for ref in missing_refs:
-                feedback_context += f"- Thiếu Điều/Khoản: {ref.get('referenced_node_ten', 'Unknown')} (được tham chiếu bởi {ref.get('from_node_ten', 'Unknown')})\n"
-                
+                feedback_context += f"- {ref.get('reason', '')}\n"
+
         if not feedback_context:
-            feedback_context = "Các chunk hiện tại đã bao phủ đầy đủ thông tin hình phạt và không thiếu tham chiếu chéo quan trọng."
-            
+            feedback_context = "Các Điều hiện tại đã bao phủ đầy đủ thông tin hình phạt và không thiếu tham chiếu chéo quan trọng."
+
         return {"critic_feedback": feedback_context}
 
     def generate_feedback(self, state: AgentState):
@@ -118,14 +121,18 @@ class LegalCriticAgent:
             "is_complete": is_complete
         }
 
-    def run(self, query: str, retrieved_chunk_ids: list[str], draft_response: str, thread_id: str = "default_thread"):
+    def run(self, query: str, retrieved_dieu_ids: list[str], draft_response: str, thread_id: str = "default_thread"):
         """
         Chạy Critic Agent pipeline. Sử dụng thread_id để quản lý short-term memory (LangGraph Checkpointer).
+
+        Args:
+            retrieved_dieu_ids: id Dieu chuẩn Neo4j đã retrieve (vd "ngh_nh_15_2020_..._D90"),
+                quy đổi từ payload Qdrant bằng graph_builder.to_dieu_node_id().
         """
         config = {"configurable": {"thread_id": thread_id}}
         initial_state = {
             "query": query,
-            "retrieved_chunk_ids": retrieved_chunk_ids,
+            "retrieved_dieu_ids": retrieved_dieu_ids,
             "draft_response": draft_response,
             "messages": []
         }
@@ -157,11 +164,11 @@ if __name__ == "__main__":
     
     # Test Run
     test_query = "Tôi thông báo sai thông tin bưu chính thì bị phạt như thế nào?"
-    test_retrieved_chunks = ["Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D5_PARENT"]
+    test_retrieved_dieu_ids = ["ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D5"]
     test_draft = "Bạn sẽ bị phạt tiền từ 3 đến 5 triệu đồng."
-    
+
     print("--- CHẠY LẦN 1 (Lưu short-term memory theo thread_id='user_123') ---")
-    result = agent.run(test_query, test_retrieved_chunks, test_draft, thread_id="user_123")
+    result = agent.run(test_query, test_retrieved_dieu_ids, test_draft, thread_id="user_123")
     print("Critic Feedback:\n", result["messages"][-1].content)
     print("Đủ thông tin chưa:", result["is_complete"])
     

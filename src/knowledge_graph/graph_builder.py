@@ -58,6 +58,42 @@ def get_van_ban_id(filename: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# CẦU NỐI ID: Qdrant (retrieval, giữ hoa/thường, cấp Khoản/Điểm) <-> Neo4j
+# (KG, chữ thường, node Dieu.id dạng "{van_ban_id}_D<so>")
+#
+# Payload Qdrant (qdrant_local_ingest.py) lưu `dieu_id` = "{doc_id_giu_hoa}_D<so>[_O<n>]"
+# và `van_ban_id` = doc_id giữ hoa. Node Dieu trong Neo4j có id = "{van_ban_id_thuong}_D<so>".
+# Hai hàm dưới đây quy đổi 1 chiều Qdrant -> Neo4j để Critic Agent tra đúng node.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_DIEU_NUMBER_PATTERN = re.compile(r'_D(?P<num>\d+[a-zA-Z]*)(?:_O\d+)?(?:_PARENT)?$')
+
+
+def extract_dieu_number(raw_dieu_or_chunk_id: str) -> Optional[str]:
+    """
+    Lấy số Điều từ 1 id kiểu chunking.py (dieu_id hoặc parent chunk_id), vd:
+    "..._D90"        -> "90"
+    "..._D90_O2"     -> "90"   (Điều lặp số trong văn bản hợp nhất)
+    "..._D25a_PARENT"-> "25a"
+    """
+    if not raw_dieu_or_chunk_id:
+        return None
+    m = _DIEU_NUMBER_PATTERN.search(raw_dieu_or_chunk_id)
+    return m.group("num") if m else None
+
+
+def to_dieu_node_id(van_ban_id_raw: str, raw_dieu_or_chunk_id: str) -> Optional[str]:
+    """
+    Quy đổi (van_ban_id, dieu_id/chunk_id kiểu Qdrant) -> id node Dieu chuẩn trong Neo4j.
+    van_ban_id_raw có thể giữ hoa/thường (như payload Qdrant) hoặc đã là filename gốc.
+    """
+    num = extract_dieu_number(raw_dieu_or_chunk_id)
+    if not num:
+        return None
+    return f"{get_van_ban_id(van_ban_id_raw)}_D{num}"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # GRAPH BUILDER
 # ─────────────────────────────────────────────────────────────────────────────
 
