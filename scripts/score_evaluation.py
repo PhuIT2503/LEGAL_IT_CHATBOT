@@ -304,6 +304,7 @@ def try_compute_ragas(
         print(f"  Đã nạp checkpoint RAGAS: {len(per_row_scores)}/{len(rows)} câu đã chấm từ lần chạy trước.")
 
     todo_rows = [r for r in rows if r["id"] not in per_row_scores]
+    consecutive_bad_batches = 0
     for i in range(0, len(todo_rows), batch_size):
         batch = todo_rows[i : i + batch_size]
         ds = Dataset.from_list([_to_ragas_item(r) for r in batch])
@@ -315,16 +316,39 @@ def try_compute_ragas(
             print(f"  Đã lưu checkpoint tới {len(per_row_scores)}/{len(rows)} câu — chạy lại lệnh cũ để tiếp tục.")
             break
 
+        # LƯU Ý: evaluate() KHÔNG raise exception khi từng job con lỗi (RateLimitError,
+        # TimeoutError...) — ragas tự bắt lỗi ở mức job, chỉ in "Exception raised in
+        # Job[N]" và trả về NaN cho đúng ô đó, evaluate() vẫn coi là "thành công". Vì
+        # vậy try/except phía trên KHÔNG bắt được tình trạng hết quota API (vd RPD của
+        # OpenAI cạn) — phải tự đếm tỷ lệ NaN mỗi batch để phát hiện và DỪNG kịp thời,
+        # nếu không sẽ chạy hết batch còn lại (có thể hàng giờ) mà toàn ra dữ liệu rỗng.
+        batch_ok = 0
         for row, (_, score_row) in zip(batch, df.iterrows()):
             scores = {}
             for name in metric_names:
                 val = score_row.get(name)
                 if val is not None and val == val:  # loại NaN (NaN != NaN)
                     scores[name] = float(val)
+                    batch_ok += 1
             per_row_scores[row["id"]] = scores
         _save_json_checkpoint(checkpoint_path, per_row_scores)
+
+        batch_total = len(batch) * len(metric_names)
+        success_rate = batch_ok / batch_total if batch_total else 1.0
         print(f"  RAGAS: đã chấm {min(i + batch_size, len(todo_rows))}/{len(todo_rows)} câu mới "
-              f"({len(per_row_scores)}/{len(rows)} tổng cộng)...")
+              f"({len(per_row_scores)}/{len(rows)} tổng cộng, batch này thành công {success_rate:.0%})...")
+
+        if success_rate < 0.5:
+            consecutive_bad_batches += 1
+        else:
+            consecutive_bad_batches = 0
+
+        if consecutive_bad_batches >= 2:
+            print(f"  DỪNG: 2 batch liên tiếp thất bại phần lớn (khả năng hết quota/rate limit API, xem "
+                  f"'Exception raised in Job[...]' ở log phía trên). Đã lưu checkpoint tới "
+                  f"{len(per_row_scores)}/{len(rows)} câu — chạy lại ĐÚNG lệnh cũ sau khi hết bị rate limit "
+                  f"để tự động chấm tiếp phần còn thiếu, không mất tiền/thời gian chấm lại.")
+            break
 
     if not per_row_scores:
         return {}
