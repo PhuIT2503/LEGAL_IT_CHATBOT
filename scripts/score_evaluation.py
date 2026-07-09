@@ -24,11 +24,20 @@ Cách dùng:
     # RAGAS cần 1 LLM riêng để chấm (faithfulness/answer_relevancy/context_precision/
     # answer_correctness) — tự do chọn provider, KHÔNG hardcode:
     python scripts/score_evaluation.py --modes critic --ragas-provider openai --ragas-model gpt-4o-mini
-        (cần set OPENAI_API_KEY trong môi trường)
+        (cần set OPENAI_API_KEY trong môi trường — rẻ, ~vài đô cho vài trăm câu)
     python scripts/score_evaluation.py --modes critic --ragas-provider gemini --ragas-model gemini-1.5-flash
         (cần set GOOGLE_API_KEY trong môi trường)
     python scripts/score_evaluation.py --modes critic --ragas-provider ollama
         (dùng lại Ollama local đang chạy sẵn — miễn phí, không cần API key)
+    python scripts/score_evaluation.py --modes critic --ragas-provider groq --ragas-model llama-3.1-8b-instant
+        (cần set GROQ_API_KEY — CHỈ 1 key thật của bạn, KHÔNG xoay vòng nhiều
+        key để lách rate limit — vi phạm chính sách Groq, có thể bị khóa account)
+
+    RAGAS mặc định chấm theo BATCH (10 câu/lần, xem --ragas-batch-size) và lưu
+    checkpoint tại data/ragas_checkpoint_<mode><suffix>.json sau mỗi batch —
+    nếu bị ngắt giữa chừng (mất mạng, hết quota...), chạy lại ĐÚNG lệnh cũ sẽ
+    tự động chấm tiếp phần còn thiếu, không mất tiền/thời gian chấm lại từ đầu.
+    Dùng --no-ragas-checkpoint để tắt, chấm 1 lần nguyên khối như bản cũ.
 """
 import argparse
 import csv
@@ -121,8 +130,13 @@ def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
         llm = build_judge_llm()
         if model_name:
             llm.model_name = model_name
+    elif provider == "groq":
+        if not os.getenv("GROQ_API_KEY"):
+            raise RuntimeError("--ragas-provider groq cần biến môi trường GROQ_API_KEY.")
+        from langchain_groq import ChatGroq
+        llm = ChatGroq(model=model_name or "llama-3.1-8b-instant", temperature=0.0)
     else:
-        raise ValueError(f"--ragas-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama)")
+        raise ValueError(f"--ragas-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama|groq)")
 
     embed_model = load_embedding_model(
         os.getenv("RAGAS_EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final")
@@ -174,11 +188,39 @@ def compute_completeness(llm, rows: list) -> list:
     return rows
 
 
-def try_compute_ragas(rows: list, ragas_provider: str, ragas_model: str = None) -> dict:
+def _load_ragas_checkpoint(checkpoint_path: Path) -> dict:
+    if not checkpoint_path.exists():
+        return {}
+    with open(checkpoint_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _save_ragas_checkpoint(checkpoint_path: Path, per_row_scores: dict) -> None:
+    tmp_path = checkpoint_path.with_suffix(".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(per_row_scores, f, ensure_ascii=False)
+    tmp_path.replace(checkpoint_path)
+
+
+def try_compute_ragas(
+    rows: list,
+    ragas_provider: str,
+    ragas_model: str = None,
+    checkpoint_path: Path = None,
+    batch_size: int = 10,
+) -> dict:
     """Trả về dict {metric_name: avg_score} nếu ragas cài được và chạy được, ngược lại {}.
 
-    ragas_provider: "openai" | "gemini" | "ollama" — xem build_ragas_llm_and_embeddings()
-    và docstring đầu file để biết cách truyền API key cho từng provider.
+    ragas_provider: "openai" | "gemini" | "ollama" | "groq" — xem
+    build_ragas_llm_and_embeddings() và docstring đầu file để biết cách
+    truyền API key cho từng provider.
+
+    checkpoint_path: nếu có, chấm theo TỪNG BATCH (batch_size câu/lần) và lưu
+    điểm từng câu (theo id) ra file JSON sau MỖI batch — nếu bị ngắt giữa
+    chừng (mất mạng, hết quota, Colab bị disconnect...), chạy lại đúng lệnh
+    cũ sẽ chỉ chấm tiếp phần CHƯA có trong checkpoint, không mất tiền/thời
+    gian chấm lại từ đầu. Không truyền checkpoint_path -> chấm 1 lần nguyên
+    khối như cũ (không lưu tạm, mất là mất hết).
     """
     try:
         from datasets import Dataset
@@ -195,26 +237,62 @@ def try_compute_ragas(rows: list, ragas_provider: str, ragas_model: str = None) 
         print(f"Bỏ qua RAGAS (không dựng được LLM/embeddings cho provider={ragas_provider!r}): {e}")
         return {}
 
-    ds = Dataset.from_list([
-        {
+    metrics = [faithfulness, answer_relevancy, context_precision, answer_correctness]
+    metric_names = [m.name for m in metrics]
+
+    def _to_ragas_item(r):
+        return {
             "question": r["user_input"],
             "answer": r["response"],
             "contexts": r["retrieved_contexts"] or [""],
             "ground_truth": r["reference"],
         }
-        for r in rows
-    ])
-    try:
-        result = evaluate(
-            ds,
-            metrics=[faithfulness, answer_relevancy, context_precision, answer_correctness],
-            llm=llm,
-            embeddings=embeddings,
-        )
-        return {k: float(v) for k, v in result.items()}
-    except Exception as e:
-        print(f"RAGAS evaluate() lỗi (có thể do khác version API) — báo cáo lỗi để tự điều chỉnh: {e}")
+
+    if checkpoint_path is None:
+        # Hành vi CŨ — chấm 1 lần nguyên khối, không lưu tạm.
+        ds = Dataset.from_list([_to_ragas_item(r) for r in rows])
+        try:
+            result = evaluate(ds, metrics=metrics, llm=llm, embeddings=embeddings)
+            return {k: float(v) for k, v in result.items()}
+        except Exception as e:
+            print(f"RAGAS evaluate() lỗi (có thể do khác version API) — báo cáo lỗi để tự điều chỉnh: {e}")
+            return {}
+
+    per_row_scores = _load_ragas_checkpoint(checkpoint_path)
+    if per_row_scores:
+        print(f"  Đã nạp checkpoint RAGAS: {len(per_row_scores)}/{len(rows)} câu đã chấm từ lần chạy trước.")
+
+    todo_rows = [r for r in rows if r["id"] not in per_row_scores]
+    for i in range(0, len(todo_rows), batch_size):
+        batch = todo_rows[i : i + batch_size]
+        ds = Dataset.from_list([_to_ragas_item(r) for r in batch])
+        try:
+            result = evaluate(ds, metrics=metrics, llm=llm, embeddings=embeddings)
+            df = result.to_pandas()
+        except Exception as e:
+            print(f"  RAGAS lỗi ở batch {i}-{i + len(batch)}: {e}")
+            print(f"  Đã lưu checkpoint tới {len(per_row_scores)}/{len(rows)} câu — chạy lại lệnh cũ để tiếp tục.")
+            break
+
+        for row, (_, score_row) in zip(batch, df.iterrows()):
+            scores = {}
+            for name in metric_names:
+                val = score_row.get(name)
+                if val is not None and val == val:  # loại NaN (NaN != NaN)
+                    scores[name] = float(val)
+            per_row_scores[row["id"]] = scores
+        _save_ragas_checkpoint(checkpoint_path, per_row_scores)
+        print(f"  RAGAS: đã chấm {min(i + batch_size, len(todo_rows))}/{len(todo_rows)} câu mới "
+              f"({len(per_row_scores)}/{len(rows)} tổng cộng)...")
+
+    if not per_row_scores:
         return {}
+    agg = {}
+    for name in metric_names:
+        vals = [per_row_scores[r["id"]][name] for r in rows if name in per_row_scores.get(r["id"], {})]
+        if vals:
+            agg[name] = sum(vals) / len(vals)
+    return agg
 
 
 def main():
@@ -222,10 +300,14 @@ def main():
     parser.add_argument("--modes", nargs="+", default=["naive", "article_expand", "critic"])
     parser.add_argument("--skip-ragas", action="store_true")
     parser.add_argument("--suffix", type=str, default="", help="Hậu tố file input/output (vd '_stratified10'), phải khớp với --output-suffix đã dùng ở run_evaluation.py")
-    parser.add_argument("--ragas-provider", choices=["openai", "gemini", "ollama"], default="openai",
+    parser.add_argument("--ragas-provider", choices=["openai", "gemini", "ollama", "groq"], default="openai",
                          help="LLM dùng để RAGAS chấm điểm — xem docstring đầu file để biết API key cần set cho từng provider")
     parser.add_argument("--ragas-model", type=str, default=None,
                          help="Tên model cụ thể cho --ragas-provider (vd gpt-4o-mini, gemini-1.5-flash, qwen2.5:7b). Bỏ trống dùng mặc định của provider.")
+    parser.add_argument("--ragas-batch-size", type=int, default=10,
+                         help="Số câu chấm RAGAS mỗi batch trước khi lưu checkpoint (mặc định 10) — batch nhỏ hơn = lưu thường xuyên hơn, an toàn hơn nếu hay bị ngắt, nhưng chậm hơn 1 chút.")
+    parser.add_argument("--no-ragas-checkpoint", action="store_true",
+                         help="Tắt checkpoint, chấm RAGAS 1 lần nguyên khối như bản cũ (mất là mất hết nếu bị ngắt giữa chừng).")
     args = parser.parse_args()
 
     llm = build_judge_llm()  # temperature=0 — xem docstring build_judge_llm()
@@ -241,7 +323,10 @@ def main():
 
         ragas_scores = {}
         if not args.skip_ragas:
-            ragas_scores = try_compute_ragas(rows, args.ragas_provider, args.ragas_model)
+            ckpt_path = None
+            if not args.no_ragas_checkpoint:
+                ckpt_path = PROJECT_ROOT / "data" / f"ragas_checkpoint_{mode}{args.suffix}.json"
+            ragas_scores = try_compute_ragas(rows, args.ragas_provider, args.ragas_model, ckpt_path, args.ragas_batch_size)
 
         # Lưu chi tiết từng câu
         detail_path = PROJECT_ROOT / "data" / f"eval_scores_{mode}{args.suffix}.csv"
