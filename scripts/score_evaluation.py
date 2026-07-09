@@ -14,6 +14,10 @@ run_evaluation.py) — gồm 2 lớp chỉ số:
    câu trả lời (response) có thể hiện đúng nội dung fact đó không. Tỷ lệ fact
    được thể hiện đúng = Legal Completeness Rate của câu đó.
 
+Cả 2 lớp chỉ số dùng CHUNG đúng 1 LLM chấm (--judge-provider/--judge-model,
+xem build_llm_for_provider()) — đo nhất quán, và tách biệt khỏi model SINH
+câu trả lời (Ollama/qwen của cả 3 kịch bản) để tránh self-preference bias.
+
 Output: in bảng tổng hợp theo mode x category, lưu CSV chi tiết từng câu tại
 data/eval_scores_<mode>.csv và bảng tổng hợp tại data/eval_summary.csv.
 
@@ -21,14 +25,15 @@ Cách dùng:
     python scripts/score_evaluation.py --modes naive article_expand critic
     python scripts/score_evaluation.py --modes critic --skip-ragas   # chỉ tính Completeness Rate, bỏ qua RAGAS
 
-    # RAGAS cần 1 LLM riêng để chấm (faithfulness/answer_relevancy/context_precision/
-    # answer_correctness) — tự do chọn provider, KHÔNG hardcode:
-    python scripts/score_evaluation.py --modes critic --ragas-provider openai --ragas-model gpt-4o-mini
+    # Tự do chọn LLM chấm điểm (CẢ Completeness Rate VÀ RAGAS), KHÔNG hardcode:
+    python scripts/score_evaluation.py --modes critic --judge-provider openai --judge-model gpt-4o-mini
         (cần set OPENAI_API_KEY trong môi trường — rẻ, ~vài đô cho vài trăm câu)
-    python scripts/score_evaluation.py --modes critic --ragas-provider gemini --ragas-model gemini-1.5-flash
+    python scripts/score_evaluation.py --modes critic --judge-provider gemini --judge-model gemini-1.5-flash
         (cần set GOOGLE_API_KEY trong môi trường)
-    python scripts/score_evaluation.py --modes critic --ragas-provider ollama
-        (dùng lại Ollama local đang chạy sẵn — miễn phí, không cần API key)
+    python scripts/score_evaluation.py --modes critic --judge-provider ollama
+        (dùng lại Ollama local đang chạy sẵn — miễn phí, không cần API key,
+        nhưng có rủi ro self-preference bias vì đây cũng là model sinh câu
+        trả lời của cả 3 kịch bản)
 
     RAGAS mặc định chấm theo BATCH (10 câu/lần, xem --ragas-batch-size) và lưu
     checkpoint tại data/ragas_checkpoint_<mode><suffix>.json sau mỗi batch —
@@ -51,23 +56,44 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from langchain_openai import ChatOpenAI  # noqa: E402
 
 
-def build_judge_llm() -> ChatOpenAI:
+def build_llm_for_provider(provider: str, model_name: str = None):
     """
-    LLM riêng cho việc CHẤM ĐIỂM (judge_fact_covered) — dùng temperature=0,
-    KHÁC với LLM sinh câu trả lời (build_llm(), temperature=0.2).
+    Dựng 1 LLM DUY NHẤT (temperature=0) — dùng CHUNG cho cả 2 lớp chỉ số
+    (Legal Completeness Rate VÀ RAGAS), để đo bằng đúng 1 model nhất quán,
+    không lệch chuẩn giữa 2 lớp khi đưa số liệu vào khóa luận.
 
-    Lý do: judge_fact_covered là tác vụ PHÂN LOẠI yes/no đơn giản, không phải
-    sinh văn bản tự do — không cần đa dạng hoá đầu ra. Temperature=0.2 gây
-    nhiễu không cần thiết ở đúng bước cần ổn định nhất: quan sát được qua test
-    thật là CÙNG 1 câu trả lời (chữ giống hệt nhau giữa 2 mode) nhưng judge
-    chấm khác nhau giữa các lần chạy — hoàn toàn không phải khác biệt chất
-    lượng thật, mà là nhiễu ngẫu nhiên của chính bước chấm điểm. Áp dụng
-    temperature=0 cho MỌI mode như nhau (không thiên vị mode nào) để số liệu
-    completeness_rate đáng tin cậy/tái lập được hơn.
+    Trước đây Completeness Rate luôn dùng cứng Ollama/qwen (model SINH câu trả
+    lời của cả 3 kịch bản) để chấm — có rủi ro lý thuyết "self-preference
+    bias" (model có xu hướng tự chấm câu trả lời của chính nó/model cùng họ
+    cao hơn thực tế). Gộp về 1 provider tự chọn (mặc định openai/gpt-4o-mini,
+    độc lập với model sinh câu trả lời) loại bỏ rủi ro này, và không tốn thêm
+    đáng kể (mỗi lệnh gọi chấm 1 fact rất ngắn).
+
+    temperature=0 (KHÁC với LLM sinh câu trả lời, temperature=0.2) vì đây là
+    tác vụ PHÂN LOẠI yes/no đơn giản — quan sát thực tế: CÙNG 1 câu trả lời
+    (chữ giống hệt nhau giữa 2 mode) nhưng judge chấm khác nhau giữa các lần
+    chạy nếu để temperature>0 — nhiễu ngẫu nhiên của chính bước chấm, không
+    phải khác biệt chất lượng thật.
+
+      - "openai": ChatOpenAI thật, cần OPENAI_API_KEY trong môi trường.
+      - "gemini": ChatGoogleGenerativeAI, cần GOOGLE_API_KEY trong môi trường.
+      - "ollama": Ollama local đang chạy sẵn — miễn phí, không cần API key.
     """
-    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-    model = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
-    return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.0)
+    if provider == "openai":
+        if not os.getenv("OPENAI_API_KEY"):
+            raise RuntimeError("--judge-provider openai cần biến môi trường OPENAI_API_KEY.")
+        return ChatOpenAI(model=model_name or "gpt-4o-mini", temperature=0.0)
+    elif provider == "gemini":
+        if not os.getenv("GOOGLE_API_KEY"):
+            raise RuntimeError("--judge-provider gemini cần biến môi trường GOOGLE_API_KEY.")
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        return ChatGoogleGenerativeAI(model=model_name or "gemini-1.5-flash", temperature=0.0)
+    elif provider == "ollama":
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+        model = model_name or os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+        return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.0)
+    else:
+        raise ValueError(f"--judge-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama)")
 
 
 # Tên hiển thị RÕ RÀNG cho từng chỉ số RAGAS khi in ra console — key thật trả
@@ -101,34 +127,16 @@ class _LocalSentenceTransformerEmbeddings:
 
 def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
     """
-    Dựng (llm, embeddings) cho RAGAS — TỰ DO chọn provider qua --ragas-provider,
-    KHÔNG hardcode 1 dịch vụ trả phí cố định:
-      - "openai": ChatOpenAI thật, cần OPENAI_API_KEY trong môi trường.
-      - "gemini": ChatGoogleGenerativeAI, cần GOOGLE_API_KEY trong môi trường.
-      - "ollama": dùng lại Ollama local đang chạy sẵn (build_judge_llm) — free,
-        không cần API key nào, phù hợp khi không muốn tốn phí ngoài.
-    Embeddings LUÔN dùng model fine-tune VBPL cục bộ (miễn phí, nhất quán với
-    embeddings dùng cho retrieval) — không phụ thuộc provider LLM ở trên.
+    Dựng (llm, embeddings) cho RAGAS — dùng lại ĐÚNG build_llm_for_provider()
+    (cùng 1 model với Completeness Rate, xem docstring hàm đó). Embeddings
+    LUÔN dùng model fine-tune VBPL cục bộ (miễn phí, nhất quán với embeddings
+    dùng cho retrieval) — không phụ thuộc provider LLM ở trên.
     """
     from ragas.llms import LangchainLLMWrapper
     from ragas.embeddings import LangchainEmbeddingsWrapper
     from src.llm.embedding_model import load_embedding_model
 
-    if provider == "openai":
-        if not os.getenv("OPENAI_API_KEY"):
-            raise RuntimeError("--ragas-provider openai cần biến môi trường OPENAI_API_KEY.")
-        llm = ChatOpenAI(model=model_name or "gpt-4o-mini", temperature=0.0)
-    elif provider == "gemini":
-        if not os.getenv("GOOGLE_API_KEY"):
-            raise RuntimeError("--ragas-provider gemini cần biến môi trường GOOGLE_API_KEY.")
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        llm = ChatGoogleGenerativeAI(model=model_name or "gemini-1.5-flash", temperature=0.0)
-    elif provider == "ollama":
-        llm = build_judge_llm()
-        if model_name:
-            llm.model_name = model_name
-    else:
-        raise ValueError(f"--ragas-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama)")
+    llm = build_llm_for_provider(provider, model_name)
 
     embed_model = load_embedding_model(
         os.getenv("RAGAS_EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final")
@@ -292,17 +300,17 @@ def main():
     parser.add_argument("--modes", nargs="+", default=["naive", "article_expand", "critic"])
     parser.add_argument("--skip-ragas", action="store_true")
     parser.add_argument("--suffix", type=str, default="", help="Hậu tố file input/output (vd '_stratified10'), phải khớp với --output-suffix đã dùng ở run_evaluation.py")
-    parser.add_argument("--ragas-provider", choices=["openai", "gemini", "ollama"], default="openai",
-                         help="LLM dùng để RAGAS chấm điểm — xem docstring đầu file để biết API key cần set cho từng provider")
-    parser.add_argument("--ragas-model", type=str, default=None,
-                         help="Tên model cụ thể cho --ragas-provider (vd gpt-4o-mini, gemini-1.5-flash, qwen2.5:7b). Bỏ trống dùng mặc định của provider.")
+    parser.add_argument("--judge-provider", choices=["openai", "gemini", "ollama"], default="openai",
+                         help="LLM DUY NHẤT dùng để chấm CẢ Completeness Rate VÀ RAGAS — xem docstring build_llm_for_provider() để biết API key cần set cho từng provider")
+    parser.add_argument("--judge-model", type=str, default=None,
+                         help="Tên model cụ thể cho --judge-provider (vd gpt-4o-mini, gemini-1.5-flash, qwen2.5:7b). Bỏ trống dùng mặc định của provider.")
     parser.add_argument("--ragas-batch-size", type=int, default=10,
                          help="Số câu chấm RAGAS mỗi batch trước khi lưu checkpoint (mặc định 10) — batch nhỏ hơn = lưu thường xuyên hơn, an toàn hơn nếu hay bị ngắt, nhưng chậm hơn 1 chút.")
     parser.add_argument("--no-ragas-checkpoint", action="store_true",
                          help="Tắt checkpoint, chấm RAGAS 1 lần nguyên khối như bản cũ (mất là mất hết nếu bị ngắt giữa chừng).")
     args = parser.parse_args()
 
-    llm = build_judge_llm()  # temperature=0 — xem docstring build_judge_llm()
+    llm = build_llm_for_provider(args.judge_provider, args.judge_model)
 
     summary_rows = []
     for mode in args.modes:
@@ -318,7 +326,7 @@ def main():
             ckpt_path = None
             if not args.no_ragas_checkpoint:
                 ckpt_path = PROJECT_ROOT / "data" / f"ragas_checkpoint_{mode}{args.suffix}.json"
-            ragas_scores = try_compute_ragas(rows, args.ragas_provider, args.ragas_model, ckpt_path, args.ragas_batch_size)
+            ragas_scores = try_compute_ragas(rows, args.judge_provider, args.judge_model, ckpt_path, args.ragas_batch_size)
 
         # Lưu chi tiết từng câu
         detail_path = PROJECT_ROOT / "data" / f"eval_scores_{mode}{args.suffix}.csv"
