@@ -29,9 +29,6 @@ Cách dùng:
         (cần set GOOGLE_API_KEY trong môi trường)
     python scripts/score_evaluation.py --modes critic --ragas-provider ollama
         (dùng lại Ollama local đang chạy sẵn — miễn phí, không cần API key)
-    python scripts/score_evaluation.py --modes critic --ragas-provider groq --ragas-model llama-3.1-8b-instant
-        (cần set GROQ_API_KEY — CHỈ 1 key thật của bạn, KHÔNG xoay vòng nhiều
-        key để lách rate limit — vi phạm chính sách Groq, có thể bị khóa account)
 
     RAGAS mặc định chấm theo BATCH (10 câu/lần, xem --ragas-batch-size) và lưu
     checkpoint tại data/ragas_checkpoint_<mode><suffix>.json sau mỗi batch —
@@ -130,13 +127,8 @@ def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
         llm = build_judge_llm()
         if model_name:
             llm.model_name = model_name
-    elif provider == "groq":
-        if not os.getenv("GROQ_API_KEY"):
-            raise RuntimeError("--ragas-provider groq cần biến môi trường GROQ_API_KEY.")
-        from langchain_groq import ChatGroq
-        llm = ChatGroq(model=model_name or "llama-3.1-8b-instant", temperature=0.0)
     else:
-        raise ValueError(f"--ragas-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama|groq)")
+        raise ValueError(f"--ragas-provider không hợp lệ: {provider!r} (chọn openai|gemini|ollama)")
 
     embed_model = load_embedding_model(
         os.getenv("RAGAS_EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final")
@@ -211,7 +203,7 @@ def try_compute_ragas(
 ) -> dict:
     """Trả về dict {metric_name: avg_score} nếu ragas cài được và chạy được, ngược lại {}.
 
-    ragas_provider: "openai" | "gemini" | "ollama" | "groq" — xem
+    ragas_provider: "openai" | "gemini" | "ollama" — xem
     build_ragas_llm_and_embeddings() và docstring đầu file để biết cách
     truyền API key cho từng provider.
 
@@ -300,7 +292,7 @@ def main():
     parser.add_argument("--modes", nargs="+", default=["naive", "article_expand", "critic"])
     parser.add_argument("--skip-ragas", action="store_true")
     parser.add_argument("--suffix", type=str, default="", help="Hậu tố file input/output (vd '_stratified10'), phải khớp với --output-suffix đã dùng ở run_evaluation.py")
-    parser.add_argument("--ragas-provider", choices=["openai", "gemini", "ollama", "groq"], default="openai",
+    parser.add_argument("--ragas-provider", choices=["openai", "gemini", "ollama"], default="openai",
                          help="LLM dùng để RAGAS chấm điểm — xem docstring đầu file để biết API key cần set cho từng provider")
     parser.add_argument("--ragas-model", type=str, default=None,
                          help="Tên model cụ thể cho --ragas-provider (vd gpt-4o-mini, gemini-1.5-flash, qwen2.5:7b). Bỏ trống dùng mặc định của provider.")
