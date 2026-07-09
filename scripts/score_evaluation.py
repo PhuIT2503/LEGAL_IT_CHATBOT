@@ -59,6 +59,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from langchain_openai import ChatOpenAI  # noqa: E402
+from langchain_core.embeddings import Embeddings as _LangchainEmbeddingsBase  # noqa: E402
 
 
 def build_llm_for_provider(provider: str, model_name: str = None):
@@ -111,13 +112,21 @@ RAGAS_METRIC_LABELS = {
 }
 
 
-class _LocalSentenceTransformerEmbeddings:
+class _LocalSentenceTransformerEmbeddings(_LangchainEmbeddingsBase):
     """
     Wrapper Embeddings kiểu LangChain (embed_documents/embed_query) quanh
     SentenceTransformer cục bộ (model fine-tune VBPL) — dùng cho RAGAS thay vì
     bắt buộc phải có thêm 1 API key riêng cho embeddings. Dùng CHUNG cho mọi
     provider LLM (openai/gemini/ollama) vì embeddings và LLM chấm là 2 việc
     độc lập trong RAGAS.
+
+    PHẢI kế thừa langchain_core.embeddings.Embeddings (không phải object
+    thường) — RAGAS chấm bất đồng bộ (asyncio) và cần aembed_documents/
+    aembed_query, mà class cha này tự cung cấp bản async mặc định (chạy
+    embed_documents/embed_query đồng bộ qua thread executor). Thiếu bước kế
+    thừa này thì mọi lệnh gọi async đều lỗi AttributeError, khiến các chỉ số
+    phụ thuộc embedding (answer_relevancy, answer_correctness) bị NaN/thiếu
+    dữ liệu ở một phần câu hỏi mà không crash toàn bộ — rất dễ bị bỏ sót.
     """
 
     def __init__(self, model):
