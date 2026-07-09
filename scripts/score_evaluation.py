@@ -259,9 +259,16 @@ def try_compute_ragas(
     checkpoint_path: nếu có, chấm theo TỪNG BATCH (batch_size câu/lần) và lưu
     điểm từng câu (theo id) ra file JSON sau MỖI batch — nếu bị ngắt giữa
     chừng (mất mạng, hết quota, Colab bị disconnect...), chạy lại đúng lệnh
-    cũ sẽ chỉ chấm tiếp phần CHƯA có trong checkpoint, không mất tiền/thời
-    gian chấm lại từ đầu. Không truyền checkpoint_path -> chấm 1 lần nguyên
-    khối như cũ (không lưu tạm, mất là mất hết).
+    cũ sẽ chỉ chấm tiếp phần CHƯA ĐỦ 4 chỉ số trong checkpoint, không mất
+    tiền/thời gian chấm lại từ đầu. Không truyền checkpoint_path -> chấm 1
+    lần nguyên khối như cũ (không lưu tạm, mất là mất hết).
+
+    Một câu được coi "xong" chỉ khi checkpoint có ĐỦ CẢ 4 chỉ số — vì trong
+    1 batch, evaluate() có thể chấm THÀNH CÔNG cho batch nhưng vẫn thiếu 1-2
+    chỉ số ở MỘT VÀI câu do lỗi tạm thời ở đúng job đó (rate limit, timeout —
+    xem comment ở batch_ok bên dưới). Nếu chỉ kiểm tra "câu đã có trong
+    checkpoint" mà không kiểm tra đủ chỉ số, các câu thiếu 1 phần này sẽ bị
+    bỏ sót vĩnh viễn, không bao giờ được chấm lại dù resume bao nhiêu lần.
     """
     try:
         from datasets import Dataset
@@ -301,9 +308,17 @@ def try_compute_ragas(
 
     per_row_scores = _load_json_checkpoint(checkpoint_path)
     if per_row_scores:
-        print(f"  Đã nạp checkpoint RAGAS: {len(per_row_scores)}/{len(rows)} câu đã chấm từ lần chạy trước.")
+        complete = sum(1 for s in per_row_scores.values() if len(s) >= len(metric_names))
+        print(f"  Đã nạp checkpoint RAGAS: {len(per_row_scores)}/{len(rows)} câu có trong checkpoint "
+              f"({complete} câu đủ cả {len(metric_names)} chỉ số, {len(per_row_scores) - complete} câu thiếu "
+              f"một phần do lỗi tạm thời trước đó — sẽ chấm lại các câu thiếu này).")
 
-    todo_rows = [r for r in rows if r["id"] not in per_row_scores]
+    # Coi 1 câu là "xong" chỉ khi ĐỦ cả 4 chỉ số — nếu batch trước bị rate limit/
+    # timeout giữa chừng, checkpoint có thể lưu câu đó với chỉ 1-3/4 chỉ số (xem
+    # comment ở dưới). Nếu chỉ kiểm tra "đã có trong checkpoint" (không kiểm tra đủ
+    # chỉ số), các câu thiếu 1 phần này sẽ bị coi là xong VĨNH VIỄN, không bao giờ
+    # được chấm lại dù chạy lại bao nhiêu lần.
+    todo_rows = [r for r in rows if len(per_row_scores.get(r["id"], {})) < len(metric_names)]
     consecutive_bad_batches = 0
     for i in range(0, len(todo_rows), batch_size):
         batch = todo_rows[i : i + batch_size]
