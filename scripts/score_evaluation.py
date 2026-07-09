@@ -40,6 +40,11 @@ Cách dùng:
     nếu bị ngắt giữa chừng (mất mạng, hết quota...), chạy lại ĐÚNG lệnh cũ sẽ
     tự động chấm tiếp phần còn thiếu, không mất tiền/thời gian chấm lại từ đầu.
     Dùng --no-ragas-checkpoint để tắt, chấm 1 lần nguyên khối như bản cũ.
+
+    Legal Completeness Rate cũng lưu checkpoint TỪNG CÂU tại
+    data/completeness_checkpoint_<mode><suffix>.json ngay sau khi chấm xong —
+    cùng cơ chế resume như RAGAS ở trên. Dùng --no-completeness-checkpoint để
+    tắt.
 """
 import argparse
 import csv
@@ -175,30 +180,57 @@ def judge_fact_covered(llm, response: str, fact: str) -> bool:
     return "yes" in resp.content.strip().lower()
 
 
-def compute_completeness(llm, rows: list) -> list:
-    """Gắn thêm completeness_rate + facts_covered vào từng row (mutate + return)."""
+def compute_completeness(llm, rows: list, checkpoint_path: Path = None) -> list:
+    """Gắn thêm completeness_rate + facts_covered vào từng row (mutate + return).
+
+    checkpoint_path: nếu có, lưu kết quả từng câu (theo id) ra file JSON ngay
+    sau khi chấm xong câu đó — nếu bị ngắt giữa chừng (mất mạng, hết quota,
+    Colab bị disconnect...), chạy lại đúng lệnh cũ sẽ chỉ chấm tiếp các câu
+    CHƯA có trong checkpoint, không mất tiền/thời gian chấm lại từ đầu. Không
+    truyền checkpoint_path -> hành vi cũ, không lưu tạm, mất là mất hết.
+    """
+    per_row = _load_json_checkpoint(checkpoint_path) if checkpoint_path else {}
+    if per_row:
+        print(f"  Đã nạp checkpoint Completeness Rate: {len(per_row)}/{len(rows)} câu đã chấm từ lần chạy trước.")
+
+    todo_count = sum(1 for r in rows if r["id"] not in per_row)
+    done_count = 0
     for row in rows:
+        cached = per_row.get(row["id"])
+        if cached is not None:
+            row["completeness_rate"] = cached.get("completeness_rate")
+            row["facts_covered"] = cached.get("facts_covered")
+            continue
+
         facts = row.get("required_facts", [])
         if not facts:
             row["completeness_rate"] = None
-            continue
-        covered = [judge_fact_covered(llm, row["response"], f) for f in facts]
-        row["facts_covered"] = covered
-        row["completeness_rate"] = sum(covered) / len(covered)
+            row["facts_covered"] = None
+        else:
+            covered = [judge_fact_covered(llm, row["response"], f) for f in facts]
+            row["facts_covered"] = covered
+            row["completeness_rate"] = sum(covered) / len(covered)
+
+        per_row[row["id"]] = {"completeness_rate": row["completeness_rate"], "facts_covered": row["facts_covered"]}
+        done_count += 1
+        if checkpoint_path is not None:
+            _save_json_checkpoint(checkpoint_path, per_row)
+            if done_count % 20 == 0 or done_count == todo_count:
+                print(f"  Completeness Rate: đã chấm {done_count}/{todo_count} câu mới ({len(per_row)}/{len(rows)} tổng cộng)...")
     return rows
 
 
-def _load_ragas_checkpoint(checkpoint_path: Path) -> dict:
+def _load_json_checkpoint(checkpoint_path: Path) -> dict:
     if not checkpoint_path.exists():
         return {}
     with open(checkpoint_path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def _save_ragas_checkpoint(checkpoint_path: Path, per_row_scores: dict) -> None:
+def _save_json_checkpoint(checkpoint_path: Path, data: dict) -> None:
     tmp_path = checkpoint_path.with_suffix(".tmp")
     with open(tmp_path, "w", encoding="utf-8") as f:
-        json.dump(per_row_scores, f, ensure_ascii=False)
+        json.dump(data, f, ensure_ascii=False)
     tmp_path.replace(checkpoint_path)
 
 
@@ -258,7 +290,7 @@ def try_compute_ragas(
             print(f"RAGAS evaluate() lỗi (có thể do khác version API) — báo cáo lỗi để tự điều chỉnh: {e}")
             return {}
 
-    per_row_scores = _load_ragas_checkpoint(checkpoint_path)
+    per_row_scores = _load_json_checkpoint(checkpoint_path)
     if per_row_scores:
         print(f"  Đã nạp checkpoint RAGAS: {len(per_row_scores)}/{len(rows)} câu đã chấm từ lần chạy trước.")
 
@@ -281,7 +313,7 @@ def try_compute_ragas(
                 if val is not None and val == val:  # loại NaN (NaN != NaN)
                     scores[name] = float(val)
             per_row_scores[row["id"]] = scores
-        _save_ragas_checkpoint(checkpoint_path, per_row_scores)
+        _save_json_checkpoint(checkpoint_path, per_row_scores)
         print(f"  RAGAS: đã chấm {min(i + batch_size, len(todo_rows))}/{len(todo_rows)} câu mới "
               f"({len(per_row_scores)}/{len(rows)} tổng cộng)...")
 
@@ -308,6 +340,8 @@ def main():
                          help="Số câu chấm RAGAS mỗi batch trước khi lưu checkpoint (mặc định 10) — batch nhỏ hơn = lưu thường xuyên hơn, an toàn hơn nếu hay bị ngắt, nhưng chậm hơn 1 chút.")
     parser.add_argument("--no-ragas-checkpoint", action="store_true",
                          help="Tắt checkpoint, chấm RAGAS 1 lần nguyên khối như bản cũ (mất là mất hết nếu bị ngắt giữa chừng).")
+    parser.add_argument("--no-completeness-checkpoint", action="store_true",
+                         help="Tắt checkpoint, chấm Completeness Rate lại từ đầu mỗi lần (mất là mất hết nếu bị ngắt giữa chừng).")
     args = parser.parse_args()
 
     llm = build_llm_for_provider(args.judge_provider, args.judge_model)
@@ -319,7 +353,10 @@ def main():
             continue
 
         print(f"\n=== Chấm điểm mode={mode} ({len(rows)} câu) ===")
-        rows = compute_completeness(llm, rows)
+        completeness_ckpt_path = None
+        if not args.no_completeness_checkpoint:
+            completeness_ckpt_path = PROJECT_ROOT / "data" / f"completeness_checkpoint_{mode}{args.suffix}.json"
+        rows = compute_completeness(llm, rows, completeness_ckpt_path)
 
         ragas_scores = {}
         if not args.skip_ragas:
