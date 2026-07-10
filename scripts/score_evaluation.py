@@ -45,6 +45,11 @@ Cách dùng:
     data/completeness_checkpoint_<mode><suffix>.json ngay sau khi chấm xong —
     cùng cơ chế resume như RAGAS ở trên. Dùng --no-completeness-checkpoint để
     tắt.
+
+    Mỗi job RAGAS lỗi (rate limit, timeout) mặc định chỉ thử lại 2 lần rồi bỏ
+    qua (xem --ragas-max-retries) thay vì thử tới 10 lần như mặc định gốc của
+    ragas — tránh "treo" rất lâu khi API đang bị giới hạn kéo dài; câu bị bỏ
+    qua vẫn tự được chấm lại ở lần chạy SAU nhờ checkpoint.
 """
 import argparse
 import csv
@@ -249,6 +254,7 @@ def try_compute_ragas(
     ragas_model: str = None,
     checkpoint_path: Path = None,
     batch_size: int = 10,
+    max_retries: int = 2,
 ) -> dict:
     """Trả về dict {metric_name: avg_score} nếu ragas cài được và chạy được, ngược lại {}.
 
@@ -269,15 +275,26 @@ def try_compute_ragas(
     xem comment ở batch_ok bên dưới). Nếu chỉ kiểm tra "câu đã có trong
     checkpoint" mà không kiểm tra đủ chỉ số, các câu thiếu 1 phần này sẽ bị
     bỏ sót vĩnh viễn, không bao giờ được chấm lại dù resume bao nhiêu lần.
+
+    max_retries: ragas mặc định thử lại TỚI 10 LẦN mỗi job lỗi (RunConfig mặc
+    định: max_retries=10, max_wait=60s, timeout=180s/lần thử) — 1 job cứ lỗi
+    hoài (vd đang bị rate limit kéo dài) có thể "treo" nhiều phút trước khi
+    ragas chịu bỏ cuộc, nhân với hàng chục job/batch thành rất lâu. Giảm
+    xuống số lần thử thấp (mặc định 2) để job lỗi được bỏ qua NHANH trong
+    lần chạy này — vẫn không mất gì vì cơ chế resume ở trên sẽ tự chấm lại
+    đúng câu đó ở lần chạy SAU.
     """
     try:
         from datasets import Dataset
         from ragas import evaluate
         from ragas.metrics import faithfulness, answer_relevancy, context_precision, answer_correctness
+        from ragas.run_config import RunConfig
     except ImportError as e:
         print(f"Bỏ qua RAGAS (chưa cài đặt hoặc thiếu dependency): {e}")
         print("Cài đặt: pip install ragas datasets")
         return {}
+
+    run_config = RunConfig(max_retries=max_retries, max_wait=10, timeout=60)
 
     try:
         llm, embeddings = build_ragas_llm_and_embeddings(ragas_provider, ragas_model)
@@ -300,7 +317,7 @@ def try_compute_ragas(
         # Hành vi CŨ — chấm 1 lần nguyên khối, không lưu tạm.
         ds = Dataset.from_list([_to_ragas_item(r) for r in rows])
         try:
-            result = evaluate(ds, metrics=metrics, llm=llm, embeddings=embeddings)
+            result = evaluate(ds, metrics=metrics, llm=llm, embeddings=embeddings, run_config=run_config)
             return {k: float(v) for k, v in result.items()}
         except Exception as e:
             print(f"RAGAS evaluate() lỗi (có thể do khác version API) — báo cáo lỗi để tự điều chỉnh: {e}")
@@ -324,7 +341,7 @@ def try_compute_ragas(
         batch = todo_rows[i : i + batch_size]
         ds = Dataset.from_list([_to_ragas_item(r) for r in batch])
         try:
-            result = evaluate(ds, metrics=metrics, llm=llm, embeddings=embeddings)
+            result = evaluate(ds, metrics=metrics, llm=llm, embeddings=embeddings, run_config=run_config)
             df = result.to_pandas()
         except Exception as e:
             print(f"  RAGAS lỗi ở batch {i}-{i + len(batch)}: {e}")
@@ -386,6 +403,8 @@ def main():
                          help="Tên model cụ thể cho --judge-provider (vd gpt-4o-mini, gemini-1.5-flash, qwen2.5:7b). Bỏ trống dùng mặc định của provider.")
     parser.add_argument("--ragas-batch-size", type=int, default=10,
                          help="Số câu chấm RAGAS mỗi batch trước khi lưu checkpoint (mặc định 10) — batch nhỏ hơn = lưu thường xuyên hơn, an toàn hơn nếu hay bị ngắt, nhưng chậm hơn 1 chút.")
+    parser.add_argument("--ragas-max-retries", type=int, default=2,
+                         help="Số lần ragas thử lại mỗi job lỗi trước khi bỏ qua (mặc định 2, ragas mặc định gốc là 10 — dễ 'treo' rất lâu nếu đang bị rate limit kéo dài). Câu bị bỏ qua vẫn được chấm lại ở lần chạy SAU nhờ checkpoint, không mất gì.")
     parser.add_argument("--no-ragas-checkpoint", action="store_true",
                          help="Tắt checkpoint, chấm RAGAS 1 lần nguyên khối như bản cũ (mất là mất hết nếu bị ngắt giữa chừng).")
     parser.add_argument("--no-completeness-checkpoint", action="store_true",
@@ -411,7 +430,7 @@ def main():
             ckpt_path = None
             if not args.no_ragas_checkpoint:
                 ckpt_path = PROJECT_ROOT / "data" / f"ragas_checkpoint_{mode}{args.suffix}.json"
-            ragas_scores = try_compute_ragas(rows, args.judge_provider, args.judge_model, ckpt_path, args.ragas_batch_size)
+            ragas_scores = try_compute_ragas(rows, args.judge_provider, args.judge_model, ckpt_path, args.ragas_batch_size, args.ragas_max_retries)
 
         # Lưu chi tiết từng câu
         detail_path = PROJECT_ROOT / "data" / f"eval_scores_{mode}{args.suffix}.csv"
