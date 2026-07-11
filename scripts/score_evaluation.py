@@ -147,9 +147,11 @@ class _LocalSentenceTransformerEmbeddings(_LangchainEmbeddingsBase):
 def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
     """
     Dựng (llm, embeddings) cho RAGAS — dùng lại ĐÚNG build_llm_for_provider()
-    (cùng 1 model với Completeness Rate, xem docstring hàm đó). Embeddings
-    LUÔN dùng model fine-tune VBPL cục bộ (miễn phí, nhất quán với embeddings
-    dùng cho retrieval) — không phụ thuộc provider LLM ở trên.
+    (cùng 1 model với Completeness Rate, xem docstring hàm đó). Embeddings mặc
+    định THEO ĐÚNG embedding đang dùng cho retrieval (biến môi trường
+    EMBEDDING_MODEL — xem build_pipeline() trong scripts/run_chatbot.py), để
+    nhất quán khi so sánh fine-tune vs embedding gốc — set RAGAS_EMBEDDING_MODEL
+    riêng nếu thật sự muốn RAGAS dùng embedding KHÁC với retrieval.
     """
     from ragas.llms import LangchainLLMWrapper
     from ragas.embeddings import LangchainEmbeddingsWrapper
@@ -158,7 +160,7 @@ def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
     llm = build_llm_for_provider(provider, model_name)
 
     embed_model = load_embedding_model(
-        os.getenv("RAGAS_EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final")
+        os.getenv("RAGAS_EMBEDDING_MODEL") or os.getenv("EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final")
     )
     embeddings = LangchainEmbeddingsWrapper(_LocalSentenceTransformerEmbeddings(embed_model))
     return LangchainLLMWrapper(llm), embeddings
