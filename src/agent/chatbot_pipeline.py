@@ -84,7 +84,7 @@ class ChatbotPipeline:
         neo4j_pass: str = "legal_kg_2024",
         top_k: int = 5,
         prefetch_limit: int = 20,
-        critic_score_ratio: float = 0.7,
+        critic_score_ratio: float = 0.6,
         critic_max_dieu: int = 3,
         article_expand_score_ratio: float = 0.6,
     ):
@@ -107,6 +107,12 @@ class ChatbotPipeline:
         # cần đối chiếu ≥2 Điều), tỷ lệ này vẫn giữ được TẤT CẢ — không bỏ sót như
         # cách cắt cứng "chỉ top-1" trước đây. critic_max_dieu là van an toàn,
         # tránh trường hợp hiếm khi quá nhiều Điều cùng đạt điểm cao.
+        #
+        # Hạ từ 0.7 xuống 0.6 (bằng article_expand_score_ratio) sau khi quan sát
+        # thực tế: có Điều nằm trong ground-truth (thực sự cần để trả lời đủ)
+        # nhưng bị loại khỏi diện "focus" chỉ vì đạt 68.6% điểm Điều cao nhất —
+        # dưới ngưỡng 0.7 cũ trong gang tấc — khiến bước kiểm tra tham chiếu KG
+        # không bao giờ chạy tới nó, dù Neo4j có thể có đúng quan hệ THAM_CHIEU.
         self.critic_score_ratio = critic_score_ratio
         self.critic_max_dieu = critic_max_dieu
 
