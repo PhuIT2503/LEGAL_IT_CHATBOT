@@ -26,6 +26,7 @@ class ChatbotState(TypedDict):
     retrieved_dieu_ids: List[str]
     dieu_scores: Dict[str, float]
     context_texts: List[str]
+    article_expand_dieu_ids: List[str]
     draft_response: str
     critic_report: Dict[str, Any]
     graph_context: str
@@ -43,19 +44,16 @@ class ChatbotPipeline:
 
     - mode="article_expand" (Kịch bản 2 — RAG mở rộng toàn Điều, KHÔNG dùng
       quan hệ Knowledge Graph, KHÔNG có Critic Agent):
-      retrieval — DÙNG CHUNG đúng retrieved_dieu_ids với naive/critic (suy từ
-      ĐÚNG top-k chunk thuần, KHÔNG quét rộng hơn top-k) để đảm bảo công bằng
-      thực nghiệm: cả 3 kịch bản xuất phát từ CÙNG 1 tập Điều ứng viên, chỉ
-      khác nhau ở PHẦN NGỮ CẢNH đưa vào LLM, không khác nhau ở việc "được xem
-      nhiều ứng viên hơn". Với MỖI Điều trong tập đó, chỉ lấy TOÀN VĂN CHÍNH
-      Điều đó (không đi theo bất kỳ quan hệ KG nào — không THAM_CHIEU sang
-      Điều khác, không dò HanhVi/CheTai/ChuThe/...) -> nhồi vào LLM, trả lời 1
-      lần. Mục đích: cô lập đúng 1 biến số so với Kịch bản 3 — "mở rộng lên
-      toàn Điều" tự nó KHÔNG cần Knowledge Graph (chỉ cần biết Điều có những
-      chunk con nào), nên Kịch bản này xử lý tốt câu hỏi mà thông tin nằm ĐẦY
-      ĐỦ trong 1 Điều (structural đa Khoản) nhưng KHÔNG tự lấy được chế tài
-      kép/tham chiếu nằm ở Điều KHÁC — đúng khoảng trống mà Kịch bản 3 phải
-      lấp bằng KG.
+      retrieval (đủ top_k Điều KHÁC NHAU đạt ngưỡng điểm article_expand_score_ratio
+      — xem retrieve_documents) -> với MỖI Điều, chỉ lấy
+      TOÀN VĂN CHÍNH Điều đó (không đi theo bất kỳ quan hệ KG nào — không
+      THAM_CHIEU sang Điều khác, không dò HanhVi/CheTai/ChuThe/...) -> nhồi
+      vào LLM, trả lời 1 lần. Mục đích: cô lập đúng 1 biến số so với Kịch bản
+      3 — "mở rộng lên toàn Điều" tự nó KHÔNG cần Knowledge Graph (chỉ cần
+      biết Điều có những chunk con nào), nên Kịch bản này xử lý tốt câu hỏi mà
+      thông tin nằm ĐẦY ĐỦ trong 1 Điều (structural đa Khoản) nhưng KHÔNG tự
+      lấy được chế tài kép/tham chiếu nằm ở Điều KHÁC — đúng khoảng trống mà
+      Kịch bản 3 phải lấp bằng KG.
 
     - mode="critic"      (Kịch bản 3 — đề xuất của khóa luận):
       retrieval (top-k thuần) -> LLM sinh câu trả lời NHÁP -> Critic Agent (KG)
@@ -88,6 +86,7 @@ class ChatbotPipeline:
         prefetch_limit: int = 20,
         critic_score_ratio: float = 0.7,
         critic_max_dieu: int = 3,
+        article_expand_score_ratio: float = 0.6,
     ):
         self.llm = llm
         self.qdrant_child_col = qdrant_child_col
@@ -110,6 +109,16 @@ class ChatbotPipeline:
         # tránh trường hợp hiếm khi quá nhiều Điều cùng đạt điểm cao.
         self.critic_score_ratio = critic_score_ratio
         self.critic_max_dieu = critic_max_dieu
+
+        # article_expand xét trên 1 tập RỘNG hơn top-k thuần (retrieve_documents,
+        # để đủ top_k Điều KHÁC NHAU) — BẮT BUỘC vẫn phải lọc theo tỷ lệ điểm
+        # (KHÔNG lấy mù toàn bộ top_k đầu tiên của tập rộng): đã quan sát thực
+        # tế lấy mù không lọc gì khiến article_expand dính phải Điều lạc hẳn
+        # chủ đề (từ Nghị định/Luật khác hoàn toàn), sập điểm hoàn toàn xuống
+        # dưới cả naive (0.642 -> 0.15 trên cat1). KHÔNG cap max_dieu như
+        # critic (critic_max_dieu=3) — article_expand vẫn ưu tiên lấy ĐỦ top_k
+        # Điều nếu có đủ ứng viên đạt tỷ lệ này.
+        self.article_expand_score_ratio = article_expand_score_ratio
 
         # Client/model/bm25 load 1 LẦN DUY NHẤT khi khởi tạo pipeline, dùng lại
         # cho mọi câu hỏi trong phiên — tránh load lại embedding model mỗi query.
@@ -300,6 +309,15 @@ class ChatbotPipeline:
         critic_max_dieu (gọi từ critic_check, KHÔNG truyền tham số) — đây LÀ cơ
         chế đề xuất của khóa luận, tránh 1 Điều điểm thấp (nhiễu retrieval) kéo
         theo tham chiếu riêng làm loãng ngữ cảnh.
+
+        article_expand cũng dùng lại hàm này (retrieve_documents) nhưng truyền
+        RIÊNG article_expand_score_ratio (xem __init__) và max_dieu=top_k
+        (KHÔNG cap thấp như critic_max_dieu) — vì article_expand xét trên tập
+        RỘNG hơn (wide_chunks). BẮT BUỘC phải lọc theo tỷ lệ này (KHÔNG lấy mù
+        top_k đầu tiên của tập rộng, bỏ qua điểm số) — đã quan sát thực tế lấy
+        mù không lọc gì khiến article_expand dính phải Điều lạc hẳn chủ đề (từ
+        Nghị định/Luật khác hoàn toàn do độ liên quan giảm nhanh trong tập 20
+        chunk), sập điểm hoàn toàn xuống dưới cả naive (0.642 -> 0.15 trên cat1).
         """
         score_ratio = self.critic_score_ratio if score_ratio is None else score_ratio
         max_dieu = self.critic_max_dieu if max_dieu is None else max_dieu
@@ -478,26 +496,41 @@ class ChatbotPipeline:
     def retrieve_documents(self, state: ChatbotState):
         """
         RAG THUẦN — chỉ lấy đúng top-k chunk, KHÔNG expand, KHÔNG dùng KG.
-        Dùng CHUNG cho cả 3 kịch bản (naive/article_expand/critic) — cả 3 xuất
-        phát từ ĐÚNG CÙNG 1 tập Điều ứng viên (retrieved_dieu_ids, suy từ top-k
-        chunk thuần), đảm bảo công bằng thực nghiệm: khác biệt kết quả giữa 3
-        kịch bản phản ánh đúng PHẦN NGỮ CẢNH đưa vào LLM, không phải do được
-        xem nhiều/ít ứng viên retrieval hơn nhau.
+        Dùng chung cho cả 3 kịch bản để đảm bảo so sánh công bằng.
 
-        (Trước đây article_expand dùng riêng 1 tập ứng viên RỘNG hơn — quét tới
-        4x top-k chunk — để đủ top_k Điều KHÁC NHAU dù nhiều chunk top-k trùng
-        vào cùng 1 Điều. Đã bỏ cơ chế này: không công bằng khi so sánh với
-        naive/critic chỉ thấy đúng top-k chunk — xem expand_full_article.)
+        Trả về 2 danh sách Điều RIÊNG BIỆT, phục vụ 2 mục đích khác nhau:
+        - retrieved_dieu_ids/dieu_scores: suy TRỰC TIẾP từ ĐÚNG top-k chunk
+          (như thiết kế gốc, KHÔNG đổi) — dùng cho naive (MRR/nDCG chung) và
+          critic (_compute_focus_dieu_ids) — 2 kịch bản này giữ nguyên hành vi
+          cũ hoàn toàn.
+        - article_expand_dieu_ids: suy từ 1 tập chunk RỘNG HƠN top-k
+          (wide_chunks), lọc qua _compute_focus_dieu_ids với
+          article_expand_score_ratio (xem __init__) rồi cap tối đa top_k —
+          CHỈ dùng riêng cho expand_full_article. Lý do tách riêng: nếu suy
+          Điều trực tiếp từ top-k CHUNK, nhiều chunk top-k có thể trùng vào
+          CÙNG 1 Điều (vd top-5 chunk nhưng chỉ thuộc 2 Điều khác nhau, do 1
+          Điều nhiều Khoản cùng khớp câu hỏi) — khiến article_expand chỉ có 2
+          Điều để "mở rộng toàn Điều" dù top_k=5, trái đúng bản chất baseline
+          này (mở rộng lên K ĐIỀU khác nhau, không phải K chunk). BẮT BUỘC lọc
+          theo tỷ lệ điểm (KHÔNG lấy mù top_k đầu tiên của tập rộng) — đã
+          quan sát thực tế lấy mù khiến article_expand dính phải Điều LẠC HẲN
+          chủ đề (từ Nghị định/Luật khác hoàn toàn) do độ liên quan giảm rất
+          nhanh trong tập 20 chunk, sập điểm hoàn toàn xuống dưới cả naive.
         """
         logger.info("Retrieving documents via Hybrid Search (top-k thuần, không expand)...")
         query = state["query"]
+
+        # Tập chunk RỘNG hơn top_k, CHỈ dùng để suy article_expand_dieu_ids —
+        # không vượt quá prefetch_limit (giới hạn candidate pool thật sự có
+        # sẵn để xếp hạng, hỏi rộng hơn cũng không có thêm ứng viên mới).
+        wide_limit = min(self.top_k * 4, self.prefetch_limit)
 
         try:
             result = hybrid_search(
                 query=query,
                 child_collection=self.qdrant_child_col,
                 parent_collection=self.qdrant_parent_col,
-                limit=self.top_k,
+                limit=wide_limit,
                 prefetch_limit=self.prefetch_limit,
                 fusion="rrf",
                 include_parent=False,
@@ -505,15 +538,15 @@ class ChatbotPipeline:
                 model=self.embedding_model,
                 bm25=self.bm25,
             )
-            hits = result.get("children", [])
+            wide_hits = result.get("children", [])
         except Exception as e:
             logger.warning(f"Qdrant search failed (Qdrant có thể chưa ingest dữ liệu): {e}")
-            hits = []
+            wide_hits = []
 
-        retrieved_chunks = []
-        for p in hits:
+        wide_chunks = []
+        for p in wide_hits:
             payload = getattr(p, "payload", {}) or {}
-            retrieved_chunks.append({
+            wide_chunks.append({
                 "chunk_id": payload.get("id"),
                 "text": payload.get("content", ""),
                 "dieu_id_raw": payload.get("dieu_id", ""),
@@ -521,8 +554,14 @@ class ChatbotPipeline:
                 "score": getattr(p, "score", None),
             })
 
+        # retrieved_chunks/context_texts: ĐÚNG top-k chunk thuần — GIỮ NGUYÊN
+        # như thiết kế gốc (cắt từ đầu tập rộng, thứ tự score giảm dần không đổi).
+        retrieved_chunks = wide_chunks[: self.top_k]
         context_texts = [c["text"] for c in retrieved_chunks if c["text"]]
 
+        # retrieved_dieu_ids/dieu_scores: suy TỪ ĐÚNG top-k chunk (KHÔNG đổi
+        # so với thiết kế gốc) — dùng cho naive (MRR/nDCG) và critic
+        # (_compute_focus_dieu_ids), GIỮ NGUYÊN hành vi cũ.
         dieu_best_score: dict[str, float] = {}
         dieu_order: list[str] = []
         for c in retrieved_chunks:
@@ -537,12 +576,40 @@ class ChatbotPipeline:
                 dieu_best_score[d] = max(dieu_best_score[d], score)
         retrieved_dieu_ids = dieu_order
 
-        logger.info(f"Retrieved {len(retrieved_chunks)} chunk top-k -> {len(retrieved_dieu_ids)} Điều.")
+        # article_expand_dieu_ids: thu thập TOÀN BỘ Điều khác nhau trong tập
+        # rộng (không cắt sớm) cùng điểm tốt nhất, rồi lọc qua
+        # _compute_focus_dieu_ids với article_expand_score_ratio (chặt hơn
+        # critic_score_ratio — xem __init__) + cap tối đa top_k. KHÔNG lấy mù
+        # toàn bộ top_k đầu tiên của tập rộng — độ liên quan giảm nhanh trong
+        # tập 20 chunk, lấy mù sẽ dính phải Điều lạc hẳn chủ đề (đã quan sát
+        # thực tế, xem __init__).
+        wide_dieu_best_score: dict[str, float] = {}
+        wide_dieu_order: list[str] = []
+        for c in wide_chunks:
+            d = to_dieu_node_id(c["van_ban_id_raw"], c["dieu_id_raw"])
+            if not d:
+                continue
+            score = c["score"] or 0.0
+            if d not in wide_dieu_best_score:
+                wide_dieu_order.append(d)
+                wide_dieu_best_score[d] = score
+            else:
+                wide_dieu_best_score[d] = max(wide_dieu_best_score[d], score)
+        article_expand_dieu_ids = self._compute_focus_dieu_ids(
+            wide_dieu_order, wide_dieu_best_score,
+            score_ratio=self.article_expand_score_ratio, max_dieu=self.top_k,
+        )
+
+        logger.info(
+            f"Retrieved {len(retrieved_chunks)} chunk top-k -> {len(retrieved_dieu_ids)} Điều (naive/critic); "
+            f"article_expand: {len(article_expand_dieu_ids)} Điều khác nhau (quét rộng {len(wide_chunks)} chunk)."
+        )
         return {
             "retrieved_chunks": retrieved_chunks,
             "retrieved_dieu_ids": retrieved_dieu_ids,
             "dieu_scores": dieu_best_score,
             "context_texts": context_texts,
+            "article_expand_dieu_ids": article_expand_dieu_ids,
         }
 
     def _format_context_block(self, context_texts: List[str]) -> str:
@@ -614,10 +681,17 @@ class ChatbotPipeline:
         Kịch bản 2 (RAG mở rộng toàn Điều, KHÔNG dùng quan hệ Knowledge Graph,
         KHÔNG có Critic Agent) — dùng để SO SÁNH, KHÔNG phải cơ chế đề xuất.
 
-        Mở rộng ĐÚNG retrieved_dieu_ids — tập Điều CHUNG với naive/critic, suy
-        từ ĐÚNG top-k chunk thuần (xem retrieve_documents), KHÔNG quét rộng
-        hơn — để công bằng thực nghiệm, cả 3 kịch bản xuất phát từ cùng 1 tập
-        ứng viên retrieval, chỉ khác nhau ở phần ngữ cảnh đưa vào LLM.
+        Mở rộng article_expand_dieu_ids — đủ top_k Điều KHÁC NHAU, suy từ 1
+        tập chunk RỘNG hơn top-k thuần rồi lọc qua article_expand_score_ratio
+        (xem retrieve_documents/__init__) — KHÔNG dùng retrieved_dieu_ids (tập
+        hẹp suy từ ĐÚNG top-k chunk, dành riêng cho naive/critic) và KHÔNG
+        dùng critic_score_ratio/critic_max_dieu (đó là ngưỡng riêng của
+        critic_check). article_expand vẫn CÓ lọc theo tỷ lệ điểm — KHÔNG lấy
+        mù hoàn toàn (đã thử và bỏ: lấy mù top_k Điều đầu tiên của tập rộng,
+        không lọc gì, khiến baseline dính phải Điều lạc hẳn chủ đề từ Nghị
+        định/Luật khác, sập điểm xuống dưới cả naive — 0.642 -> 0.15 trên
+        cat1) — chỉ khác critic ở việc KHÔNG có bước "phát hiện thiếu qua KG"
+        và dùng cap riêng (bằng top_k thay vì critic_max_dieu thấp hơn).
 
         Với MỖI Điều, chỉ lấy TOÀN VĂN CHÍNH Điều đó (qua Qdrant parent chunk)
         — KHÔNG đi theo bất kỳ quan hệ nào trong Knowledge Graph (không
@@ -628,7 +702,7 @@ class ChatbotPipeline:
         được tham chiếu, chế tài phụ nằm ở Khoản/Điều khác).
         """
         logger.info("Mở rộng toàn văn Điều trong phạm vi (không dùng quan hệ KG, không lọc thêm)...")
-        retrieved_dieu_ids = state.get("retrieved_dieu_ids", [])
+        retrieved_dieu_ids = state.get("article_expand_dieu_ids", [])
         if not retrieved_dieu_ids:
             return {"graph_context": "", "graph_fetched_dieu_ids": []}
 
