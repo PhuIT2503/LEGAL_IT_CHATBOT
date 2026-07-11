@@ -85,7 +85,7 @@ class ChatbotPipeline:
         top_k: int = 5,
         prefetch_limit: int = 20,
         critic_score_ratio: float = 0.6,
-        critic_max_dieu: int = 3,
+        critic_max_dieu: int = 4,
         article_expand_score_ratio: float = 0.6,
     ):
         self.llm = llm
@@ -113,6 +113,14 @@ class ChatbotPipeline:
         # nhưng bị loại khỏi diện "focus" chỉ vì đạt 68.6% điểm Điều cao nhất —
         # dưới ngưỡng 0.7 cũ trong gang tấc — khiến bước kiểm tra tham chiếu KG
         # không bao giờ chạy tới nó, dù Neo4j có thể có đúng quan hệ THAM_CHIEU.
+        #
+        # Tăng critic_max_dieu 3 -> 4 vì lý do TƯƠNG TỰ: cùng ví dụ trên, 3 Điều
+        # đầu đã hòa điểm tuyệt đối cao nhất, lấp đầy cap=3 TRƯỚC KHI vòng lặp
+        # kịp xét tới Điều thứ 4 (dù đã đạt ngưỡng tỷ lệ) — cap quá thấp tự nó
+        # trở thành nút thắt, tách biệt với ngưỡng tỷ lệ điểm. CHỈ tăng 1 (không
+        # tăng bằng top_k=5) để ngữ cảnh cuối vẫn ngắn hơn rõ rệt so với
+        # article_expand (blind-dump toàn bộ top_k Điều, không qua cổng lọc
+        # relevance) — đúng tinh thần thiết kế "gọn và sạch" của Critic Agent.
         self.critic_score_ratio = critic_score_ratio
         self.critic_max_dieu = critic_max_dieu
 
@@ -121,9 +129,9 @@ class ChatbotPipeline:
         # (KHÔNG lấy mù toàn bộ top_k đầu tiên của tập rộng): đã quan sát thực
         # tế lấy mù không lọc gì khiến article_expand dính phải Điều lạc hẳn
         # chủ đề (từ Nghị định/Luật khác hoàn toàn), sập điểm hoàn toàn xuống
-        # dưới cả naive (0.642 -> 0.15 trên cat1). KHÔNG cap max_dieu như
-        # critic (critic_max_dieu=3) — article_expand vẫn ưu tiên lấy ĐỦ top_k
-        # Điều nếu có đủ ứng viên đạt tỷ lệ này.
+        # dưới cả naive (0.642 -> 0.15 trên cat1). KHÔNG cap thấp như
+        # critic_max_dieu — article_expand vẫn ưu tiên lấy ĐỦ top_k Điều nếu
+        # có đủ ứng viên đạt tỷ lệ này.
         self.article_expand_score_ratio = article_expand_score_ratio
 
         # Client/model/bm25 load 1 LẦN DUY NHẤT khi khởi tạo pipeline, dùng lại
