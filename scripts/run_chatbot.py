@@ -17,6 +17,16 @@ Cách dùng:
     python scripts/run_chatbot.py --query "..." --mode critic         # Kịch bản 3: Critic Agent (mặc định, đề xuất khóa luận)
     python scripts/run_chatbot.py --query "..." --compare-all         # chạy cả 3 kịch bản để so sánh
     python scripts/run_chatbot.py                                     # chế độ nhập tương tác
+
+So sánh với embedding GỐC (chưa fine-tune) — không cần sửa code, chỉ set 2 biến môi
+trường trước khi chạy (build_pipeline() tự đọc, mặc định vẫn dùng bản fine-tune nếu
+không set):
+    QDRANT_PATH=data/.qdrant_base EMBEDDING_MODEL=AITeamVN/Vietnamese_Embedding_v2 \\
+        python scripts/run_chatbot.py --query "..."
+    (data/.qdrant_base phải được ingest riêng trước bằng model gốc, xem
+    src/data_ingestion/qdrant_local_ingest.py --model AITeamVN/Vietnamese_Embedding_v2
+    --db-path data/.qdrant_base — KHÔNG dùng chung data/.qdrant với bản fine-tune vì
+    2 model có không gian embedding khác nhau, lẫn vào sẽ sai kết quả retrieval.)
 """
 
 import os
@@ -44,12 +54,16 @@ def build_llm() -> ChatOpenAI:
 
 
 def build_pipeline(llm, top_k: int = 5) -> ChatbotPipeline:
+    # QDRANT_PATH/EMBEDDING_MODEL cho phép trỏ sang 1 index/model KHÁC (vd so sánh
+    # embedding gốc chưa fine-tune) mà không cần sửa code — mặc định vẫn là Qdrant
+    # + embedding fine-tune chuẩn của repo nếu không set 2 biến môi trường này.
     return ChatbotPipeline(
         llm=llm,
         # Qdrant chạy ở chế độ embedded/local-file (data/.qdrant trong repo) để dễ
         # đóng gói/chuyển dự án — chỉ set QDRANT_URL nếu thật sự có Qdrant server riêng.
         qdrant_url=os.getenv("QDRANT_URL") or None,
-        qdrant_path=str(PROJECT_ROOT / "data" / ".qdrant"),
+        qdrant_path=os.getenv("QDRANT_PATH", str(PROJECT_ROOT / "data" / ".qdrant")),
+        embedding_model_name=os.getenv("EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final"),
         neo4j_uri=os.getenv("NEO4J_URI", "bolt://localhost:7687"),
         neo4j_user=os.getenv("NEO4J_USER", "neo4j"),
         neo4j_pass=os.getenv("NEO4J_PASSWORD", "legal_kg_2024"),
