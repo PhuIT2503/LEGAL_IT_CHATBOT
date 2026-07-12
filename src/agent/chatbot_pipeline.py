@@ -86,7 +86,7 @@ class ChatbotPipeline:
         prefetch_limit: int = 20,
         critic_score_ratio: float = 0.6,
         critic_max_dieu: int = 4,
-        article_expand_score_ratio: float = 0.6,
+        article_expand_score_ratio: float = 0.4,
     ):
         self.llm = llm
         self.qdrant_child_col = qdrant_child_col
