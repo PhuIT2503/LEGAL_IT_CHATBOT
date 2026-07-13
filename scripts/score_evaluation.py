@@ -66,6 +66,12 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from langchain_openai import ChatOpenAI  # noqa: E402
 from langchain_core.embeddings import Embeddings as _LangchainEmbeddingsBase  # noqa: E402
 
+# Endpoint OpenAI-compatible dùng cho LLM chấm điểm (Completeness Rate + RAGAS) —
+# hardcode tại đây (thay vì qua biến môi trường) để chỗ dựng LLM (base_url) và chỗ
+# vá lỗi "n>1" cho answer_relevancy bên dưới LUÔN dùng chung đúng 1 nguồn, không bị
+# lệch nhau. Để chuỗi rỗng "" nếu muốn dùng thẳng OpenAI gốc (api.openai.com).
+OPENAI_BASE_URL = "https://api.shopaikey.com/v1"
+
 
 def build_llm_for_provider(provider: str, model_name: str = None):
     """
@@ -93,12 +99,10 @@ def build_llm_for_provider(provider: str, model_name: str = None):
     if provider == "openai":
         if not os.getenv("OPENAI_API_KEY"):
             raise RuntimeError("--judge-provider openai cần biến môi trường OPENAI_API_KEY.")
-        # OPENAI_BASE_URL: trỏ sang endpoint tương thích OpenAI khác (vd proxy/relay)
-        # thay vì api.openai.com mặc định — bỏ trống thì dùng đúng OpenAI gốc.
         return ChatOpenAI(
             model=model_name or "gpt-4o-mini",
             temperature=0.0,
-            base_url=os.getenv("OPENAI_BASE_URL") or None,
+            base_url=OPENAI_BASE_URL or None,
         )
     elif provider == "gemini":
         if not os.getenv("GOOGLE_API_KEY"):
@@ -310,7 +314,7 @@ def try_compute_ragas(
         print(f"Bỏ qua RAGAS (không dựng được LLM/embeddings cho provider={ragas_provider!r}): {e}")
         return {}
 
-    if os.getenv("OPENAI_BASE_URL"):
+    if OPENAI_BASE_URL:
         # answer_relevancy mặc định gọi LLM với n=3 (sinh 3 câu hỏi ứng viên
         # trong 1 request) để lấy độ tương đồng trung bình — nhiều proxy/relay
         # tương thích OpenAI (vd api.shopaikey.com) KHÔNG hỗ trợ n>1, lỗi 400
@@ -318,8 +322,8 @@ def try_compute_ragas(
         # (không phải rate limit), retry bao nhiêu cũng luôn lỗi lại đúng job
         # đó, khiến câu hỏi không bao giờ đủ 4/4 chỉ số để checkpoint coi là
         # xong. Hạ về strictness=1 (n=1) khi dùng base URL tùy chỉnh để tránh
-        # hẳn lệnh gọi n>1 — dùng OpenAI gốc (không set OPENAI_BASE_URL) vẫn
-        # giữ mặc định strictness=3 (chính xác hơn, không cần đổi gì).
+        # hẳn lệnh gọi n>1 — để OPENAI_BASE_URL="" (OpenAI gốc) vẫn giữ mặc
+        # định strictness=3 (chính xác hơn, không cần đổi gì).
         answer_relevancy.strictness = 1
 
     metrics = [faithfulness, answer_relevancy, context_precision, answer_correctness]
