@@ -53,7 +53,7 @@ def build_llm() -> ChatOpenAI:
     return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.2)
 
 
-def build_pipeline(llm, top_k: int = 5) -> ChatbotPipeline:
+def build_pipeline(llm, top_k: int = 5, skip_router: bool = False) -> ChatbotPipeline:
     # QDRANT_PATH/EMBEDDING_MODEL cho phép trỏ sang 1 index/model KHÁC (vd so sánh
     # embedding gốc chưa fine-tune) mà không cần sửa code — mặc định vẫn là Qdrant
     # + embedding fine-tune chuẩn của repo nếu không set 2 biến môi trường này.
@@ -68,6 +68,7 @@ def build_pipeline(llm, top_k: int = 5) -> ChatbotPipeline:
         neo4j_user=os.getenv("NEO4J_USER", "neo4j"),
         neo4j_pass=os.getenv("NEO4J_PASSWORD", "legal_kg_2024"),
         top_k=top_k,
+        skip_router=skip_router,
     )
 
 

@@ -87,8 +87,15 @@ class ChatbotPipeline:
         critic_score_ratio: float = 0.6,
         critic_max_dieu: int = 4,
         article_expand_score_ratio: float = 0.4,
+        skip_router: bool = False,
     ):
         self.llm = llm
+        # skip_router=True: bỏ hẳn bước phân loại chit_chat/legal, mọi câu hỏi
+        # đi thẳng vào retrieval — dùng khi CHẮC CHẮN không có câu chit-chat
+        # nào (vd chạy đánh giá trên test set thuần pháp luật), tránh tốn 1
+        # lệnh gọi LLM/câu vô ích và loại rủi ro router phân loại nhầm. Chat
+        # tương tác thật (run_chatbot.py) vẫn giữ router mặc định.
+        self.skip_router = skip_router
         self.qdrant_child_col = qdrant_child_col
         self.qdrant_parent_col = qdrant_parent_col
         self.qdrant_path = qdrant_path
@@ -423,8 +430,9 @@ class ChatbotPipeline:
     def _build_graph(self) -> StateGraph:
         workflow = StateGraph(ChatbotState)
 
-        workflow.add_node("router", self.route_query)
-        workflow.add_node("chit_chat", self.handle_chit_chat)
+        if not self.skip_router:
+            workflow.add_node("router", self.route_query)
+            workflow.add_node("chit_chat", self.handle_chit_chat)
         workflow.add_node("retrieval", self.retrieve_documents)
         workflow.add_node("generate_single_pass", self.generate_single_pass_response)
         workflow.add_node("expand_article", self.expand_full_article)
@@ -433,13 +441,16 @@ class ChatbotPipeline:
         workflow.add_node("regenerate", self.regenerate_response)
         workflow.add_node("finalize_draft", self.finalize_draft)
 
-        workflow.add_edge(START, "router")
-        workflow.add_conditional_edges(
-            "router",
-            lambda x: "chit_chat" if x.get("is_chit_chat") else "retrieval",
-            {"chit_chat": "chit_chat", "retrieval": "retrieval"},
-        )
-        workflow.add_edge("chit_chat", END)
+        if self.skip_router:
+            workflow.add_edge(START, "retrieval")
+        else:
+            workflow.add_edge(START, "router")
+            workflow.add_conditional_edges(
+                "router",
+                lambda x: "chit_chat" if x.get("is_chit_chat") else "retrieval",
+                {"chit_chat": "chit_chat", "retrieval": "retrieval"},
+            )
+            workflow.add_edge("chit_chat", END)
 
         # Rẽ nhánh theo mode NGAY SAU retrieval — cả 3 kịch bản dùng chung 1
         # bước retrieval (top-k thuần) để đảm bảo so sánh công bằng, chỉ khác

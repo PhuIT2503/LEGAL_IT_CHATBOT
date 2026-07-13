@@ -143,7 +143,10 @@ def main():
     print(f"Đã load {len(cases)} câu hỏi test từ {testset_path}")
 
     llm = build_llm()
-    pipeline = build_pipeline(llm, top_k=args.top_k)
+    # skip_router=True: test set toàn câu hỏi pháp luật, không có chit-chat —
+    # bỏ bước phân loại router để đỡ tốn 1 lệnh gọi LLM/câu và loại rủi ro
+    # router phân loại nhầm, không ảnh hưởng gì tới việc đo lường.
+    pipeline = build_pipeline(llm, top_k=args.top_k, skip_router=True)
 
     modes = ["naive", "article_expand", "critic"] if args.all_modes else [args.mode]
     for mode in modes:
