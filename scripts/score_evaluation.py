@@ -93,7 +93,13 @@ def build_llm_for_provider(provider: str, model_name: str = None):
     if provider == "openai":
         if not os.getenv("OPENAI_API_KEY"):
             raise RuntimeError("--judge-provider openai cần biến môi trường OPENAI_API_KEY.")
-        return ChatOpenAI(model=model_name or "gpt-4o-mini", temperature=0.0)
+        # OPENAI_BASE_URL: trỏ sang endpoint tương thích OpenAI khác (vd proxy/relay)
+        # thay vì api.openai.com mặc định — bỏ trống thì dùng đúng OpenAI gốc.
+        return ChatOpenAI(
+            model=model_name or "gpt-4o-mini",
+            temperature=0.0,
+            base_url=os.getenv("OPENAI_BASE_URL") or None,
+        )
     elif provider == "gemini":
         if not os.getenv("GOOGLE_API_KEY"):
             raise RuntimeError("--judge-provider gemini cần biến môi trường GOOGLE_API_KEY.")
