@@ -92,8 +92,15 @@ def main() -> None:
 
     os.makedirs(args.db_path, exist_ok=True)
 
+    # Load model TRƯỚC để suy ra đúng dimension thật của nó (khác nhau giữa các
+    # model, vd AITeamVN/Vietnamese_Embedding_v2 = 1024, Alibaba-NLP/gte-multilingual-base
+    # = 768) — KHÔNG hardcode, tránh crash khi đổi sang model có dimension khác.
+    model = load_embedding_model(args.model, device=args.device, max_seq_length=args.max_seq_length)
+    embedding_dim = model.get_sentence_embedding_dimension()
+    print(f"Model: {args.model} — embedding dimension = {embedding_dim}")
+
     client = _make_client(args.db_path, args.url)
-    _ensure_child_collection(client, args.child_collection, size=1024, recreate=args.recreate)
+    _ensure_child_collection(client, args.child_collection, size=embedding_dim, recreate=args.recreate)
     _ensure_parent_collection(client, args.parent_collection, recreate=args.recreate)
 
     chunker = VBPLChunker()
@@ -128,8 +135,6 @@ def main() -> None:
 
     # ── Encode + upsert THEO TỪNG BATCH NHỎ (không giữ toàn bộ embedding trong RAM,
     #    thấy tiến độ rõ ràng, và --resume bỏ qua batch đã upsert nếu bị dừng giữa chừng) ──
-    model = load_embedding_model(args.model, device=args.device, max_seq_length=args.max_seq_length)
-
     total = len(children)
     done = 0
     skipped = 0
@@ -151,8 +156,8 @@ def main() -> None:
             normalize_embeddings=True,
             show_progress_bar=False,
         )
-        if len(embeddings) > 0 and len(embeddings[0]) != 1024:
-            raise RuntimeError(f"Embedding dimension is not 1024 (got {len(embeddings[0])})")
+        if len(embeddings) > 0 and len(embeddings[0]) != embedding_dim:
+            raise RuntimeError(f"Embedding dimension is not {embedding_dim} (got {len(embeddings[0])})")
 
         points = []
         for c, point_id, embedding in zip(child_batch, batch_ids, embeddings):

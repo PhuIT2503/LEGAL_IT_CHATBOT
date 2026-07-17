@@ -72,9 +72,13 @@ def load_embedding_model(
     model: str = DEFAULT_FINETUNED_DIR,
     device: Optional[str] = None,
     max_seq_length: Optional[int] = None,
+    trust_remote_code: bool = True,
 ) -> SentenceTransformer:
+    # trust_remote_code=True mặc định: một số model HF (vd Alibaba-NLP/gte-multilingual-base)
+    # dùng kiến trúc/code tùy biến, bắt buộc cờ này mới load được — không ảnh hưởng
+    # tới model không cần custom code (sentence-transformers bỏ qua nếu không cần).
     model_path = resolve_model_path(model)
-    sentence_model = SentenceTransformer(model_path, device=device)
+    sentence_model = SentenceTransformer(model_path, device=device, trust_remote_code=trust_remote_code)
     if max_seq_length is not None:
         sentence_model.max_seq_length = max_seq_length
     return sentence_model
