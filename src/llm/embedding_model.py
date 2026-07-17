@@ -2,7 +2,15 @@ import os
 import zipfile
 from typing import Optional
 
-from sentence_transformers import SentenceTransformer
+# Chỉ cần PyTorch cho embedding — ép transformers bỏ qua hẳn việc detect/import
+# TensorFlow (PHẢI set TRƯỚC khi import sentence_transformers/transformers).
+# Một số môi trường (vd Colab) có sẵn TF với bản protobuf khác/không tương thích
+# với bản transformers đang dùng, khiến import transformers crash ngay cả khi
+# code chỉ dùng PyTorch — vì transformers vẫn thử import nhánh TF nếu thấy TF
+# có sẵn trong môi trường.
+os.environ.setdefault("USE_TF", "0")
+
+from sentence_transformers import SentenceTransformer  # noqa: E402
 
 
 DEFAULT_FINETUNED_ZIP = os.path.join(
