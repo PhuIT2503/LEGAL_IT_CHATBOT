@@ -39,7 +39,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from langchain_openai import ChatOpenAI
-from src.agent.chatbot_pipeline import ChatbotPipeline
+from src.workflow.pipeline import ChatbotWorkflow
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger("run_chatbot")
@@ -53,11 +53,11 @@ def build_llm() -> ChatOpenAI:
     return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.2)
 
 
-def build_pipeline(llm, top_k: int = 5, skip_router: bool = False) -> ChatbotPipeline:
+def build_pipeline(llm, top_k: int = 5, skip_router: bool = False) -> ChatbotWorkflow:
     # QDRANT_PATH/EMBEDDING_MODEL cho phép trỏ sang 1 index/model KHÁC (vd so sánh
     # embedding gốc chưa fine-tune) mà không cần sửa code — mặc định vẫn là Qdrant
     # + embedding fine-tune chuẩn của repo nếu không set 2 biến môi trường này.
-    return ChatbotPipeline(
+    return ChatbotWorkflow(
         llm=llm,
         # Qdrant chạy ở chế độ embedded/local-file (data/.qdrant trong repo) để dễ
         # đóng gói/chuyển dự án — chỉ set QDRANT_URL nếu thật sự có Qdrant server riêng.
@@ -79,7 +79,7 @@ MODE_LABEL = {
 }
 
 
-def ask(pipeline: ChatbotPipeline, query: str, mode: str):
+def ask(pipeline: ChatbotWorkflow, query: str, mode: str):
     result = pipeline.run(query, mode=mode)
 
     print(f"\n{'='*90}")

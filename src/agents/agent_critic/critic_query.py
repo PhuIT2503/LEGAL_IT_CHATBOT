@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
@@ -96,7 +96,7 @@ class CriticQueryEngine:
 
         Args:
             focus_dieu_ids: id Dieu quét THAM_CHIEU xuất phát từ (thường là tập
-                đã lọc theo điểm số — xem ChatbotPipeline.critic_score_ratio).
+                đã lọc theo điểm số — xem agent_critic.critic_score_ratio).
             all_retrieved_dieu_ids: TOÀN BỘ id Dieu retrieval THỰC SỰ đã lấy được
                 (không lọc điểm số) — dùng để xác định 1 Điều tham chiếu tới có
                 "đã có sẵn" hay chưa. QUAN TRỌNG: phải dùng tập ĐẦY ĐỦ này, không
@@ -229,7 +229,7 @@ class CriticQueryEngine:
         Args:
             focus_dieu_ids: id Dieu trong phạm vi kiểm tra (đã lọc theo điểm số).
             retrieved_part_counts: {dieu_id: số Khoản/Điểm THỰC SỰ đã retrieve
-                được, đếm theo chunk_id duy nhất} — do caller (chatbot_pipeline)
+                được, đếm theo chunk_id duy nhất} — do caller (node_critic_check)
                 tính từ retrieved_chunks.
             total_parts_override: {dieu_id: tổng số Khoản/Điểm} tính từ nguồn
                 ĐỘC LẬP với Neo4j (vd đếm chunk thật trong Qdrant, xây bằng
@@ -261,7 +261,7 @@ class CriticQueryEngine:
     def get_complete_dieu_info(self, dieu_so: str, van_ban_id: str) -> dict:
         """
         Lấy toàn bộ thông tin một Điều để cung cấp cho Critic Agent context.
-        
+
         Args:
             dieu_so: Số điều (ví dụ: "7", "24")
             van_ban_id: ID văn bản (ví dụ: "van_ban_luat_an_ninh_mang_2025")
@@ -269,19 +269,19 @@ class CriticQueryEngine:
         query = """
         MATCH (d:Dieu)
         WHERE d.so = $dieu_so AND d.van_ban_id = $van_ban_id
-        
+
         OPTIONAL MATCH (d)-[:CO_KHOAN]->(k:Khoan)
         OPTIONAL MATCH (k)-[:CO_DIEM]->(p:Diem)
         OPTIONAL MATCH (d)-[:QUY_DINH_HANH_VI]->(hv:HanhVi)
         OPTIONAL MATCH (k)-[:QUY_DINH_HANH_VI]->(hv2:HanhVi)
-        WITH d, 
+        WITH d,
              collect(DISTINCT {id: k.id, so: k.so, content: k.content}) as khoan_list,
              collect(DISTINCT {id: p.id, ky_hieu: p.ky_hieu, content: p.content}) as diem_list,
              collect(DISTINCT {id: hv.id, mo_ta: hv.mo_ta}) as hanh_vi_from_dieu,
              collect(DISTINCT {id: hv2.id, mo_ta: hv2.mo_ta}) as hanh_vi_from_khoan
-        
+
         OPTIONAL MATCH (d)-[:THAM_CHIEU]->(ref)
-        
+
         RETURN d,
                khoan_list,
                diem_list,
@@ -305,7 +305,7 @@ class CriticQueryEngine:
     ) -> dict:
         """
         Kiểm tra tổng thể độ đầy đủ của retrieval (retrieval chỉ có top-k chunk
-        thô, KHÔNG expand — xem chatbot_pipeline.py). Xét 3 loại thiếu sót:
+        thô, KHÔNG expand — xem node_critic_check.py). Xét 3 loại thiếu sót:
         - Same-Điều (chế tài): HanhVi trong 1 Điều đã lấy có CẢ hình phạt chính
           lẫn bổ sung trong graph -> 2 phần này thường nằm ở 2 Khoản khác nhau.
         - Same-Điều (tổng quát): Điều trong focus có nhiều Khoản/Điểm hơn số
@@ -313,8 +313,8 @@ class CriticQueryEngine:
           cho MỌI cấu trúc nhiều Khoản (danh sách miễn trừ, điều kiện, v.v.).
         - Cross-Điều: Điều trong focus_dieu_ids tham chiếu sang Điều khác mà
           all_retrieved_dieu_ids KHÔNG có (chưa thực sự lấy được).
-        Caller (chatbot_pipeline.critic_check) chịu trách nhiệm FETCH toàn văn
-        Điều còn thiếu dựa trên kết quả này.
+        Caller (node_critic_check) chịu trách nhiệm FETCH toàn văn Điều còn
+        thiếu dựa trên kết quả này.
 
         Args:
             focus_dieu_ids: id Dieu quét completeness (thường đã lọc theo điểm số).
