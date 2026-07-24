@@ -5,7 +5,7 @@ Script chạy import toàn bộ dữ liệu từ data/extracted_json/ vào Neo4j
 
 Cách dùng:
     # 1. Khởi động Neo4j container
-    docker compose -f docker/docker-compose.yml up -d
+    docker compose up -d
 
     # 2. Đợi Neo4j sẵn sàng (~30 giây), rồi chạy:
     python scripts/run_neo4j_ingest.py

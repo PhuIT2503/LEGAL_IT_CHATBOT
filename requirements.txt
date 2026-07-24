@@ -6,3 +6,6 @@ langchain-core
 langchain-openai
 langchain-google-genai
 neo4j
+chainlit>=2.0.0
+aiosqlite
+sqlalchemy>=2.0.0

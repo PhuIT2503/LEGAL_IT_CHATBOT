@@ -8,7 +8,10 @@ __pycache__/
 *.py[cod]
 
 data/.qdrant/
+data/.qdrant_base/
+data/.qdrant_gte_base/
 data/.qdrant_backup_*/
+data/chainlit_history.db
 .qdrant/
 references/
 

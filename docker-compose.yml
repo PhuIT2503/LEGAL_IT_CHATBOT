@@ -1,0 +1,141 @@
+
+services:
+  neo4j:
+    image: neo4j:5.26.27-community
+    container_name: legal_kg_neo4j
+    restart: unless-stopped
+    ports:
+      - "7474:7474"   # Neo4j Browser (HTTP)
+      - "7687:7687"   # Bolt protocol (Python driver)
+    environment:
+      - NEO4J_AUTH=neo4j/legal_kg_2024
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_dbms_memory_heap_initial__size=256m
+      - NEO4J_dbms_memory_heap_max__size=1g
+      - NEO4J_dbms_memory_pagecache_size=256m
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7474"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Nạp Knowledge Graph vào Neo4j — KHÔNG có profiles riêng nữa: chạy tự động
+  # mỗi khi `docker compose up -d app` (app depends_on kg-ingest hoàn thành
+  # bên dưới), không cần gọi tay `--profile ingest` như trước. An toàn để
+  # tự chạy lại nhiều lần: run_neo4j_ingest.py dùng MERGE (idempotent, không
+  # tạo trùng dữ liệu) — và nếu container này đã "Exited (0)" từ lần trước,
+  # Compose thấy điều kiện service_completed_successfully đã thỏa nên KHÔNG
+  # chạy lại nữa (không tốn thời gian ingest lại mỗi lần khởi động).
+  kg-ingest:
+    image: python:3.11-slim
+    container_name: legal_kg_ingest
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=legal_kg_2024
+    volumes:
+      - ./src:/app/src:ro
+      - ./data:/app/data:ro
+      - ./scripts:/app/scripts:ro
+    working_dir: /app
+    command: >
+      bash -c "
+        pip install neo4j python-docx --quiet &&
+        python scripts/run_neo4j_ingest.py &&
+        python scripts/build_cross_references.py
+      "
+
+  # Tùy chọn — CHỈ cần nếu muốn chạy Qwen2.5 7B cục bộ (không cần API key). Máy
+  # không host được Ollama (vd không đủ RAM/CPU) thì bỏ qua hẳn service này —
+  # app vẫn chạy đầy đủ, chỉ cần chọn model qua api.shopaikey (gpt-4o-mini/
+  # gpt-5-nano/gpt-4.1-nano, xem .env.example) làm LLM trong khung chat.
+  # Chạy khi cần: docker compose --profile ollama up -d ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: legal_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/11434' 2>/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    profiles:
+      - ollama
+
+  # Image ứng dụng: đủ deps (torch CPU, sentence-transformers, qdrant-client,
+  # langgraph, langchain, neo4j, python-docx) để chạy ingestion và chatbot pipeline.
+  # Qdrant chạy ở chế độ embedded/local-file (KHÔNG dùng server riêng) — dữ liệu
+  # nằm ngay trong data/.qdrant của repo để dễ đóng gói/chuyển cho người khác.
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: legal_app
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      kg-ingest:
+        condition: service_completed_successfully
+      # KHÔNG depends_on ollama — ollama là tùy chọn (xem ghi chú ở service
+      # ollama phía trên), app phải chạy được kể cả khi không có container đó.
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=legal_kg_2024
+      # Chỉ có tác dụng nếu bạn CÓ chạy service ollama ở trên (profile ollama)
+      # và chọn Qwen2.5 7B trong khung chat — không có thì bỏ qua, dùng model
+      # qua api.shopaikey thay thế.
+      - OLLAMA_BASE_URL=http://ollama:11434/v1
+      - OLLAMA_MODEL=qwen2.5:7b
+      # Đăng nhập demo cho giao diện chat (đổi CHAINLIT_DEMO_USER/PASSWORD nếu
+      # muốn) — bắt buộc phải có để Chainlit hiển thị lịch sử chat.
+      - CHAINLIT_AUTH_SECRET=?41w/G4s.hdlqlID=u60:jmq*s~K:%G16K2qI-9V8no9VHM3bRJSx,4,O4g8bDHW
+    # OPENAI_API_KEY (cần để dùng các model LLM qua api.shopaikey — gpt-4o-mini/
+    # gpt-5-nano/gpt-4.1-nano — chọn được trong bảng Cài đặt của app.py) đọc từ
+    # file .env cùng thư mục docker-compose.yml (thư mục gốc repo). Qwen2.5 7B
+    # qua Ollama không cần biến này.
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src:ro
+      - ./data:/app/data
+      - ./scripts:/app/scripts:ro
+      - ./app.py:/app/app.py:ro
+      - ./chainlit.md:/app/chainlit.md:ro
+      - hf_cache:/root/.cache/huggingface   # cache model embedding — tránh tải lại mỗi lần chạy container --rm
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:8000"   # Giao diện chat Chainlit
+    # Mặc định chạy giao diện chat khi `docker compose up -d app` (hiện trong Docker
+    # Desktop y như neo4j/ollama). `docker compose run --rm app <lệnh khác>` (vd chạy
+    # script Python) vẫn ghi đè command này bình thường, không ảnh hưởng gì.
+    command: ["chainlit", "run", "app.py", "--host", "0.0.0.0", "--port", "8000", "--headless"]
+    profiles:
+      - app   # Chỉ build/chạy khi gọi: docker compose --profile app run app ...
+
+volumes:
+  neo4j_data:
+    name: legal_kg_neo4j_data
+  neo4j_logs:
+    name: legal_kg_neo4j_logs
+  ollama_data:
+    name: legal_ollama_data
+  hf_cache:
+    name: legal_app_hf_cache

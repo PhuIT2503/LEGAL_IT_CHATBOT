@@ -10,6 +10,41 @@ Project hiện tập trung vào phần nền tảng dữ liệu cho RAG:
 - Ingest dữ liệu vào Supabase `pgvector` hoặc Qdrant local.
 - Kiểm thử truy xuất hybrid search từ Qdrant local hoặc vector search từ Supabase.
 
+> **Lưu ý**: các phần dưới đây (Supabase, `chunking.py`/`ingest_supabase.py` ở
+> gốc repo, ...) mô tả giai đoạn đầu của dự án và không còn khớp với cấu trúc
+> code hiện tại (`src/...`). Phần chatbot chạy thật hiện tại (Chainlit + Docker
+> + Neo4j + Qdrant embedded, KHÔNG dùng Supabase) — xem mục **Chạy bằng
+> Docker (chatbot hiện tại)** ngay dưới đây.
+
+## Chạy bằng Docker (chatbot hiện tại)
+
+```bash
+docker compose up -d neo4j                     # chờ healthy (docker ps)
+docker compose --profile ingest up kg-ingest   # 1 LẦN DUY NHẤT — nạp Knowledge Graph vào Neo4j
+# copy .env.example -> .env, điền OPENAI_API_KEY (bắt buộc — model mặc định dùng api.shopaikey)
+docker compose up -d app                       # chạy giao diện chat Chainlit
+```
+
+Mở `http://localhost:8000`, đăng nhập `admin`/`admin` (đổi qua biến môi trường
+`CHAINLIT_DEMO_USER`/`CHAINLIT_DEMO_PASSWORD` nếu muốn).
+
+Lưu ý:
+- `data/.qdrant_base/` và `data/.qdrant_gte_base/` (Qdrant embedded, mỗi model
+  embedding 1 index riêng) **không nằm trong git** (xem `.gitignore`) — phải
+  copy kèm theo khi chuyển code sang máy khác, hoặc tự build lại bằng
+  `src/data_ingestion/qdrant_local_ingest.py --data-dir data/keep --db-path
+  data/.qdrant_base --model AITeamVN/Vietnamese_Embedding_v2` (đổi
+  `--db-path`/`--model` cho model GTE).
+- Ollama (Qwen2.5 7B local) là **tùy chọn**, không nằm trong `docker compose up`
+  mặc định — máy không host được Ollama (thiếu RAM/CPU) thì bỏ qua, model mặc
+  định (`gpt-4o-mini` qua `api.shopaikey`, cần `OPENAI_API_KEY`) đã đủ để chat.
+  Muốn dùng thêm Qwen2.5 7B local: `docker compose --profile ollama up -d
+  ollama`, rồi chọn trong nút chọn model cạnh ô nhập chat.
+- Pipeline chat chạy trên kiến trúc multi-agent LangGraph tại `src/agents/`
+  (agent_router, agent_retrieval, agent_article_expand, agent_critic,
+  agent_generation) + `src/workflow/` (orchestrator nối các agent lại,
+  `ChatbotWorkflow` — xem `src/workflow/pipeline.py`).
+
 ## Kiến trúc tổng quan
 
 ![RAG system architecture](docs/assets/rag-system-architecture.jpg)
