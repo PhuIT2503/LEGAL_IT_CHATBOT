@@ -1,20 +1,113 @@
+# -----------------------------------------------------------------------------
+# Operating systems and editors
+# -----------------------------------------------------------------------------
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# -----------------------------------------------------------------------------
+# Secrets and machine-local configuration
+# Keep the documented template, never commit real credentials.
+# -----------------------------------------------------------------------------
 .env
 .env.*
 !.env.example
 
+*.pem
+*.key
+credentials*.json
+secrets*.json
+
+# -----------------------------------------------------------------------------
+# Python environments, caches, builds, and test artifacts
+# -----------------------------------------------------------------------------
 .venv/
+venv/
+env/
+ENV/
+
 __pycache__/
 *.py[cod]
-
-data/.qdrant/
-data/.qdrant_base/
-data/.qdrant_gte_base/
-data/.qdrant_backup_*/
-data/chainlit_history.db
-.qdrant/
-references/
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
 
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# -----------------------------------------------------------------------------
+# Application runtime state and logs
+# -----------------------------------------------------------------------------
+.chainlit/
+*.log
+logs/
+
+data/chainlit_history.db
+data/chainlit_history.db-*
+*.db-shm
+*.db-wal
+
+# -----------------------------------------------------------------------------
+# Rebuildable local indexes and vector databases
+# The source corpus and extracted JSON remain versioned.
+# -----------------------------------------------------------------------------
+data/.qdrant/
+data/.qdrant_base/
+data/.qdrant_gte_base/
+data/.qdrant_backup_*/
+.qdrant/
+
+neo4j_data/
+neo4j_logs/
+.neo4j/
+
+# Local reference downloads that can be regenerated.
+references/
+
+# -----------------------------------------------------------------------------
+# Downloaded model weights and ML caches
+# -----------------------------------------------------------------------------
+models/
+checkpoints/
+.cache/
+huggingface/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# -----------------------------------------------------------------------------
+# Generated benchmark runs
+# Keep only the two authoritative 30-case runs referenced by the handoff report.
+# New official runs should be explicitly allow-listed after review.
+# -----------------------------------------------------------------------------
+evaluation/results/*
+!evaluation/results/.gitkeep
+
+!evaluation/results/benchmark_30_real_20260726/
+!evaluation/results/benchmark_30_real_20260726/**
+
+!evaluation/results/benchmark_30_applicability_recovery_20260726/
+!evaluation/results/benchmark_30_applicability_recovery_20260726/**
+
+# Temporary files created by tools or interrupted runs.
+*.tmp
+*.temp
+*.bak

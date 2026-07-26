@@ -100,7 +100,9 @@ services:
       # Chỉ có tác dụng nếu bạn CÓ chạy service ollama ở trên (profile ollama)
       # và chọn Qwen2.5 7B trong khung chat — không có thì bỏ qua, dùng model
       # qua api.shopaikey thay thế.
-      - OLLAMA_BASE_URL=http://ollama:11434/v1
+      # Ollama chạy native trên macOS để dùng GPU Metal; container app
+      # truy cập host qua tên DNS đặc biệt của Docker Desktop.
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434/v1
       - OLLAMA_MODEL=qwen2.5:7b
       # Đăng nhập demo cho giao diện chat (đổi CHAINLIT_DEMO_USER/PASSWORD nếu
       # muốn) — bắt buộc phải có để Chainlit hiển thị lịch sử chat.

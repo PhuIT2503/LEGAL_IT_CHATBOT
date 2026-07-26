@@ -9,3 +9,5 @@ class CriticState(TypedDict):
     graph_context: str
     critic_report: Dict[str, Any]
     graph_fetched_dieu_ids: List[str]
+    recursive_retrieval_done: bool
+    retrieval_is_complete: bool

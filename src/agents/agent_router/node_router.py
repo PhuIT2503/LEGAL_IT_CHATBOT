@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def route_query_node(state: RouterState, *, llm_client) -> dict:
-    logger.info("Routing query...")
+    logger.debug("Routing query...")
     query = state["query"]
 
     prompt = (
@@ -21,6 +21,6 @@ def route_query_node(state: RouterState, *, llm_client) -> dict:
     content = resp.content.strip().lower()
 
     is_chit_chat = "chit_chat" in content
-    logger.info(f"Routed as: {'chit_chat' if is_chit_chat else 'legal'}")
+    logger.debug("Routed as: %s", "chit_chat" if is_chit_chat else "legal")
 
     return {"is_chit_chat": is_chit_chat}

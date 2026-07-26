@@ -32,7 +32,12 @@ def compute_focus_dieu_ids(
 ) -> List[str]:
     if not retrieved_dieu_ids:
         return []
-    top_score = dieu_scores.get(retrieved_dieu_ids[0], 0.0)
+    # Thứ tự Điều có thể đã qua cross-encoder/diversity selection nên không
+    # được giả định score gốc của phần tử đầu tiên là lớn nhất.
+    top_score = max(
+        (float(dieu_scores.get(dieu_id, 0.0)) for dieu_id in retrieved_dieu_ids),
+        default=0.0,
+    )
     focus_dieu_ids = []
     for d in retrieved_dieu_ids:
         if top_score > 0 and dieu_scores.get(d, 0.0) < top_score * score_ratio:

@@ -46,7 +46,7 @@ def _fusion_query(name: str) -> Any:
     return models.FusionQuery(fusion=models.Fusion.RRF)
 
 
-def hybrid_search(
+def _hybrid_search(
     query: str,
     child_collection: str,
     parent_collection: str,
@@ -62,6 +62,7 @@ def hybrid_search(
     client: "QdrantClient | None" = None,
     model: "Any | None" = None,
     bm25: "BM25SparseVectorizer | None" = None,
+    legal_domains: List[str] | None = None,
 ) -> Dict[str, Any]:
     """
     Cho phép truyền sẵn client/model/bm25 (dùng khi gọi lặp lại nhiều query trong
@@ -78,11 +79,23 @@ def hybrid_search(
     dense_vector = model.encode([query], normalize_embeddings=True)[0].tolist()
     sparse_indices, sparse_values = bm25.encode_query(query)
 
+    domain_filter = None
+    if legal_domains:
+        domain_filter = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="metadata.legal_domains",
+                    match=models.MatchAny(any=list(dict.fromkeys(legal_domains))),
+                )
+            ]
+        )
+
     prefetch = [
         models.Prefetch(
             query=dense_vector,
             using="dense",
             limit=prefetch_limit,
+            filter=domain_filter,
         ),
     ]
     if sparse_indices:
@@ -92,6 +105,7 @@ def hybrid_search(
                 query=models.SparseVector(indices=sparse_indices, values=sparse_values),
                 using="bm25",
                 limit=prefetch_limit,
+                filter=domain_filter,
             ),
         )
 
@@ -133,6 +147,85 @@ def hybrid_search(
         "parents": parents,
         "sparse_terms": len(sparse_indices),
     }
+
+
+def hybrid_search(
+    query: str,
+    child_collection: str,
+    parent_collection: str,
+    limit: int,
+    prefetch_limit: int,
+    fusion: str,
+    include_parent: bool,
+    db_path: str | None = None,
+    url: str | None = None,
+    model_name: str | None = None,
+    device: str | None = None,
+    max_seq_length: int | None = None,
+    client: "QdrantClient | None" = None,
+    model: "Any | None" = None,
+    bm25: "BM25SparseVectorizer | None" = None,
+) -> Dict[str, Any]:
+    """Public API cũ: hybrid search không áp domain filter."""
+
+    return _hybrid_search(
+        query=query,
+        child_collection=child_collection,
+        parent_collection=parent_collection,
+        limit=limit,
+        prefetch_limit=prefetch_limit,
+        fusion=fusion,
+        include_parent=include_parent,
+        db_path=db_path,
+        url=url,
+        model_name=model_name,
+        device=device,
+        max_seq_length=max_seq_length,
+        client=client,
+        model=model,
+        bm25=bm25,
+        legal_domains=None,
+    )
+
+
+def hybrid_search_in_domains(
+    query: str,
+    child_collection: str,
+    parent_collection: str,
+    limit: int,
+    prefetch_limit: int,
+    fusion: str,
+    include_parent: bool,
+    legal_domains: List[str],
+    db_path: str | None = None,
+    url: str | None = None,
+    model_name: str | None = None,
+    device: str | None = None,
+    max_seq_length: int | None = None,
+    client: "QdrantClient | None" = None,
+    model: "Any | None" = None,
+    bm25: "BM25SparseVectorizer | None" = None,
+) -> Dict[str, Any]:
+    """Internal Phase 1 entrypoint: cùng search cũ nhưng giới hạn domain."""
+
+    return _hybrid_search(
+        query=query,
+        child_collection=child_collection,
+        parent_collection=parent_collection,
+        limit=limit,
+        prefetch_limit=prefetch_limit,
+        fusion=fusion,
+        include_parent=include_parent,
+        db_path=db_path,
+        url=url,
+        model_name=model_name,
+        device=device,
+        max_seq_length=max_seq_length,
+        client=client,
+        model=model,
+        bm25=bm25,
+        legal_domains=legal_domains,
+    )
 
 
 def print_results(result: Dict[str, Any], max_chars: int, include_parent: bool) -> None:

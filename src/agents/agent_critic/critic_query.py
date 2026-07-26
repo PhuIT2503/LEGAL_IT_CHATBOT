@@ -75,7 +75,10 @@ class CriticQueryEngine:
     # ─────────────────────────────────────────────────────────────────────────
 
     def find_missing_references(
-        self, focus_dieu_ids: list[str], all_retrieved_dieu_ids: Optional[list[str]] = None
+        self,
+        focus_dieu_ids: list[str],
+        all_retrieved_dieu_ids: Optional[list[str]] = None,
+        focus_node_ids: Optional[list[str]] = None,
     ) -> list[dict]:
         """
         Query quan trọng nhất cho Critic Agent.
@@ -112,12 +115,16 @@ class CriticQueryEngine:
             return []
 
         focus_dieu_set = set(focus_dieu_ids)
+        # Khi caller có chunk seed ở cấp Khoản/Điểm, chỉ lần cạnh thực sự nối
+        # với node đó. Không được hạ seed D13_K3_Ph thành D13 rồi vô tình quét
+        # các incoming edge của D13_K1.
+        focus_node_set = set(focus_node_ids or ())
+        has_node_filter = focus_node_ids is not None
         all_retrieved_set = set(all_retrieved_dieu_ids) if all_retrieved_dieu_ids is not None else focus_dieu_set
         query = """
         MATCH (a)-[r:THAM_CHIEU]->(b)
         RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,
-               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,
-               r.ghi_chu AS note
+               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten
         """
         rows = [dict(r) for r in self.db.run_query(query)]
 
@@ -131,17 +138,32 @@ class CriticQueryEngine:
             a_label = row["a_ten"] or row["a_id"]
             b_label = row["b_ten"] or row["b_id"]
 
-            if a_dieu in focus_dieu_set and b_dieu not in all_retrieved_set:
+            outgoing_focus = (
+                row["a_id"] in focus_node_set
+                if has_node_filter
+                else a_dieu in focus_dieu_set
+            )
+            incoming_focus = (
+                row["b_id"] in focus_node_set
+                if has_node_filter
+                else b_dieu in focus_dieu_set
+            )
+
+            if outgoing_focus and b_dieu not in all_retrieved_set:
                 missing.setdefault(b_dieu, {
                     "missing_dieu_id": b_dieu,
+                    "missing_node_id": row["b_id"],
+                    "focus_node_id": row["a_id"],
                     "missing_node_ten": b_label,
                     "direction": "outgoing",
                     "reason": f"Đã lấy '{a_label}' nhưng nó tham chiếu tới '{b_label}' (Điều {b_dieu}) chưa được lấy.",
                 })
 
-            if b_dieu in focus_dieu_set and a_dieu not in all_retrieved_set:
+            if incoming_focus and a_dieu not in all_retrieved_set:
                 missing.setdefault(a_dieu, {
                     "missing_dieu_id": a_dieu,
+                    "missing_node_id": row["a_id"],
+                    "focus_node_id": row["b_id"],
                     "missing_node_ten": a_label,
                     "direction": "incoming",
                     "reason": (
@@ -302,6 +324,7 @@ class CriticQueryEngine:
         all_retrieved_dieu_ids: Optional[list[str]] = None,
         retrieved_part_counts: Optional[dict[str, int]] = None,
         total_parts_override: Optional[dict[str, int]] = None,
+        focus_node_ids: Optional[list[str]] = None,
     ) -> dict:
         """
         Kiểm tra tổng thể độ đầy đủ của retrieval (retrieval chỉ có top-k chunk
@@ -337,7 +360,11 @@ class CriticQueryEngine:
             - structurally_incomplete_dieu: list Điều nhiều Khoản/Điểm nhưng chưa lấy đủ phần
             - suggestions: list hành động cần làm
         """
-        missing_refs = self.find_missing_references(focus_dieu_ids, all_retrieved_dieu_ids)
+        missing_refs = self.find_missing_references(
+            focus_dieu_ids,
+            all_retrieved_dieu_ids,
+            focus_node_ids=focus_node_ids,
+        )
         compound_penalties = self.find_compound_penalty_behaviors(focus_dieu_ids)
         structurally_incomplete = (
             self.find_structurally_incomplete_dieu(focus_dieu_ids, retrieved_part_counts, total_parts_override)

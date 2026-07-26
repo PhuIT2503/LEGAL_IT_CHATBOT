@@ -41,6 +41,8 @@ dùng Qwen2.5 7B qua Ollama (không cần key, nhưng cần bật service ollama
 trên): chọn trong nút chọn model cạnh ô nhập chat.
 """
 
+import asyncio
+import json
 import os
 import sys
 import logging
@@ -66,9 +68,8 @@ MODE_INFO = {
     "critic": {
         "display_name": "Critic Agent (đề xuất khóa luận)",
         "description": (
-            "**Critic Agent** — sinh câu trả lời nháp, tự kiểm tra chéo qua Knowledge "
-            "Graph (Neo4j) để phát hiện phần còn thiếu (tham chiếu chéo Điều khác, cấu "
-            "trúc chưa đủ), rồi bổ sung lại nếu cần. Chính xác và đầy đủ nhất, nhưng "
+            "**Critic Agent** — tự hoàn thiện toàn văn Điều/Khoản và các "
+            "Điều được tham chiếu trước khi tạo câu trả lời. Chính xác và đầy đủ nhất, nhưng "
             "chậm hơn 2 kịch bản còn lại."
         ),
     },
@@ -153,8 +154,29 @@ def _build_llm(llm_key: str) -> ChatOpenAI:
     info = LLM_INFO.get(llm_key, LLM_INFO[DEFAULT_LLM_KEY])
     if info["provider"] == "ollama":
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-        logger.info(f"LLM: {llm_key} (Ollama) @ {base_url}")
-        return ChatOpenAI(model=llm_key, base_url=base_url, api_key="ollama", temperature=0.2)
+        # Ollama phục vụ tuần tự theo runner/model. Một request bị kẹt cộng với
+        # retry mặc định của OpenAI client có thể chặn cả hàng đợi gần 15 phút
+        # (300 giây x 3 lượt). Fail nhanh để workflow có thể dùng fallback an
+        # toàn, thay vì để giao diện đứng vô thời hạn.
+        timeout = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
+        max_retries = max(0, int(os.getenv("OLLAMA_MAX_RETRIES", "0")))
+        logger.info(
+            "LLM: %s (Ollama) @ %s; timeout=%ss; max_retries=%s",
+            llm_key,
+            base_url,
+            timeout,
+            max_retries,
+        )
+        return ChatOpenAI(
+            model=llm_key,
+            base_url=base_url,
+            api_key="ollama",
+            temperature=0.2,
+            max_completion_tokens=int(os.getenv("OLLAMA_MAX_TOKENS", "1600")),
+            timeout=timeout,
+            max_retries=max_retries,
+            stream_usage=True,
+        )
 
     api_key = os.getenv("OPENAI_API_KEY", "")
     if not api_key:
@@ -163,7 +185,15 @@ def _build_llm(llm_key: str) -> ChatOpenAI:
             f"({llm_key})."
         )
     logger.info(f"LLM: {llm_key} (api.shopaikey) @ {OPENAI_BASE_URL}")
-    return ChatOpenAI(model=llm_key, base_url=OPENAI_BASE_URL, api_key=api_key, temperature=0.2)
+    return ChatOpenAI(
+        model=llm_key,
+        base_url=OPENAI_BASE_URL,
+        api_key=api_key,
+        temperature=0.2,
+        max_completion_tokens=int(os.getenv("PROXY_MAX_TOKENS", "1600")),
+        timeout=float(os.getenv("LLM_TIMEOUT_SECONDS", "300")),
+        stream_usage=True,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -279,12 +309,33 @@ def _ensure_sqlite_schema(db_path: Path) -> None:
         conn.close()
 
 
+class SQLiteDataLayer(SQLAlchemyDataLayer):
+    """Adapter nhỏ cho các field list mà SQLite không bind trực tiếp."""
+
+    async def update_thread(self, thread_id, name=None, user_id=None, metadata=None, tags=None):
+        serialized_tags = json.dumps(tags, ensure_ascii=False) if isinstance(tags, list) else tags
+        return await super().update_thread(
+            thread_id,
+            name=name,
+            user_id=user_id,
+            metadata=metadata,
+            tags=serialized_tags,
+        )
+
+    async def create_step(self, step_dict):
+        data = dict(step_dict)
+        for field in ("tags", "modes"):
+            if isinstance(data.get(field), list):
+                data[field] = json.dumps(data[field], ensure_ascii=False)
+        return await super().create_step(data)
+
+
 @cl.data_layer
 def get_data_layer():
     db_path = PROJECT_ROOT / "data" / "chainlit_history.db"
     db_path.parent.mkdir(parents=True, exist_ok=True)
     _ensure_sqlite_schema(db_path)
-    return SQLAlchemyDataLayer(conninfo=f"sqlite+aiosqlite:///{db_path}")
+    return SQLiteDataLayer(conninfo=f"sqlite+aiosqlite:///{db_path}")
 
 
 # ---------------------------------------------------------------------------
@@ -381,6 +432,12 @@ def get_pipeline(embedding_key: str) -> ChatbotWorkflow:
             neo4j_user=os.getenv("NEO4J_USER", "neo4j"),
             neo4j_pass=os.getenv("NEO4J_PASSWORD", "legal_kg_2024"),
             top_k=int(os.getenv("TOP_K", "5")),
+            recursive_max_depth=int(os.getenv("RECURSIVE_MAX_DEPTH", "3")),
+            recursive_max_iterations=int(os.getenv("RECURSIVE_MAX_ITERATIONS", "5")),
+            # Qwen local thường mất gần một phút cho mỗi lượt sinh. Validator
+            # đã có salvage/extractive fallback thuần dữ liệu, nên mặc định
+            # không gọi thêm một lượt LLM repair chỉ để rồi vẫn có thể bị loại.
+            grounding_repair_attempts=int(os.getenv("GROUNDING_REPAIR_ATTEMPTS", "0")),
         )
         _pipelines[embedding_key] = pipeline
     return pipeline
@@ -398,7 +455,15 @@ def _get_run_lock(embedding_key: str) -> threading.Lock:
         return lock
 
 
-def run_query(embedding_key: str, llm_key: str, query: str, mode: str):
+def run_query(
+    embedding_key: str,
+    llm_key: str,
+    query: str,
+    mode: str,
+    *,
+    stream_callback=None,
+    progress_callback=None,
+):
     """Chạy 1 câu hỏi với đúng (embedding, LLM) người dùng đang chọn.
 
     pipeline được cache theo embedding_key (có thể dùng chung giữa nhiều phiên
@@ -410,7 +475,12 @@ def run_query(embedding_key: str, llm_key: str, query: str, mode: str):
     llm = _get_llm(llm_key)
     with _get_run_lock(embedding_key):
         pipeline.llm = llm
-        return pipeline.run(query, mode=mode)
+        return pipeline.run(
+            query,
+            mode=mode,
+            stream_callback=stream_callback,
+            progress_callback=progress_callback,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -431,7 +501,7 @@ async def _apply_settings(settings: dict, announce: bool = False):
     # Chỉ hiện Step "đang tải" khi thực sự cần load 1 embedding model MỚI.
     if embedding_key not in _pipelines:
         async with cl.Step(
-            name=f"Tải embedding model: {EMBEDDING_INFO[embedding_key]['display_name']}", type="run"
+            name="Tải bộ chỉ mục pháp luật", type="run"
         ):
             await cl.make_async(get_pipeline)(embedding_key)
     else:
@@ -464,7 +534,7 @@ async def on_chat_start():
         [
             Select(
                 id="embedding_model",
-                label="Embedding model (Qdrant index)",
+                label="Bộ chỉ mục văn bản",
                 # items = {label hiển thị: value trả về} — chainlit.Select KHÔNG dùng
                 # thứ tự (key=id nội bộ, value=label) như trực giác, mà ngược lại;
                 # initial (khi dùng items) bị ghi đè bởi initial_value, không phải initial.
@@ -489,7 +559,6 @@ async def on_chat_start():
     await cl.Message(
         content=(
             f"Xin chào! Đang dùng chế độ **{MODE_INFO[mode]['display_name']}**, "
-            f"embedding **{EMBEDDING_INFO[embedding_key]['display_name']}** (đổi ở nút Cài đặt), "
             f"LLM **{LLM_INFO[llm_key]['display_name']}** (đổi ở nút chọn model cạnh ô nhập chat).\n\n"
             "Hãy đặt câu hỏi pháp luật của bạn (an ninh mạng, giao dịch điện tử, "
             "bảo vệ dữ liệu cá nhân, viễn thông, ...)."
@@ -508,30 +577,65 @@ async def on_message(message: cl.Message):
     embedding_key = cl.user_session.get("embedding_key", DEFAULT_EMBEDDING_KEY)
     llm_key = cl.user_session.get("llm_key", DEFAULT_LLM_KEY)
 
-    async with cl.Step(name=f"Đang xử lý ({MODE_INFO[mode]['display_name']})", type="run") as step:
-        result = await cl.make_async(run_query)(embedding_key, llm_key, message.content, mode)
-        step.output = (
-            f"Số chunk retrieved: {len(result.get('retrieved_chunks', []))} | "
-            f"Số Điều: {len(result.get('retrieved_dieu_ids', []))}"
+    progress_labels = {
+        "search": "🔎 Đang tìm kiếm văn bản pháp luật...",
+        "retrieve": "📚 Đang truy xuất điều luật...",
+        "analyze": "⚖️ Đang phân tích căn cứ pháp lý...",
+        "write": "✍️ Đang tạo câu trả lời...",
+        "validate": "🛡️ Đang kiểm tra trích dẫn và tính nhất quán...",
+        "complete": "✅ Hoàn tất",
+    }
+    event_queue: asyncio.Queue[tuple[str, str]] = asyncio.Queue()
+    loop = asyncio.get_running_loop()
+
+    def enqueue(kind: str, value: str) -> None:
+        loop.call_soon_threadsafe(event_queue.put_nowait, (kind, value))
+
+    status = cl.Message(content=progress_labels["search"])
+    answer = cl.Message(content="")
+    await status.send()
+    await answer.send()
+
+    worker = asyncio.create_task(
+        cl.make_async(run_query)(
+            embedding_key,
+            llm_key,
+            message.content,
+            mode,
+            stream_callback=lambda token: enqueue("token", token),
+            progress_callback=lambda stage: enqueue("progress", stage),
         )
+    )
+    last_stage = "search"
+    try:
+        while not worker.done() or not event_queue.empty():
+            try:
+                kind, value = await asyncio.wait_for(event_queue.get(), timeout=0.1)
+            except asyncio.TimeoutError:
+                continue
+            if kind == "token":
+                await answer.stream_token(value)
+            elif kind == "progress" and value in progress_labels and value != last_stage:
+                last_stage = value
+                status.content = progress_labels[value]
+                await status.update()
 
-    final_response = result.get("final_response", "(không có câu trả lời)")
-
-    elements = []
-    if mode == "critic" and result.get("critic_report"):
-        report = result["critic_report"]
-        suggestions = report.get("suggestions", [])
-        if suggestions:
-            detail = "\n".join(f"- **[{s['action']}]** {s['reason']}" for s in suggestions)
-            elements.append(
-                cl.Text(
-                    name="Critic Report",
-                    content=f"is_complete={report.get('is_complete')}\n\n{detail}",
-                    display="side",
-                )
-            )
-
-    await cl.Message(content=final_response, elements=elements).send()
+        result = await worker
+        # Với pháp lý, token chỉ bắt đầu sau validation; bản update cuối bảo
+        # đảm Markdown/citation hoàn chỉnh. Chit-chat vẫn stream trực tiếp.
+        answer.content = result.get("final_response", "Không tạo được câu trả lời.")
+        await answer.update()
+        status.content = progress_labels["complete"]
+        await status.update()
+    except Exception:
+        logger.exception("Không thể xử lý câu hỏi")
+        status.content = "❌ Không thể hoàn tất"
+        await status.update()
+        answer.content = (
+            "Xin lỗi, hệ thống chưa thể hoàn tất câu trả lời. "
+            "Vui lòng thử lại hoặc rút gọn câu hỏi."
+        )
+        await answer.update()
 
 
 if __name__ == "__main__":

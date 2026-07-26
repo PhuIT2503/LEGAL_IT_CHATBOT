@@ -56,4 +56,13 @@ class CriticAgent:
         )
 
     def run(self, state: dict) -> dict:
+        # Completeness đã được xử lý trong agent_retrieval trước
+        # generation. Giữ node Critic trong topology hiện tại nhưng không
+        # fetch/gọi gate lần hai; draft đã sinh từ ngữ cảnh hoàn thiện.
+        if state.get("recursive_retrieval_done"):
+            return {
+                "graph_context": "",
+                "critic_report": state.get("critic_report", {}),
+                "graph_fetched_dieu_ids": state.get("graph_fetched_dieu_ids", []),
+            }
         return self.graph.invoke(state)

@@ -3,6 +3,12 @@ import re
 import sys
 from typing import List, Dict, Any
 
+try:
+    # Import chuẩn khi chạy từ project root.
+    from src.retrieval.legal_domains import document_legal_domains
+except ModuleNotFoundError:  # pragma: no cover - script legacy thêm /src vào sys.path
+    from retrieval.legal_domains import document_legal_domains
+
 # Thêm thư mục gốc vào sys.path để import utils
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if BASE_DIR not in sys.path:
@@ -90,6 +96,7 @@ class VBPLChunker:
         filename = os.path.basename(file_path)
         doc_id = self.extract_doc_id(filename)
         doc_name = os.path.splitext(filename)[0] # Dùng làm tên luật trong prefix
+        legal_domains = document_legal_domains(filename)
         
         lines = self.parse_docx(file_path)
         
@@ -148,7 +155,11 @@ class VBPLChunker:
                 "metadata": {
                     "doc_id": doc_id,
                     "dieu_title": chunk_data["dieu_title"],
-                    "source": filename
+                    "source": filename,
+                    "legal_domains": legal_domains,
+                    "article_number": chunk_data.get("dieu_num"),
+                    "clause_number": chunk_data.get("khoan_num"),
+                    "point_number": chunk_data.get("diem_char"),
                 }
             })
 

@@ -8,7 +8,7 @@ khởi tạo (dùng lại cho mọi câu hỏi trong phiên), KHÔNG quét lại
 """
 
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from src.retrieval.qdrant_hybrid_search import _point_id
 from src.knowledge_graph.graph_builder import to_dieu_node_id
@@ -112,6 +112,11 @@ class DieuContentStore:
 
     def fetch_parent_content(self, canonical_dieu_id: str) -> Optional[str]:
         """Lấy toàn văn 1 Điều từ Qdrant bằng id Dieu chuẩn (qua bảng tra self._dieu_parent_lookup)."""
+        record = self.fetch_parent_record(canonical_dieu_id)
+        return record.get("text") if record else None
+
+    def fetch_parent_record(self, canonical_dieu_id: str) -> Optional[dict[str, Any]]:
+        """Lấy toàn văn kèm metadata để xếp hạng văn bản và tạo citation."""
         raw_parent_id = self._dieu_parent_lookup.get(canonical_dieu_id)
         if not raw_parent_id:
             return None
@@ -122,7 +127,15 @@ class DieuContentStore:
                 with_payload=True,
             )
             if points:
-                return (points[0].payload or {}).get("content", "")
+                payload = points[0].payload or {}
+                metadata = payload.get("metadata") or {}
+                return {
+                    "dieu_id": canonical_dieu_id,
+                    "chunk_id": payload.get("id", raw_parent_id),
+                    "text": payload.get("content", ""),
+                    "source": metadata.get("source", ""),
+                    "metadata": metadata,
+                }
         except Exception as e:
             logger.warning(f"Không fetch được parent content cho {canonical_dieu_id}: {e}")
         return None

@@ -16,6 +16,9 @@ def chit_chat_node(state: RouterState, *, llm_client) -> dict:
         "Hãy trả lời tin nhắn sau của người dùng một cách ngắn gọn, lịch sự:\n\n"
         f"Người dùng: {query}"
     )
+    progress = state.get("progress_callback")
+    if progress:
+        progress("write")
     resp = llm_client.invoke(prompt, tag="chit_chat")
 
     return {"final_response": resp.content, "messages": [AIMessage(content=resp.content)]}

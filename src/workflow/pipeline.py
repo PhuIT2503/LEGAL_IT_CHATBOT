@@ -10,6 +10,16 @@ from src.llm.embedding_model import load_embedding_model
 
 from src.agents.common.llm_client import LLMClient
 from src.agents.common.dieu_content_store import DieuContentStore
+from src.agents.common.grounded_validation import (
+    INSUFFICIENT_GROUNDS,
+    build_grounded_sources,
+    build_safe_grounded_fallback,
+    build_repair_prompt,
+    chunk_markdown_for_streaming,
+    render_grounded_answer,
+    salvage_grounded_draft,
+    validate_grounded_draft,
+)
 from src.agents.agent_router.pipeline import RouterAgent
 from src.agents.agent_retrieval.pipeline import RetrievalAgent
 from src.agents.agent_article_expand.pipeline import ArticleExpandAgent
@@ -57,15 +67,11 @@ class ChatbotWorkflow:
       phải lấp bằng KG.
 
     - mode="critic"      (Kịch bản 3 — đề xuất của khóa luận):
-      agent_retrieval (top-k thuần) -> agent_generation sinh câu trả lời NHÁP
-      -> agent_critic (KG) đối chiếu nháp với graph, CHỈ khi phát hiện thật sự
-      thiếu mới xét bốc phần đó -> mỗi ứng viên còn phải qua CỔNG LỌC NGỮ NGHĨA
-      bằng LLM trước khi thực sự bơm vào ngữ cảnh -> agent_generation sinh lại
-      câu trả lời bằng đúng phần đã qua lọc. Nếu không phát hiện/không ứng viên
-      nào qua được cổng lọc thì dùng thẳng câu trả lời nháp — không tốn thêm 1
-      lượt LLM vô ích. Đây là đóng góp cốt lõi của khóa luận: vừa đủ recall
-      (nhờ KG) vừa giữ ngữ cảnh gọn VÀ SẠCH (chỉ bốc đúng phần thiếu VÀ thật sự
-      liên quan, không blind-dump như Kịch bản 2).
+      agent_retrieval lấy top-k, sau đó recursive-expand ngay trong agent này:
+      hoàn thiện Điều mới lấy một phần và lần theo tham chiếu nhiều tầng
+      (có visited/max_depth/max_iterations). Chỉ sau khi completeness được
+      xác định mới chuyển sang generation. Node critic phía sau vẫn được
+      giữ trong topology/API hiện có, nhưng không fetch lặp lại.
     """
 
     def __init__(
@@ -86,6 +92,9 @@ class ChatbotWorkflow:
         critic_score_ratio: float = 0.6,
         critic_max_dieu: int = 4,
         article_expand_score_ratio: float = 0.4,
+        recursive_max_depth: int = 3,
+        recursive_max_iterations: int = 5,
+        grounding_repair_attempts: int = 1,
         skip_router: bool = False,
     ):
         # skip_router=True: bỏ hẳn bước phân loại chit_chat/legal, mọi câu hỏi
@@ -95,6 +104,7 @@ class ChatbotWorkflow:
         # tương tác thật (run_chatbot.py) vẫn giữ router mặc định.
         self.skip_router = skip_router
         self.top_k = top_k
+        self.grounding_repair_attempts = max(0, grounding_repair_attempts)
 
         # Client/model/bm25 load 1 LẦN DUY NHẤT khi khởi tạo, dùng lại cho
         # mọi câu hỏi trong phiên — tránh load lại embedding model mỗi query.
@@ -115,18 +125,24 @@ class ChatbotWorkflow:
         dieu_content_store = DieuContentStore(qdrant_client, qdrant_parent_col, qdrant_child_col)
 
         self._router_agent = RouterAgent(self._llm_client)
-        self._retrieval_agent = RetrievalAgent(
-            qdrant_client, embedding_model, bm25,
-            qdrant_child_col, qdrant_parent_col,
-            top_k, prefetch_limit, article_expand_score_ratio,
-        )
-        self._article_expand_agent = ArticleExpandAgent(dieu_content_store)
-        self._generation_agent = GenerationAgent(self._llm_client)
         self._critic_agent = CriticAgent(
             self._llm_client, dieu_content_store,
             neo4j_uri, neo4j_user, neo4j_pass,
             critic_score_ratio=critic_score_ratio, critic_max_dieu=critic_max_dieu,
         )
+        self._retrieval_agent = RetrievalAgent(
+            qdrant_client, embedding_model, bm25,
+            qdrant_child_col, qdrant_parent_col,
+            top_k, prefetch_limit, article_expand_score_ratio,
+            dieu_content_store=dieu_content_store,
+            critic_query_engine=self._critic_agent.critic_query,
+            critic_score_ratio=critic_score_ratio,
+            critic_max_dieu=critic_max_dieu,
+            recursive_max_depth=recursive_max_depth,
+            recursive_max_iterations=recursive_max_iterations,
+        )
+        self._article_expand_agent = ArticleExpandAgent(dieu_content_store)
+        self._generation_agent = GenerationAgent(self._llm_client)
 
         self.workflow = self._build_graph()
 
@@ -181,8 +197,9 @@ class ChatbotWorkflow:
         workflow.add_edge("expand_article", "generate_single_pass")
         workflow.add_edge("generate_single_pass", END)
 
-        # Kịch bản 3: retrieval -> sinh nháp -> critic đối chiếu KG -> có thiếu
-        # thì sửa lại (regenerate), không thiếu thì dùng thẳng nháp (finalize_draft).
+        # Kịch bản 3: recursive completeness đã nằm bên trong retrieval
+        # trước generate. Giữ các node/edge cũ để không phá API và dữ
+        # liệu đánh giá; critic_check sẽ no-op khi cờ recursive_retrieval_done.
         workflow.add_edge("generate_draft", "critic_check")
         workflow.add_conditional_edges(
             "critic_check",
@@ -194,7 +211,14 @@ class ChatbotWorkflow:
 
         return workflow.compile()
 
-    def run(self, query: str, mode: str = "critic") -> Dict[str, Any]:
+    def run(
+        self,
+        query: str,
+        mode: str = "critic",
+        *,
+        stream_callback=None,
+        progress_callback=None,
+    ) -> Dict[str, Any]:
         """
         mode: "naive" (Kịch bản 1) | "article_expand" (Kịch bản 2) | "critic" (Kịch bản 3 — đề xuất khóa luận).
 
@@ -207,13 +231,127 @@ class ChatbotWorkflow:
 
         # Reset đếm token — mỗi run() là 1 câu hỏi độc lập, không cộng dồn qua các câu.
         self._llm_client.reset_usage()
+        # Chit-chat không có kết luận pháp lý nên có thể stream trực tiếp.
+        # Với câu hỏi pháp luật, chỉ stream bản đã qua grounding validator ở
+        # cuối hàm; người dùng không bao giờ nhìn thấy hallucination tạm thời.
+        stream_tags = {"chit_chat"}
+        self._llm_client.set_stream_callback(stream_callback, tags=stream_tags)
 
         initial_state = {
             "query": query,
             "mode": mode,
             "messages": [HumanMessage(content=query)],
+            "progress_callback": progress_callback,
         }
-        result = self.workflow.invoke(initial_state)
+        try:
+            result = self.workflow.invoke(initial_state)
+
+            if not result.get("is_chit_chat"):
+                if progress_callback:
+                    progress_callback("validate")
+
+                # graph_context chỉ khác rỗng ở đường regenerate cũ. Gộp vào
+                # cùng grounding pool để validator thấy đúng mọi đoạn model đã đọc.
+                context_texts = list(result.get("context_texts", []))
+                if result.get("graph_context"):
+                    context_texts.append(result["graph_context"])
+                # Generation và validator phải dựng cùng một mapping SOURCE_ID.
+                # Expansion chỉ tăng candidate recall, không được thay query
+                # dùng để chọn/rank nguồn cuối cùng.
+                sources = build_grounded_sources(
+                    context_texts,
+                    query=query,
+                )
+                candidate = (result.get("final_response") or "").strip()
+                generation_candidates = [candidate]
+                retrieval_is_complete = result.get("retrieval_is_complete", True)
+
+                validation = validate_grounded_draft(
+                    candidate,
+                    sources,
+                    is_complete=retrieval_is_complete,
+                    query=query,
+                )
+                for attempt in range(self.grounding_repair_attempts):
+                    if validation.is_valid:
+                        break
+                    logger.debug(
+                        "Grounding validation lỗi (lượt %s): %s",
+                        attempt + 1,
+                        "; ".join(validation.issues),
+                    )
+                    repair_prompt = build_repair_prompt(
+                        query=query,
+                        draft=candidate,
+                        issues=validation.issues,
+                        sources=sources,
+                        is_complete=result.get("retrieval_is_complete", True),
+                    )
+                    candidate = self._llm_client.invoke(
+                        repair_prompt, tag="grounding_repair"
+                    ).content.strip()
+                    generation_candidates.append(candidate)
+                    validation = validate_grounded_draft(
+                        candidate,
+                        sources,
+                        is_complete=retrieval_is_complete,
+                        query=query,
+                    )
+
+                if not validation.is_valid:
+                    logger.warning(
+                        "Grounding validation vẫn lỗi sau repair; thử giữ các block hợp lệ: %s",
+                        "; ".join(validation.issues),
+                    )
+                    salvaged_candidates = [
+                        salvage_grounded_draft(
+                            query=query,
+                            draft=draft_candidate,
+                            sources=sources,
+                        )
+                        for draft_candidate in generation_candidates
+                    ]
+                    valid_salvaged = [
+                        salvaged
+                        for salvaged in salvaged_candidates
+                        if salvaged != INSUFFICIENT_GROUNDS
+                        and validate_grounded_draft(
+                            salvaged,
+                            sources,
+                            is_complete=retrieval_is_complete,
+                            query=query,
+                        ).is_valid
+                    ]
+                    if valid_salvaged:
+                        # Nhiều block hợp lệ hơn = giữ được nhiều căn cứ hơn.
+                        candidate = max(valid_salvaged, key=lambda value: value.count("\n### "))
+                        validation = validate_grounded_draft(
+                            candidate,
+                            sources,
+                            is_complete=retrieval_is_complete,
+                            query=query,
+                        )
+                    else:
+                        candidate = build_safe_grounded_fallback(
+                            query=query,
+                            sources=sources,
+                            is_complete=retrieval_is_complete,
+                        )
+
+                result["final_response"] = render_grounded_answer(
+                    candidate,
+                    sources,
+                    is_complete=result.get("retrieval_is_complete", True),
+                )
+
+                if stream_callback:
+                    for chunk in chunk_markdown_for_streaming(result["final_response"]):
+                        stream_callback(chunk)
+
+            if progress_callback:
+                progress_callback("complete")
+        finally:
+            self._llm_client.set_stream_callback(None)
 
         # Token của ĐÚNG lệnh gọi sinh ra câu trả lời cuối cùng (KHÔNG cộng router/
         # gate/draft-bị-bỏ) — chỉ số đúng cho "hiệu quả ngữ cảnh", tách biệt khỏi
@@ -230,6 +368,8 @@ class ChatbotWorkflow:
         by_tag = self._llm_client.token_usage_by_tag
         if result.get("is_chit_chat"):
             final_answer_usage = by_tag.get("chit_chat", empty_usage)
+        elif by_tag.get("grounding_repair"):
+            final_answer_usage = by_tag.get("grounding_repair", empty_usage)
         elif mode == "critic" and not by_tag.get("final_generate"):
             final_answer_usage = by_tag.get("draft", empty_usage)
         else:
@@ -247,4 +387,8 @@ class ChatbotWorkflow:
             "graph_fetched_dieu_ids": result.get("graph_fetched_dieu_ids", []),
             "mode": mode,
             "is_chit_chat": result.get("is_chit_chat", False),
+            "retrieval_is_complete": result.get("retrieval_is_complete", True),
+            "retrieval_is_relevant": result.get("retrieval_is_relevant", True),
+            "retrieval_relevance": result.get("retrieval_relevance", 0.0),
+            "expanded_query": result.get("expanded_query", query),
         }

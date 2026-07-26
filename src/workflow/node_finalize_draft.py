@@ -10,6 +10,6 @@ def finalize_draft_node(state: dict) -> dict:
 
     Glue thuần túy của workflow (2 dòng, không LLM, không KG) — không phải 1 agent riêng.
     """
-    logger.info("Critic Agent: không phát hiện thiếu — dùng thẳng câu trả lời nháp.")
+    logger.debug("Critic Agent: dùng kết quả đã sinh từ context recursive retrieval.")
     draft = state.get("draft_response", "")
     return {"final_response": draft, "messages": [AIMessage(content=draft)]}

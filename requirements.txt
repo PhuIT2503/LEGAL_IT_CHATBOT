@@ -9,3 +9,4 @@ neo4j
 chainlit>=2.0.0
 aiosqlite
 sqlalchemy>=2.0.0
+matplotlib>=3.8.0
