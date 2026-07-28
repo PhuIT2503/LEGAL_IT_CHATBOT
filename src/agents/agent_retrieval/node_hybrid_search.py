@@ -5,6 +5,7 @@ from src.retrieval.qdrant_hybrid_search import hybrid_search_in_domains as hybri
 from src.knowledge_graph.graph_builder import to_dieu_node_id
 from src.agents.common.focus_dieu import compute_focus_dieu_ids
 from src.agents.common.legal_response import sort_context_records
+from src.agents.common.legal_scenario_facts import extract_legal_scenario_facts
 from src.agents.common.retrieval_ranking import (
     deduplicate_context_records,
     filter_behavior_aware_relevant,
@@ -14,13 +15,21 @@ from src.agents.common.retrieval_ranking import (
     select_balanced_top_k,
 )
 from src.agents.common.query_expansion import expand_legal_query
+from src.agents.common.retrieval_contract import (
+    annotate_retrieval_contract_records,
+    assess_retrieval_contract,
+    build_retrieval_rescue_query,
+    retrieval_contract_roles,
+)
 from src.agents.common.retrieval_provenance import normalise_provenance_record
 from src.agents.agent_retrieval.state import RetrievalState
 from src.retrieval.legal_domains import (
     count_candidates_by_domain,
+    document_legal_domains,
     select_legal_domains,
 )
 from src.retrieval.legal_behaviors import extract_legal_behavior
+from src.retrieval.legal_event import extract_canonical_legal_event
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +57,13 @@ def hybrid_search_node(
     """
     logger.debug("[retrieve] Hybrid Search bắt đầu.")
     query = state["query"]
-    behavior_profile = extract_legal_behavior(query)
+    legal_event = extract_canonical_legal_event(query)
+    scenario_fact_state = extract_legal_scenario_facts(
+        query, event=legal_event
+    ).as_dict()
+    behavior_profile = extract_legal_behavior(query, event=legal_event)
     logger.debug("[retrieve] behavior_profile=%s", behavior_profile.as_dict())
-    domain_selection = select_legal_domains(query)
+    domain_selection = select_legal_domains(query, event=legal_event)
     selected_domains = list(domain_selection.selected)
     logger.debug(
         "[retrieve] selected_domains=%s fallback=%s scores=%s",
@@ -62,7 +75,7 @@ def hybrid_search_node(
         "[retrieve] filtered_domains=%s",
         list(domain_selection.filtered),
     )
-    expanded_query, expansion_terms = expand_legal_query(query)
+    expanded_query, expansion_terms = expand_legal_query(query, event=legal_event)
 
     # Cross encoder chỉ rerank candidate pool nhỏ (mặc định 20/query), không
     # quét toàn corpus nên độ trễ được giữ trong giới hạn.
@@ -74,20 +87,7 @@ def hybrid_search_node(
             search_queries.append(("expanded", expanded_query))
         candidate_by_id: dict[str, dict] = {}
         candidate_order: list[str] = []
-        for search_origin, search_query in search_queries:
-            result = hybrid_search(
-                query=search_query,
-                child_collection=qdrant_child_col,
-                parent_collection=qdrant_parent_col,
-                limit=wide_limit,
-                prefetch_limit=prefetch_limit,
-                fusion="rrf",
-                include_parent=False,
-                client=qdrant_client,
-                model=embedding_model,
-                bm25=bm25,
-                legal_domains=selected_domains,
-            )
+        def merge_search_result(search_origin: str, result: dict) -> None:
             for rank, hit in enumerate(result.get("children", []), start=1):
                 payload = getattr(hit, "payload", {}) or {}
                 hit_id = str(payload.get("id") or getattr(hit, "id", ""))
@@ -107,12 +107,135 @@ def hybrid_search_node(
                 candidate[f"{search_origin}_rrf_score"] = float(
                     getattr(hit, "score", 0.0) or 0.0
                 )
+
+        for search_origin, search_query in search_queries:
+            result = hybrid_search(
+                query=search_query,
+                child_collection=qdrant_child_col,
+                parent_collection=qdrant_parent_col,
+                limit=wide_limit,
+                prefetch_limit=prefetch_limit,
+                fusion="rrf",
+                include_parent=False,
+                client=qdrant_client,
+                model=embedding_model,
+                bm25=bm25,
+                legal_domains=selected_domains,
+            )
+            merge_search_result(search_origin, result)
+
+        initial_records = [
+            candidate_by_id[hit_id] for hit_id in candidate_order
+        ]
+        initial_contract_audit = assess_retrieval_contract(
+            legal_event, initial_records
+        )
+        rescue_query = build_retrieval_rescue_query(
+            legal_event, initial_contract_audit.missing_roles
+        )
+        if initial_contract_audit.requires_rescue and rescue_query:
+            logger.info(
+                "[retrieve] deterministic_contract_rescue missing=%s",
+                list(initial_contract_audit.missing_roles),
+            )
+            rescue_result = hybrid_search(
+                query=rescue_query,
+                child_collection=qdrant_child_col,
+                parent_collection=qdrant_parent_col,
+                limit=wide_limit,
+                prefetch_limit=prefetch_limit,
+                fusion="rrf",
+                include_parent=False,
+                client=qdrant_client,
+                model=embedding_model,
+                bm25=bm25,
+                legal_domains=list(legal_event.required_domains)
+                or selected_domains,
+            )
+            merge_search_result("contract_rescue", rescue_result)
+
+        post_search_records = [
+            candidate_by_id[hit_id] for hit_id in candidate_order
+        ]
+        post_search_audit = assess_retrieval_contract(
+            legal_event, post_search_records
+        )
+        if post_search_audit.requires_rescue:
+            # The child-vector query can still miss a short clause inside a
+            # long article. Scan only parent articles in required domains and
+            # recover a parent whose own text satisfies the missing role.
+            # This is structural Qdrant lookup: no embedding and no LLM call.
+            missing_roles = set(post_search_audit.missing_roles)
+            parent_offset = None
+            parent_rank = 0
+            while missing_roles:
+                parent_points, parent_offset = qdrant_client.scroll(
+                    collection_name=qdrant_parent_col,
+                    limit=128,
+                    offset=parent_offset,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                if not parent_points:
+                    break
+                for point in parent_points:
+                    payload = point.payload or {}
+                    source = str(
+                        (payload.get("metadata") or {}).get("source", "")
+                    )
+                    if not set(
+                        document_legal_domains(source)
+                    ).intersection(legal_event.required_domains):
+                        continue
+                    roles = set(
+                        retrieval_contract_roles(
+                            legal_event,
+                            f"{source}\n"
+                            f"{payload.get('content', '')}",
+                        )
+                    )
+                    recovered_roles = roles.intersection(missing_roles)
+                    if not recovered_roles:
+                        continue
+                    parent_rank += 1
+                    hit_id = str(payload.get("id") or point.id)
+                    if hit_id not in candidate_by_id:
+                        candidate_order.append(hit_id)
+                        candidate_by_id[hit_id] = {
+                            "chunk_id": payload.get("id"),
+                            "parent_id": payload.get("id"),
+                            "text": payload.get("content", ""),
+                            "dieu_id_raw": payload.get("dieu_id", ""),
+                            "van_ban_id_raw": payload.get("van_ban_id", ""),
+                            "source": (
+                                payload.get("metadata") or {}
+                            ).get("source", ""),
+                            "metadata": payload.get("metadata") or {},
+                            "contract_parent_recovery": True,
+                        }
+                    candidate_by_id[hit_id][
+                        "contract_parent_rank"
+                    ] = parent_rank
+                    missing_roles.difference_update(recovered_roles)
+                if not parent_offset:
+                    break
+            if missing_roles != set(post_search_audit.missing_roles):
+                logger.info(
+                    "[retrieve] contract_parent_recovery remaining=%s",
+                    sorted(missing_roles),
+                )
     except Exception as e:
         logger.warning(f"Qdrant search failed (Qdrant có thể chưa ingest dữ liệu): {e}")
         candidate_by_id = {}
         candidate_order = []
 
     wide_chunks = [candidate_by_id[hit_id] for hit_id in candidate_order]
+    wide_chunks = annotate_retrieval_contract_records(legal_event, wide_chunks)
+    final_contract_audit = assess_retrieval_contract(legal_event, wide_chunks)
+    logger.info(
+        "[retrieve] retrieval_contract=%s",
+        final_contract_audit.as_dict(),
+    )
     candidate_count_by_domain = count_candidates_by_domain(
         wide_chunks, selected_domains
     )
@@ -133,6 +256,11 @@ def hybrid_search_node(
     reranker_available = bool(
         wide_chunks and wide_chunks[0].get("reranker_available")
     )
+    contract_protected = {
+        str(chunk.get("chunk_id") or ""): chunk
+        for chunk in wide_chunks
+        if chunk.get("retrieval_contract_roles")
+    }
     if reranker_available:
         # Behavior gate chạy trước cổng score: nếu Cross Encoder ưu tiên một
         # đoạn chỉ trùng video/quảng cáo, behavior vẫn có thể loại đoạn đó và
@@ -165,6 +293,14 @@ def hybrid_search_node(
             minimum=float(os.getenv("BEHAVIOR_GATE_MIN_SCORE", "0.18")),
             activation=float(os.getenv("BEHAVIOR_GATE_ACTIVATION_SCORE", "0.35")),
         )
+    if contract_protected:
+        present = {str(chunk.get("chunk_id") or "") for chunk in wide_chunks}
+        wide_chunks.extend(
+            chunk
+            for chunk_id, chunk in contract_protected.items()
+            if chunk_id not in present
+        )
+        wide_chunks.sort(key=lambda chunk: -float(chunk.get("score") or 0.0))
     logger.debug(
         "[retrieve] behavior_filtered=%d behavior_scores=%s",
         behavior_filtered,
@@ -268,9 +404,11 @@ def hybrid_search_node(
         # Card đã được tạo ở Phase 2; các bước downstream chỉ được đọc lại,
         # tuyệt đối không rewrite hoặc trích xuất một hành vi khác.
         "behavior_profile": behavior_profile.as_dict(),
+        "scenario_fact_state": scenario_fact_state,
         "article_expand_dieu_ids": article_expand_dieu_ids,
         "expanded_query": expanded_query,
         "query_expansion_terms": expansion_terms,
         "retrieval_is_relevant": retrieval_is_relevant,
         "retrieval_relevance": best_relevance,
+        "retrieval_contract": final_contract_audit.as_dict(),
     }

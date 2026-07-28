@@ -9,6 +9,7 @@ class RetrievalState(TypedDict):
     context_texts: List[str]
     context_records: List[Dict[str, Any]]
     behavior_profile: Dict[str, List[str]]
+    scenario_fact_state: Dict[str, Any]
     article_expand_dieu_ids: List[str]
     mode: str
     retrieval_is_complete: bool
@@ -21,3 +22,4 @@ class RetrievalState(TypedDict):
     query_expansion_terms: List[str]
     retrieval_is_relevant: bool
     retrieval_relevance: float
+    retrieval_contract: Dict[str, Any]

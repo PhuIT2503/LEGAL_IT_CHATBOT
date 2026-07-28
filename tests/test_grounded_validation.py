@@ -97,6 +97,44 @@ class GroundedValidationTests(unittest.TestCase):
         self.assertIn("# Căn cứ pháp lý", answer)
         self.assertNotIn("Khoản 1", answer)  # S1 không được phần phân tích sử dụng.
 
+    def test_renderer_uses_single_assessment_for_user_oriented_answer(self):
+        sources = build_grounded_sources(CONTEXT)
+        assessment = {
+            "status": "LIKELY_VIOLATION",
+            "matched_facts": [
+                "Có hành vi chia sẻ dữ liệu cho bên khác."
+            ],
+            "missing_facts": [
+                "Cần xác minh việc chia sẻ có được chủ thể đồng ý hay không."
+            ],
+            "applicable_sources": [
+                {
+                    "source_id": source.source_id,
+                    "document": source.document,
+                    "article": source.article,
+                    "clause": source.clause,
+                    "point": source.point,
+                    "body": source.body,
+                }
+                for source in sources
+            ],
+            "sanction_available": True,
+            "next_steps": ["Lưu giữ tài liệu liên quan."],
+        }
+
+        answer = render_grounded_answer(
+            valid_draft(),
+            sources,
+            is_complete=True,
+            answer_assessment=assessment,
+        )
+
+        self.assertTrue(answer.startswith("## Kết luận sơ bộ"))
+        self.assertIn("## Vì sao", answer)
+        self.assertIn("## Còn cần làm rõ", answer)
+        self.assertNotIn("## Tóm tắt tình huống", answer)
+        self.assertEqual(2, answer.count("Điều 10, Khoản 2, Điểm a"))
+
     def test_rejects_unknown_source_article_and_document(self):
         sources = build_grounded_sources(CONTEXT)
         invalid = valid_draft().replace(

@@ -15,6 +15,14 @@ import re
 from typing import Any, Iterable, Sequence
 
 from src.agents.common.grounded_validation import GroundedSource, build_grounded_sources
+from src.agents.common.legal_element_coverage import (
+    NOT_APPLICABLE as ELEMENT_NOT_APPLICABLE,
+    evaluate_provision_element_coverage,
+)
+from src.agents.common.legal_scenario_facts import (
+    extract_legal_scenario_facts,
+    filter_answered_missing_facts,
+)
 from src.agents.common.retrieval_provenance import article_key
 from src.retrieval.legal_behaviors import (
     BehaviorProfile,
@@ -62,6 +70,11 @@ class ApplicabilityDecision:
     applicability_removed: bool = False
     reason_removed: str = ""
     decision_stage: str = "applicability"
+    required_elements: tuple[str, ...] = ()
+    matched_elements: tuple[str, ...] = ()
+    missing_required_elements: tuple[str, ...] = ()
+    element_applicability: str = "PARTIAL_MATCH"
+    element_reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -115,6 +128,7 @@ def _build_prompt(
     query: str,
     grouped: Sequence[tuple[str, list[GroundedSource]]],
     behavior_profile: BehaviorProfile,
+    scenario_fact_state: dict[str, Any],
 ) -> str:
     candidates = "\n\n".join(
         f'<CANDIDATE id="{candidate_id}">\n{_article_text(sources)}\n</CANDIDATE>'
@@ -131,6 +145,7 @@ def _build_prompt(
         )
     )
     expected_behaviors = ", ".join(behavior_keys) or "(không có)"
+    fact_card = json.dumps(scenario_fact_state, ensure_ascii=False)
     return f"""
 Bạn là bộ kiểm tra khả năng áp dụng pháp luật. Đây là bước LỌC, không phải bước
 tư vấn và không được dùng kiến thức ngoài các CANDIDATE.
@@ -140,6 +155,9 @@ TÌNH HUỐNG:
 
 BEHAVIOR_CARD BẤT BIẾN DO RETRIEVAL CUNG CẤP:
 {behavior_card}
+
+FACT_STATE BẤT BIẾN DO HỆ THỐNG TRÍCH TỪ TÌNH HUỐNG:
+{fact_card}
 
 CÁC ĐIỀU LUẬT ĐÃ RETRIEVE:
 {candidates}
@@ -169,6 +187,10 @@ QUY TẮC NGHIÊM NGẶT:
 - Không nêu tên hoặc số hiệu văn bản không có trong CANDIDATE.
 - Không được viết lại, diễn giải thành một hành vi mới hoặc thêm behavior key
   ngoài BEHAVIOR_CARD. Không trả field situation_behavior.
+- Chỉ ``stated_facts`` là dữ kiện người dùng đã nêu. ``supported_inferences``
+  phải giữ ở mức suy luận; ``unknown_legal_elements`` không được viết thành
+  dữ kiện chắc chắn.
+- Không đưa một nội dung đã có trong ``stated_facts`` vào missing_conditions.
 - Nếu các nguồn chỉ bao phủ ngoại vi và có vẻ thiếu căn cứ điều chỉnh hành vi
   cốt lõi, đặt retrieval_gap=true nhưng không tự đoán tên điều luật còn thiếu.
 - Viết ngắn: scope/hành vi tối đa 25 từ, explanation tối đa 60 từ,
@@ -239,12 +261,20 @@ def _validated_decision(
     max_seed_score: float,
     candidate_actions: set[str],
     seed_actions: set[str],
+    scenario_fact_state: dict[str, Any],
 ) -> ApplicabilityDecision:
     first = sources[0]
     raw = raw or {}
     scope = _safe_text(raw.get("scope"))
     explanation = _safe_text(raw.get("explanation"))
     missing = _safe_text(raw.get("missing_conditions"))
+    stated_facts = scenario_fact_state.get("stated_facts") or {}
+    if stated_facts.get("transfer_executed"):
+        filtered_missing, _ = filter_answered_missing_facts(
+            re.split(r"(?<=[.;?])\s+|\s*;\s*", missing),
+            scenario_fact_state,
+        )
+        missing = "; ".join(filtered_missing)
     raw_present = bool(raw)
     requested_level = _normalise_level(raw.get("applicability"))
     level = requested_level
@@ -429,6 +459,17 @@ def _validated_decision(
         else:
             reason_removed = reason_rejected or "Applicability không đủ điều kiện giữ."
 
+    element_coverage = evaluate_provision_element_coverage(
+        "\n".join(source.text for source in sources),
+        scenario_fact_state,
+    )
+    if element_coverage.applicability == ELEMENT_NOT_APPLICABLE:
+        decision = REMOVE
+        level = LOW
+        seed_survived = False
+        seed_removed = is_seed
+        reason_removed = element_coverage.reason
+
     return ApplicabilityDecision(
         candidate_id=candidate_id,
         document=first.document,
@@ -449,6 +490,11 @@ def _validated_decision(
         behavior_preserved=behavior_preserved,
         applicability_removed=decision == REMOVE,
         reason_removed=reason_removed,
+        required_elements=element_coverage.required_elements,
+        matched_elements=element_coverage.matched_elements,
+        missing_required_elements=element_coverage.missing_required_elements,
+        element_applicability=element_coverage.applicability,
+        element_reason=element_coverage.reason,
     )
 
 
@@ -459,10 +505,14 @@ def check_legal_applicability(
     llm_client,
     behavior_profile: BehaviorProfile | None = None,
     candidate_records: Iterable[dict[str, Any]] | None = None,
+    scenario_fact_state: dict[str, Any] | None = None,
 ) -> ApplicabilityResult:
     """Phân loại candidate thành KEEP/WEAK_KEEP/REMOVE trước Generation."""
 
     behavior_profile = behavior_profile or extract_legal_behavior(query)
+    scenario_fact_state = scenario_fact_state or extract_legal_scenario_facts(
+        query
+    ).as_dict()
     grouped = _group_sources(context_texts)
     if not grouped:
         return ApplicabilityResult((), (), True, "Không có Điều luật để đánh giá.")
@@ -480,7 +530,12 @@ def check_legal_applicability(
             break
         try:
             response = llm_client.invoke(
-                _build_prompt(query, pending, behavior_profile),
+                _build_prompt(
+                    query,
+                    pending,
+                    behavior_profile,
+                    scenario_fact_state,
+                ),
                 tag="legal_applicability",
                 max_completion_tokens=max_tokens,
                 response_format={"type": "json_object"},
@@ -578,6 +633,7 @@ def check_legal_applicability(
             max_seed_score=max_seed_score,
             candidate_actions=candidate_actions,
             seed_actions=seed_actions,
+            scenario_fact_state=scenario_fact_state,
         )
         decisions.append(decision)
         action = "drop" if decision.decision == REMOVE else "keep"

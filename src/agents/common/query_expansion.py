@@ -12,6 +12,11 @@ from dataclasses import dataclass
 import re
 import unicodedata
 
+from src.retrieval.legal_event import (
+    CanonicalLegalEvent,
+    extract_canonical_legal_event,
+)
+
 
 def _fold(value: str) -> str:
     decomposed = unicodedata.normalize("NFD", value or "")
@@ -121,14 +126,44 @@ _RULES: tuple[ExpansionRule, ...] = (
 )
 
 
-def expand_legal_query(query: str, max_terms: int = 18) -> tuple[str, list[str]]:
+def expand_legal_query(
+    query: str,
+    max_terms: int = 18,
+    *,
+    event: CanonicalLegalEvent | None = None,
+) -> tuple[str, list[str]]:
     """Trả query recall và thuật ngữ thêm vào; giữ nguyên API hiện tại."""
 
     folded = " ".join(re.findall(r"[a-z0-9]+", _fold(query)))
+    event = event or extract_canonical_legal_event(query)
     additions: list[str] = []
     for rule in _RULES:
         if rule.matches(folded):
             additions.extend(rule.terms)
+    if "sell_personal_data" in event.actions:
+        additions.extend(
+            (
+                "mua bán dữ liệu cá nhân",
+                "nghiêm cấm mua bán dữ liệu cá nhân",
+                "thu lợi từ mua bán dữ liệu cá nhân",
+            )
+        )
+    if "retain_personal_data" in event.actions:
+        additions.extend(
+            (
+                "lưu giữ dữ liệu cá nhân trái quy định",
+                "sử dụng dữ liệu cá nhân của người khác",
+                "chiếm đoạt dữ liệu cá nhân",
+            )
+        )
+    if event.liability_intent and "personal_data" in event.objects:
+        additions.extend(
+            (
+                "xử lý vi phạm dữ liệu cá nhân",
+                "bồi thường thiệt hại dữ liệu cá nhân",
+                "truy cứu trách nhiệm hình sự dữ liệu cá nhân",
+            )
+        )
     additions = list(dict.fromkeys(additions))[:max_terms]
     if not additions:
         return query, []

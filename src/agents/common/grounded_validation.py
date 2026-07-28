@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 import re
-from typing import Iterable, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 import unicodedata
 
 from src.agents.common.legal_response import document_priority
@@ -51,6 +51,13 @@ _SANCTION_RE = re.compile(
 )
 _NO_SANCTION_RE = re.compile(
     r"(?:chưa đủ căn cứ|không đủ căn cứ|không có căn cứ|không đề cập|chưa thể xác định)",
+    re.IGNORECASE,
+)
+_APPLIED_SANCTION_AMOUNT_RE = re.compile(
+    r"(?:phạt|xử phạt|mức phạt|hình phạt|tối đa|bị phạt).{0,40}"
+    r"\b\d+(?:[.,]\d+)?\b|"
+    r"\b\d+(?:[.,]\d+)?\b.{0,30}"
+    r"(?:tiền phạt|mức phạt|bị phạt|hình phạt)",
     re.IGNORECASE,
 )
 _NUMBERED_DOCUMENT_RE = re.compile(
@@ -130,6 +137,25 @@ def _clean_document(value: str) -> str:
 
 def _normalise(value: str) -> str:
     return " ".join(unicodedata.normalize("NFC", value or "").casefold().split())
+
+
+def _canonical_number(value: str) -> str:
+    # Legal scenarios overwhelmingly use dot/comma as a thousands separator.
+    # This validator compares provenance, not arithmetic decimal values.
+    return re.sub(r"[.,\s]", "", value or "").lstrip("0") or "0"
+
+
+def _is_query_fact_number(number: str, line: str, query: str) -> bool:
+    """Allow a user's number as a fact, never as a model-computed sanction."""
+
+    query_numbers = {
+        _canonical_number(value)
+        for value in re.findall(r"\b\d+(?:[.,]\d+)?\b", query or "")
+    }
+    return (
+        _canonical_number(number) in query_numbers
+        and not _APPLIED_SANCTION_AMOUNT_RE.search(line)
+    )
 
 
 def extract_user_questions(query: str, limit: int = 6) -> list[str]:
@@ -290,6 +316,23 @@ def build_grounded_sources(
 
 def citation_label(source: GroundedSource, *, markdown: bool = False) -> str:
     document = f"**{source.document}**" if markdown else source.document
+    parts = [document, f"Điều {source.article}"]
+    if source.clause:
+        parts.append(f"Khoản {source.clause}")
+    if source.point:
+        parts.append(f"Điểm {source.point}")
+    return ", ".join(parts)
+
+
+def _user_citation_label(source: GroundedSource) -> str:
+    """Canonical citation line while the source heading keeps full provenance."""
+
+    document = re.sub(
+        r"\s*\((?:sửa đổi|được sửa đổi|bổ sung)[^)]*\)\s*$",
+        "",
+        source.document,
+        flags=re.IGNORECASE,
+    ).strip()
     parts = [document, f"Điều {source.article}"]
     if source.clause:
         parts.append(f"Khoản {source.clause}")
@@ -585,7 +628,10 @@ def validate_grounded_draft(
             for line in assertion_text.splitlines():
                 if _SANCTION_RE.search(line) and not _NO_SANCTION_RE.search(line):
                     for number in re.findall(r"\b\d+(?:[.,]\d+)?\b", line):
-                        if _normalise(number) not in cited_corpus:
+                        if (
+                            _normalise(number) not in cited_corpus
+                            and not _is_query_fact_number(number, line, query)
+                        ):
                             issues.append(
                                 f"Con số chế tài {number} không tồn tại trong SOURCE_ID được cite."
                             )
@@ -622,7 +668,18 @@ def validate_grounded_draft(
         cited_sanction_sources = _cited_sources_in_text(sanctions, source_map)
         cited_corpus = " ".join(_normalise(source.text) for source in cited_sanction_sources)
         for number in re.findall(r"\b\d+(?:[.,]\d+)?\b", sanctions):
-            if _normalise(number) not in cited_corpus:
+            number_line = next(
+                (
+                    line
+                    for line in sanctions.splitlines()
+                    if number in line
+                ),
+                sanctions,
+            )
+            if (
+                _normalise(number) not in cited_corpus
+                and not _is_query_fact_number(number, number_line, query)
+            ):
                 issues.append(
                     f"Con số chế tài {number} không tồn tại trong SOURCE_ID được cite."
                 )
@@ -1287,11 +1344,371 @@ def _render_marker(match: re.Match[str], source_map: dict[str, GroundedSource]) 
     return f"(Căn cứ: {labels})"
 
 
+def _source_heading(source: GroundedSource) -> str:
+    coordinates = [f"Điều {source.article}"]
+    if source.clause:
+        coordinates.append(f"Khoản {source.clause}")
+    if source.point:
+        coordinates.append(f"Điểm {source.point}")
+    return f"{source.document} — {', '.join(coordinates)}"
+
+
+def _assessment_values(
+    assessment: Mapping[str, Any],
+    key: str,
+) -> list[str]:
+    return [
+        " ".join(str(item or "").split()).strip()
+        for item in (assessment.get(key) or ())
+        if " ".join(str(item or "").split()).strip()
+    ]
+
+
+def _assessment_conclusion(
+    assessment: Mapping[str, Any],
+    selected_sources: Sequence[GroundedSource],
+) -> str:
+    status = str(assessment.get("status") or "")
+    sanction_available = bool(assessment.get("sanction_available"))
+    documents = list(dict.fromkeys(source.document for source in selected_sources))
+    legal_scope = (
+        documents[0]
+        if len(documents) == 1
+        else "các quy định pháp luật được trích dẫn dưới đây"
+    )
+    if status == "LIKELY_VIOLATION":
+        conclusion = (
+            "Theo thông tin được cung cấp, hành vi này có dấu hiệu thuộc phạm vi "
+            f"điều chỉnh của {legal_scope}."
+        )
+    elif status == "PARTIAL_MATCH":
+        conclusion = (
+            "Theo thông tin được cung cấp, hành vi này có dấu hiệu liên quan đến "
+            "các quy định pháp luật được trích dẫn dưới đây, nhưng cần làm rõ thêm "
+            "một số điều kiện để xác định mức độ áp dụng."
+        )
+    elif status == "NO_MATCH":
+        return (
+            "Chưa tìm thấy căn cứ phù hợp trong các nguồn pháp luật hiện có để "
+            "đánh giá trực tiếp hành vi được hỏi."
+        )
+    else:
+        return (
+            "Chưa đủ dữ kiện để xác định hành vi có đáp ứng đầy đủ điều kiện của "
+            "các quy định pháp luật hiện có."
+        )
+    if not sanction_available:
+        conclusion += (
+            " Các nguồn hiện được truy xuất đủ để nhận diện dấu hiệu hành vi, "
+            "nhưng chưa đủ để xác định chính xác trách nhiệm dân sự, hành chính, "
+            "hình sự hoặc mức xử lý."
+        )
+    return conclusion
+
+
+def _selected_answer_sources(
+    source_map: Mapping[str, GroundedSource],
+    used_ids: Sequence[str],
+    assessment: Mapping[str, Any],
+) -> list[GroundedSource]:
+    assessment_sources = {
+        str(item.get("source_id") or ""): item
+        for item in (assessment.get("applicable_sources") or ())
+        if isinstance(item, Mapping)
+    }
+    allowed_ids = set(assessment_sources)
+    candidate_ids = [
+        source_id
+        for source_id in used_ids
+        if source_id in source_map and (not allowed_ids or source_id in allowed_ids)
+    ]
+    if str(assessment.get("status") or "") != "NO_MATCH":
+        kept_ids = [
+            source_id
+            for source_id in source_map
+            if source_id in allowed_ids
+            and str(
+                assessment_sources.get(source_id, {}).get("applicability_decision")
+                or ""
+            ).upper()
+            in {"KEEP", "WEAK_KEEP"}
+        ]
+        if kept_ids:
+            candidate_ids = kept_ids
+        elif not candidate_ids:
+            candidate_ids = [
+                source_id
+                for source_id in source_map
+                if not allowed_ids or source_id in allowed_ids
+            ]
+
+    # Citation budget: ưu tiên quyết định Applicability trực tiếp, sau đó dùng
+    # cross-encoder score vốn đã có trong final context để chọn đúng một căn cứ
+    # đại diện. Đây chỉ là sắp xếp các SOURCE đã giữ; không chạy lại retrieval,
+    # không dùng benchmark ground truth và không gọi model.
+    used_id_set = set(used_ids)
+
+    def source_priority(
+        source_id: str,
+    ) -> tuple[int, int, float, float, float, int]:
+        metadata = assessment_sources.get(source_id, {})
+
+        def numeric(name: str) -> float:
+            try:
+                return float(metadata.get(name) or 0.0)
+            except (TypeError, ValueError):
+                return 0.0
+
+        decision = str(metadata.get("applicability_decision") or "").upper()
+        level = str(metadata.get("applicability_level") or "").upper()
+        return (
+            int(decision == "KEEP"),
+            int(level == "HIGH"),
+            numeric("cross_encoder_score"),
+            numeric("behavior_score"),
+            numeric("retrieval_score"),
+            int(source_id in used_id_set),
+        )
+
+    ordered_ids = sorted(
+        dict.fromkeys(candidate_ids),
+        key=source_priority,
+        reverse=True,
+    )[:1]
+
+    # Liability questions need one retained consequence source alongside the
+    # substantive prohibition. Add only the best source whose own text states
+    # a category already established by the assessment.
+    liability_categories = assessment.get("liability_categories") or {}
+    if liability_categories:
+        consequence_terms = {
+            "civil": ("bồi thường", "trách nhiệm dân sự"),
+            "administrative": ("xử phạt hành chính", "phạt tiền"),
+            "criminal": ("truy cứu trách nhiệm hình sự", "xử lý hình sự"),
+        }
+        requested_terms = tuple(
+            term
+            for category in liability_categories
+            for term in consequence_terms.get(str(category), ())
+        )
+        ranked_candidates = sorted(
+            dict.fromkeys(candidate_ids),
+            key=source_priority,
+            reverse=True,
+        )
+        matched_text = _normalise(
+            " ".join(str(item) for item in assessment.get("matched_facts") or ())
+        )
+        if "bán dữ liệu cá nhân" in matched_text:
+            prohibition_id = next(
+                (
+                    source_id
+                    for source_id in ranked_candidates
+                    if re.search(
+                        r"(?:mua\s*,?\s*bán|mua bán|bán).{0,45}dữ liệu cá nhân|"
+                        r"dữ liệu cá nhân.{0,45}(?:mua\s*,?\s*bán|mua bán)",
+                        _normalise(source_map[source_id].body),
+                    )
+                    and not (
+                        "mức phạt tiền tối đa"
+                        in _normalise(source_map[source_id].body)
+                        and "nghiêm cấm"
+                        not in _normalise(source_map[source_id].body)
+                    )
+                ),
+                None,
+            )
+            consequence_candidates = [
+                source_id
+                for source_id in ranked_candidates
+                if any(
+                    term in _normalise(source_map[source_id].body)
+                    for term in requested_terms
+                )
+            ]
+            consequence_id = max(
+                consequence_candidates,
+                key=lambda source_id: (
+                    sum(
+                        term in _normalise(source_map[source_id].body)
+                        for term in requested_terms
+                    ),
+                    source_priority(source_id),
+                ),
+                default=None,
+            )
+            direct_ids = [
+                source_id
+                for source_id in (prohibition_id, consequence_id)
+                if source_id
+            ]
+            if direct_ids:
+                ordered_ids = list(dict.fromkeys(direct_ids))
+        else:
+            consequence_id = next(
+                (
+                    source_id
+                    for source_id in ranked_candidates
+                    if source_id not in ordered_ids
+                    and any(
+                        term in _normalise(source_map[source_id].body)
+                        for term in requested_terms
+                    )
+                ),
+                None,
+            )
+            if consequence_id:
+                ordered_ids.append(consequence_id)
+
+    # Một source trực tiếp có thể dẫn chiếu sang Điều của Luật nền. Chỉ bổ
+    # sung target khi: (1) câu dẫn chiếu hiện diện nguyên văn trong body,
+    # (2) target đã ở final context, và (3) Applicability vẫn giữ target.
+    # Đây là citation recovery trong tập nguồn đã validate, không phải retrieval.
+    for source_id in list(ordered_ids):
+        source = source_map[source_id]
+        referenced_articles = {
+            match.casefold()
+            for match in re.findall(
+                r"Điều\s+([0-9]+[A-Za-z]?)\s+của\s+(?:Luật|Bộ luật)",
+                source.body or source.text,
+                flags=re.IGNORECASE,
+            )
+        }
+        for target_id, target in source_map.items():
+            metadata = assessment_sources.get(target_id, {})
+            if (
+                target_id not in ordered_ids
+                and target.document != source.document
+                and target.article.casefold() in referenced_articles
+                and str(metadata.get("applicability_decision") or "").upper()
+                in {"KEEP", "WEAK_KEEP"}
+            ):
+                ordered_ids.append(target_id)
+
+    selected: list[GroundedSource] = []
+    seen: set[tuple[str, str, str, str]] = set()
+    for source_id in ordered_ids:
+        source = source_map[source_id]
+        key = (
+            source.document,
+            source.article,
+            source.clause or "",
+            source.point or "",
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        selected.append(source)
+    return selected
+
+
+def _render_user_oriented_answer(
+    *,
+    assessment: Mapping[str, Any],
+    sources: Sequence[GroundedSource],
+    used_ids: Sequence[str],
+) -> str:
+    source_map = {source.source_id: source for source in sources}
+    selected = _selected_answer_sources(source_map, used_ids, assessment)
+    status = str(assessment.get("status") or "")
+    matched = _assessment_values(assessment, "matched_facts")
+    missing = _assessment_values(assessment, "missing_facts")
+    next_steps = _assessment_values(assessment, "next_steps")
+    liability_categories = assessment.get("liability_categories") or {}
+
+    if matched:
+        why_lines = [f"- {fact}" for fact in matched]
+    elif status == "NO_MATCH":
+        why_lines = [
+            "- Ngữ cảnh cuối không có nguồn pháp luật liên quan trực tiếp đến hành vi được hỏi."
+        ]
+    else:
+        why_lines = [
+            "- Các nguồn hiện có chưa xác nhận đủ yếu tố hành vi để đưa ra kết luận trực tiếp."
+        ]
+    liability_labels = {
+        "employment_or_internal": "Trách nhiệm nội bộ/lao động",
+        "civil": "Trách nhiệm dân sự",
+        "administrative": "Trách nhiệm hành chính",
+        "criminal": "Trách nhiệm hình sự",
+    }
+    for key, explanation in liability_categories.items():
+        label = liability_labels.get(str(key), str(key))
+        why_lines.append(f"- **{label}:** {' '.join(str(explanation).split())}")
+
+    source_blocks: list[str] = []
+    fact_text = "; ".join(fact.rstrip(" .;:") for fact in matched[:4])
+    for source in selected:
+        quote = _short_quote(source).replace("\n", " ")
+        if status == "LIKELY_VIOLATION":
+            analysis = (
+                f"Các tình tiết đã xác định gồm: {fact_text}. "
+                "Những tình tiết này tương ứng trực tiếp với nội dung được trích "
+                "dẫn, nên hành vi có dấu hiệu thuộc phạm vi điều chỉnh của quy định này."
+            )
+        elif status == "PARTIAL_MATCH":
+            analysis = (
+                f"Các tình tiết đã xác định gồm: {fact_text}. "
+                "Những tình tiết này mới tương ứng một phần với nội dung được trích "
+                "dẫn; cần làm rõ các dữ kiện ở phần dưới trước khi xác định đầy đủ "
+                "điều kiện áp dụng."
+            )
+        else:
+            analysis = (
+                "Nguồn này có liên quan đến bối cảnh, nhưng các dữ kiện hiện có "
+                "chưa đủ để xác định hành vi đáp ứng đầy đủ điều kiện của quy định."
+            )
+        source_blocks.append(
+            f"### {_source_heading(source)}\n\n"
+            f"> “{quote}”\n\n"
+            f"{analysis}"
+        )
+    if not source_blocks:
+        source_blocks.append(
+            "Chưa có nguồn pháp luật phù hợp trong ngữ cảnh cuối để trích dẫn."
+        )
+
+    missing_lines = [f"- {item}" for item in missing] or [
+        "- Chưa xác định được dữ kiện bổ sung cụ thể từ các nguồn hiện có."
+    ]
+    next_lines = [f"- {item}" for item in next_steps] or [
+        "- Lưu giữ tài liệu liên quan và tham vấn người có chuyên môn pháp lý."
+    ]
+    citation_lines = [f"- {_user_citation_label(source)}." for source in selected] or [
+        "- Chưa có căn cứ pháp lý phù hợp trong ngữ cảnh cuối."
+    ]
+
+    return f"""## Kết luận sơ bộ
+
+{_assessment_conclusion(assessment, selected)}
+
+## Vì sao
+
+{chr(10).join(why_lines)}
+
+## Quy định pháp luật liên quan
+
+{(chr(10) * 2).join(source_blocks)}
+
+## Còn cần làm rõ
+
+{chr(10).join(missing_lines)}
+
+## Nên làm gì tiếp theo
+
+{chr(10).join(next_lines)}
+
+## Căn cứ pháp lý
+
+{chr(10).join(citation_lines)}""".strip()
+
+
 def render_grounded_answer(
     draft: str,
     sources: Sequence[GroundedSource],
     *,
     is_complete: bool,
+    answer_assessment: Mapping[str, Any] | None = None,
 ) -> str:
     """Thay marker bằng dữ liệu xác định và dựng danh mục nguồn đã dùng."""
 
@@ -1308,6 +1725,12 @@ def render_grounded_answer(
         for source_id in (item.strip() for item in marker.group("ids").split(",")):
             if source_id in source_map and source_id not in used_ids:
                 used_ids.append(source_id)
+    if answer_assessment:
+        return _render_user_oriented_answer(
+            assessment=answer_assessment,
+            sources=sources,
+            used_ids=used_ids,
+        )
     rendered = _MARKER_RE.sub(lambda match: _render_marker(match, source_map), cleaned)
 
     sections: list[str] = []

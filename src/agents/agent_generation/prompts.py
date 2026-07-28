@@ -1,4 +1,6 @@
-from typing import List
+import hashlib
+import json
+from typing import Any, Iterable, List, Mapping
 
 from src.agents.common.grounded_validation import (
     INSUFFICIENT_GROUNDS,
@@ -12,7 +14,90 @@ def format_context_block(context_texts: List[str], *, query: str = "") -> str:
     return format_grounded_context(build_grounded_sources(context_texts, query=query))
 
 
-def build_answer_prompt(query: str, context_text: str, *, is_complete: bool = True) -> str:
+def build_generation_payload(
+    *,
+    query: str,
+    context_text: str,
+    is_complete: bool,
+    scenario_fact_state: Mapping[str, Any],
+    behavior_profile: Mapping[str, Any] | None,
+    applicability_results: Iterable[Mapping[str, Any]],
+    answer_assessment: Mapping[str, Any],
+    model_config: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build the canonical, model-independent input to Generation."""
+
+    stable_applicability_fields = (
+        "candidate_id",
+        "document",
+        "article",
+        "level",
+        "decision",
+        "behavior_matches",
+        "behavior_score",
+        "validation_status",
+        "required_elements",
+        "matched_elements",
+        "missing_required_elements",
+        "element_applicability",
+        "element_reason",
+    )
+    payload = {
+        "normalized_question": scenario_fact_state.get(
+            "normalized_question", query
+        ),
+        "question_sections": list(
+            scenario_fact_state.get("question_sections") or [query]
+        ),
+        "stated_facts": dict(
+            scenario_fact_state.get("stated_facts") or {}
+        ),
+        "supported_inferences": dict(
+            scenario_fact_state.get("supported_inferences") or {}
+        ),
+        "unknown_legal_elements": dict(
+            scenario_fact_state.get("unknown_legal_elements") or {}
+        ),
+        "behavior_card": dict(behavior_profile or {}),
+        "applicability_results": [
+            {
+                key: result.get(key)
+                for key in stable_applicability_fields
+                if key in result
+            }
+            for result in applicability_results
+        ],
+        "final_context": context_text,
+        "answer_assessment": dict(answer_assessment),
+        "retrieval_is_complete": bool(is_complete),
+    }
+    if model_config:
+        payload["model_config"] = dict(model_config)
+    return payload
+
+
+def canonical_generation_payload_hash(payload: Mapping[str, Any]) -> str:
+    """Hash the frozen payload while deliberately excluding model config."""
+
+    canonical = {
+        key: value for key, value in payload.items() if key != "model_config"
+    }
+    encoded = json.dumps(
+        canonical,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def build_answer_prompt(
+    query: str,
+    context_text: str,
+    *,
+    is_complete: bool = True,
+    generation_payload: Mapping[str, Any] | None = None,
+) -> str:
     """Prompt dùng chung cho cả ba mode; chỉ nội dung context thay đổi."""
 
     completeness_instruction = (
@@ -27,9 +112,29 @@ def build_answer_prompt(query: str, context_text: str, *, is_complete: bool = Tr
     question_list = "\n".join(
         f"{index}. {question}" for index, question in enumerate(questions, start=1)
     ) or f"1. {query}"
+    fact_state = {
+        key: generation_payload.get(key)
+        for key in (
+            "normalized_question",
+            "question_sections",
+            "stated_facts",
+            "supported_inferences",
+            "unknown_legal_elements",
+        )
+        if generation_payload and key in generation_payload
+    }
+    fact_contract = json.dumps(fact_state, ensure_ascii=False, indent=2)
     return f"""
 Bạn là chuyên gia tư vấn pháp luật Việt Nam. Trả lời CHỈ từ NGỮ CẢNH dưới đây.
 {completeness_instruction}
+
+FACT PRESERVATION CONTRACT — BẮT BUỘC
+{fact_contract}
+- ``stated_facts`` là tình tiết người dùng đã nêu và phải được giữ nguyên.
+- ``supported_inferences`` chỉ là suy luận có hỗ trợ, không được viết thành
+  tình tiết chắc chắn.
+- ``unknown_legal_elements`` là điểm pháp lý chưa thể kết luận.
+- Không hỏi lại hoặc đưa vào "Còn thiếu" một nội dung đã có trong stated_facts.
 
 GROUNDING CONTRACT — BẮT BUỘC
 - Mỗi SOURCE là một đoạn pháp luật retrieval thực tế. Chỉ được dùng SOURCE_ID đang có.

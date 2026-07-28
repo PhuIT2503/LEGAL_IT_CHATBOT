@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from src.agents.common.legal_relevance_filter import (
     HIGH,
@@ -8,6 +9,7 @@ from src.agents.common.legal_relevance_filter import (
     WEAK_KEEP,
     filter_legal_contexts,
     prepare_generation_context,
+    select_applicability_candidate_budget,
 )
 from src.agents.common.retrieval_provenance import normalise_provenance_record
 
@@ -149,6 +151,82 @@ class LegalRelevanceFilterTests(unittest.TestCase):
         self.assertTrue(decision.relevance_removed)
         self.assertTrue(decision.reason_removed)
         self.assertEqual((), result.contexts)
+
+    def test_candidate_budget_selects_top_scores_and_keeps_stable_context_order(self):
+        contexts = [
+            f"[Điều {article}, Luật Thử nghiệm] Nội dung Điều {article}."
+            for article in range(1, 8)
+        ]
+        records = [
+            normalise_provenance_record(
+                {
+                    "chunk_id": f"test_D{article}_PARENT",
+                    "text": context,
+                    "score": score,
+                },
+                is_seed=True,
+                recursive_depth=0,
+                expansion_reason="phase2_final_candidate",
+            )
+            for article, context, score in zip(
+                range(1, 8),
+                contexts,
+                (0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1),
+            )
+        ]
+        relevance = filter_legal_contexts(
+            "Nội dung thử nghiệm",
+            contexts,
+            reranker=StaticReranker([0.7, 0.1, 0.6, 0.5, 0.4, 0.3, 0.2]),
+            candidate_records=records,
+        )
+
+        result = select_applicability_candidate_budget(
+            relevance,
+            candidate_records=records,
+            budget=6,
+        )
+
+        joined = "\n".join(result.contexts)
+        self.assertNotIn("Điều 2.", joined)
+        self.assertEqual(6, len(result.contexts))
+        self.assertEqual(6, len({record["article"] for record in result.records}))
+        pruned = [decision for decision in result.decisions if decision.candidate_budget_pruned]
+        self.assertEqual(["2"], [decision.article for decision in pruned])
+        self.assertTrue(pruned[0].is_seed)
+        self.assertEqual(7, pruned[0].priority_rank)
+        self.assertIn("budget=6", pruned[0].reason_removed)
+
+    def test_candidate_budget_can_be_disabled(self):
+        relevance = filter_legal_contexts(
+            "Nội dung thử nghiệm",
+            [
+                "[Điều 1, Luật Thử nghiệm] Nội dung một.",
+                "[Điều 2, Luật Thử nghiệm] Nội dung hai.",
+            ],
+            reranker=StaticReranker([0.8, 0.4]),
+        )
+
+        result = select_applicability_candidate_budget(relevance, budget=0)
+
+        self.assertEqual(2, len(result.contexts))
+        self.assertTrue(all(decision.candidate_budget_selected for decision in result.decisions))
+
+    def test_candidate_budget_is_unlimited_by_default(self):
+        relevance = filter_legal_contexts(
+            "Nội dung thử nghiệm",
+            [
+                "[Điều 1, Luật Thử nghiệm] Nội dung một.",
+                "[Điều 2, Luật Thử nghiệm] Nội dung hai.",
+            ],
+            reranker=StaticReranker([0.8, 0.4]),
+        )
+
+        with patch.dict("os.environ", {}, clear=True):
+            result = select_applicability_candidate_budget(relevance)
+
+        self.assertEqual(2, len(result.contexts))
+        self.assertTrue(all(decision.candidate_budget_selected for decision in result.decisions))
 
 
 if __name__ == "__main__":

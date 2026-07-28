@@ -407,6 +407,18 @@ def select_balanced_top_k(query: str, chunks: list[dict], top_k: int) -> list[di
         selected.append(chunk)
         seen_units.add(unit_key)
 
+    # Event contracts are attached only to provisions whose own text directly
+    # supplies a required legal role. Reserve at most one slot per role so a
+    # low CE score cannot silently remove the prohibition or its consequence.
+    covered_contract_roles: set[str] = set()
+    for chunk in chunks:
+        roles = set(chunk.get("retrieval_contract_roles") or [])
+        new_roles = roles - covered_contract_roles
+        if not new_roles:
+            continue
+        add(chunk)
+        covered_contract_roles.update(new_roles)
+
     # Hệ thống phải có căn cứ xác định hành vi trước khi đưa chế tài. Chỉ
     # reserve một slot; phần còn lại vẫn theo semantic rank của cross encoder.
     add(substantive_candidate)

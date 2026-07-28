@@ -10,11 +10,14 @@ class GenerationState(TypedDict):
     context_texts: List[str]
     context_records: List[Dict[str, Any]]
     behavior_profile: Dict[str, List[str]]
+    scenario_fact_state: Dict[str, Any]
     graph_context: str
     draft_response: str
     final_response: str
     retrieval_is_complete: bool
     retrieval_is_relevant: bool
     retrieval_decisions: List[Dict[str, Any]]
+    answer_assessment: Dict[str, Any]
+    generation_payload: Dict[str, Any]
     critic_report: Dict[str, Any]
     progress_callback: Callable[[str], None]

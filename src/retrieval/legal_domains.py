@@ -15,6 +15,17 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Iterable
 
+try:
+    from src.retrieval.legal_event import (
+        CanonicalLegalEvent,
+        extract_canonical_legal_event,
+    )
+except ModuleNotFoundError:  # scripts that add /app/src directly to sys.path
+    from retrieval.legal_event import (  # type: ignore[no-redef]
+        CanonicalLegalEvent,
+        extract_canonical_legal_event,
+    )
+
 
 SUPPORTED_LEGAL_DOMAINS: tuple[str, ...] = (
     "cybersecurity",
@@ -278,15 +289,39 @@ def select_legal_domains(
     *,
     max_domains: int = 5,
     minimum_score: float = 2.0,
+    event: CanonicalLegalEvent | None = None,
 ) -> DomainSelection:
     """Chọn tối đa ``max_domains`` bằng tín hiệu pháp lý trong query gốc."""
 
     folded_query = _fold(query)
+    event = event or extract_canonical_legal_event(query)
     scores: dict[str, float] = {}
     for domain, signals in QUERY_DOMAIN_SIGNALS.items():
         score = sum(weight for phrase, weight in signals if phrase in folded_query)
         if score > 0:
             scores[domain] = score
+
+    # Required domains come from a concept-level event, not one literal alias.
+    # Supporting domains remain lower-priority and cannot displace the primary
+    # legal regime when the domain budget is tight.
+    for domain in event.required_domains:
+        scores[domain] = max(scores.get(domain, 0.0), 9.0)
+    for domain in event.supporting_domains:
+        scores[domain] = max(scores.get(domain, 0.0), 3.0)
+
+    # A phone number is a personal-data field, not a telecommunications event.
+    # Keep telecommunications only when the query independently mentions the
+    # service, carrier, SIM, network, frequency, or Internet context.
+    if (
+        "personal_data" in event.required_domains
+        and "telecommunications" in scores
+        and not re.search(
+            r"\b(?:vien thong|sim|nha mang|tan so vo tuyen|"
+            r"dich vu internet|cuoc goi|tin nhan sms)\b",
+            folded_query,
+        )
+    ):
+        scores.pop("telecommunications", None)
 
     ranked = sorted(scores, key=lambda domain: (-scores[domain], domain))
     selected = [domain for domain in ranked if scores[domain] >= minimum_score][

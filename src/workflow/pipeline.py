@@ -342,6 +342,7 @@ class ChatbotWorkflow:
                     candidate,
                     sources,
                     is_complete=result.get("retrieval_is_complete", True),
+                    answer_assessment=result.get("answer_assessment"),
                 )
 
                 if stream_callback:

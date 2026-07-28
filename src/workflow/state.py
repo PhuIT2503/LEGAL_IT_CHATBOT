@@ -15,6 +15,7 @@ class WorkflowState(TypedDict):
     context_texts: List[str]
     context_records: List[Dict[str, Any]]
     behavior_profile: Dict[str, List[str]]
+    scenario_fact_state: Dict[str, Any]
     article_expand_dieu_ids: List[str]
     draft_response: str
     critic_report: Dict[str, Any]
@@ -26,6 +27,9 @@ class WorkflowState(TypedDict):
     progress_callback: Callable[[str], None]
     expanded_query: str
     query_expansion_terms: List[str]
+    retrieval_contract: Dict[str, Any]
     retrieval_is_relevant: bool
     retrieval_relevance: float
     retrieval_decisions: List[Dict[str, Any]]
+    answer_assessment: Dict[str, Any]
+    generation_payload: Dict[str, Any]

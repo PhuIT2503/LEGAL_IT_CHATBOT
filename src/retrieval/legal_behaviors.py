@@ -12,6 +12,17 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
+try:
+    from src.retrieval.legal_event import (
+        CanonicalLegalEvent,
+        extract_canonical_legal_event,
+    )
+except ModuleNotFoundError:  # scripts that add /app/src directly to sys.path
+    from retrieval.legal_event import (  # type: ignore[no-redef]
+        CanonicalLegalEvent,
+        extract_canonical_legal_event,
+    )
+
 
 def _fold(text: str) -> str:
     value = unicodedata.normalize("NFD", str(text or "").casefold())
@@ -38,6 +49,7 @@ ACTION_DEFINITIONS: tuple[BehaviorDefinition, ...] = (
             "gia mao video",
             "gia mao hinh anh",
             "gia mao giong noi",
+            "gia giong",
         ),
         (
             "deepfake",
@@ -160,6 +172,38 @@ ACTION_DEFINITIONS: tuple[BehaviorDefinition, ...] = (
         ),
     ),
     BehaviorDefinition(
+        "sell_personal_data",
+        "mua bán hoặc trao đổi dữ liệu cá nhân để nhận tiền/lợi ích",
+        (
+            "ban du lieu ca nhan",
+            "mua ban du lieu ca nhan",
+            "ban file khach hang",
+            "ban danh sach khach hang",
+        ),
+        (
+            "mua, ban du lieu ca nhan",
+            "mua ban du lieu ca nhan",
+            "ban du lieu ca nhan",
+            "trao doi du lieu ca nhan",
+            "thu loi co duoc tu hanh vi vi pham",
+        ),
+    ),
+    BehaviorDefinition(
+        "retain_personal_data",
+        "tiếp tục giữ hoặc sử dụng dữ liệu cá nhân sau khi hết thẩm quyền",
+        (
+            "giu lai du lieu ca nhan",
+            "luu giu du lieu ca nhan",
+            "giu lai file khach hang",
+        ),
+        (
+            "luu giu du lieu ca nhan",
+            "su dung du lieu ca nhan cua nguoi khac",
+            "xu ly du lieu ca nhan trai quy dinh",
+            "chiem doat du lieu ca nhan",
+        ),
+    ),
+    BehaviorDefinition(
         "process_personal_data_without_consent",
         "xử lý dữ liệu cá nhân khi chưa có sự đồng ý",
         (
@@ -231,7 +275,7 @@ OBJECT_DEFINITIONS: tuple[BehaviorDefinition, ...] = (
     BehaviorDefinition(
         "synthetic_media",
         "video, hình ảnh hoặc giọng nói tổng hợp/giả mạo",
-        ("deepfake", "video gia", "hinh anh gia", "giong noi gia"),
+        ("deepfake", "video gia", "hinh anh gia", "giong noi gia", "gia giong"),
         ("video", "hinh anh", "giong noi", "noi dung gia mao"),
     ),
     BehaviorDefinition(
@@ -328,6 +372,9 @@ _ACTION_IMPORTANCE: dict[str, float] = {
     "create_ai_deepfake": 2.0,
     "exploit_vulnerability": 1.3,
     "extract_or_download_data": 1.2,
+    "sell_personal_data": 2.5,
+    "share_personal_data": 1.0,
+    "retain_personal_data": 0.8,
 }
 
 
@@ -396,10 +443,15 @@ def _extract_keys(text: str, definitions: tuple[BehaviorDefinition, ...]) -> lis
     ]
 
 
-def extract_legal_behavior(query: str) -> BehaviorProfile:
+def extract_legal_behavior(
+    query: str,
+    *,
+    event: CanonicalLegalEvent | None = None,
+) -> BehaviorProfile:
     """Trích behavior card xác định từ query gốc, không dùng query expansion."""
 
     folded = _fold(query)
+    event = event or extract_canonical_legal_event(query)
     actions = _extract_keys(folded, ACTION_DEFINITIONS)
     objects = _extract_keys(folded, OBJECT_DEFINITIONS)
     purposes = _extract_keys(folded, PURPOSE_DEFINITIONS)
@@ -414,6 +466,18 @@ def extract_legal_behavior(query: str) -> BehaviorProfile:
         and "website_or_information_system" not in objects
     ):
         objects.append("website_or_information_system")
+    for key in event.actions:
+        if key in _ACTION_BY_KEY and key not in actions:
+            actions.append(key)
+    for key in event.objects:
+        if key in _OBJECT_BY_KEY and key not in objects:
+            objects.append(key)
+    for key in event.purposes:
+        if key in _PURPOSE_BY_KEY and key not in purposes:
+            purposes.append(key)
+    for key in event.conditions:
+        if key in _CONDITION_BY_KEY and key not in conditions:
+            conditions.append(key)
 
     return BehaviorProfile(
         actions=tuple(actions),

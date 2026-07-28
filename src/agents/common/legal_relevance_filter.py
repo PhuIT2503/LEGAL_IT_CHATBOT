@@ -29,6 +29,7 @@ from src.agents.common.retrieval_provenance import (
     records_to_context_texts,
 )
 from src.agents.common.retrieval_ranking import lexical_relevance
+from src.agents.common.legal_scenario_facts import extract_legal_scenario_facts
 from src.retrieval.legal_behaviors import BehaviorProfile, extract_legal_behavior
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,31 @@ class LegalRelevanceResult:
     @property
     def kept_count(self) -> int:
         return sum(decision.decision != REMOVE for decision in self.decisions)
+
+
+@dataclass(frozen=True)
+class CandidateBudgetDecision:
+    """Trace deterministic của budget trước Applicability."""
+
+    document: str
+    article: str
+    priority_score: float
+    priority_rank: int
+    candidate_budget: int
+    decision: str
+    is_seed: bool
+    seed_preserved: bool
+    candidate_budget_selected: bool
+    candidate_budget_pruned: bool
+    reason_removed: str = ""
+    decision_stage: str = "candidate_budget"
+
+
+@dataclass(frozen=True)
+class CandidateBudgetResult:
+    contexts: tuple[str, ...]
+    records: tuple[dict[str, Any], ...]
+    decisions: tuple[CandidateBudgetDecision, ...]
 
 
 def _article_key(source: GroundedSource) -> tuple[str, str]:
@@ -269,6 +295,131 @@ def filter_legal_contexts(
     )
 
 
+def _configured_candidate_budget() -> int:
+    # Full 30-case validation of budget=7 reduced latency but missed the
+    # Citation Accuracy guardrail. Keep the selector available for controlled
+    # A/B runs, while preserving the proven unlimited production path.
+    raw = os.getenv("LEGAL_APPLICABILITY_CANDIDATE_BUDGET", "0")
+    try:
+        return int(raw)
+    except ValueError:
+        logger.warning(
+            "LEGAL_APPLICABILITY_CANDIDATE_BUDGET=%r không hợp lệ; "
+            "dùng mặc định unlimited.",
+            raw,
+        )
+        return 0
+
+
+def select_applicability_candidate_budget(
+    relevance: LegalRelevanceResult,
+    *,
+    candidate_records: Iterable[dict[str, Any]] | None = None,
+    budget: int | None = None,
+) -> CandidateBudgetResult:
+    """Chọn top article theo score trước khi gọi Applicability.
+
+    Legal Relevance vẫn đánh giá toàn bộ pool và seed LOW vẫn đủ điều kiện cạnh
+    tranh. Budget chỉ giới hạn số unique article được gửi vào LLM; thứ tự tương
+    đối hiện có của các article được chọn được giữ ổn định để giảm perturbation
+    không cần thiết cho prompt.
+
+    ``budget <= 0`` tắt giới hạn, phục vụ rollback/A-B benchmark.
+    """
+
+    configured_budget = _configured_candidate_budget() if budget is None else int(budget)
+    eligible = [
+        (index, decision)
+        for index, decision in enumerate(relevance.decisions)
+        if decision.decision != REMOVE
+    ]
+    effective_budget = (
+        len(eligible)
+        if configured_budget <= 0
+        else min(configured_budget, len(eligible))
+    )
+    ranked = sorted(
+        eligible,
+        key=lambda item: (-float(item[1].score), item[0]),
+    )
+    selected_keys = {
+        (
+            " ".join(decision.document.casefold().split()),
+            " ".join(decision.article.casefold().split()),
+        )
+        for _, decision in ranked[:effective_budget]
+    }
+    rank_by_key = {
+        (
+            " ".join(decision.document.casefold().split()),
+            " ".join(decision.article.casefold().split()),
+        ): rank
+        for rank, (_, decision) in enumerate(ranked, start=1)
+    }
+
+    context_by_key: dict[tuple[str, str], str] = {}
+    context_iter = iter(relevance.contexts)
+    for decision in relevance.decisions:
+        if decision.decision == REMOVE:
+            continue
+        key = (
+            " ".join(decision.document.casefold().split()),
+            " ".join(decision.article.casefold().split()),
+        )
+        context_by_key[key] = next(context_iter, "")
+
+    selected_contexts: list[str] = []
+    budget_decisions: list[CandidateBudgetDecision] = []
+    for decision in relevance.decisions:
+        if decision.decision == REMOVE:
+            continue
+        key = (
+            " ".join(decision.document.casefold().split()),
+            " ".join(decision.article.casefold().split()),
+        )
+        selected = key in selected_keys
+        if selected and context_by_key.get(key):
+            selected_contexts.append(context_by_key[key])
+        reason_removed = ""
+        if not selected:
+            reason_removed = (
+                f"Vượt candidate budget={configured_budget}; "
+                f"priority_rank={rank_by_key[key]} theo Legal Relevance score."
+            )
+        budget_decisions.append(
+            CandidateBudgetDecision(
+                document=decision.document,
+                article=decision.article,
+                priority_score=float(decision.score),
+                priority_rank=rank_by_key[key],
+                candidate_budget=configured_budget,
+                decision=KEEP if selected else REMOVE,
+                is_seed=decision.is_seed,
+                seed_preserved=decision.seed_preserved,
+                candidate_budget_selected=selected,
+                candidate_budget_pruned=not selected,
+                reason_removed=reason_removed,
+            )
+        )
+
+    selected_records = tuple(
+        dict(record)
+        for record in candidate_records or ()
+        if article_key(record) in selected_keys
+    )
+    logger.debug(
+        "[candidate_budget] Giữ %s/%s Điều trước Applicability; budget=%s.",
+        len(selected_keys),
+        len(eligible),
+        configured_budget,
+    )
+    return CandidateBudgetResult(
+        contexts=tuple(selected_contexts),
+        records=selected_records,
+        decisions=tuple(budget_decisions),
+    )
+
+
 def prepare_generation_context(
     state: dict[str, Any],
     *,
@@ -289,6 +440,9 @@ def prepare_generation_context(
     behavior_profile = behavior_profile_from_value(state.get("behavior_profile"))
     if behavior_profile.is_empty:
         behavior_profile = extract_legal_behavior(state.get("query", ""))
+    scenario_fact_state = state.get("scenario_fact_state") or (
+        extract_legal_scenario_facts(state.get("query", "")).as_dict()
+    )
     result = filter_legal_contexts(
         state.get("query", ""),
         combined,
@@ -326,6 +480,13 @@ def prepare_generation_context(
         )
         filtered_records.append(annotated)
     decision_trace = [asdict(decision) for decision in result.decisions]
+    budgeted = select_applicability_candidate_budget(
+        result,
+        candidate_records=filtered_records,
+    )
+    filtered = list(budgeted.contexts)
+    filtered_records = list(budgeted.records)
+    decision_trace.extend(asdict(decision) for decision in budgeted.decisions)
     retrieval_gap = False
     if filtered and llm_client is not None:
         applicability = check_legal_applicability(
@@ -334,6 +495,7 @@ def prepare_generation_context(
             llm_client=llm_client,
             behavior_profile=behavior_profile,
             candidate_records=filtered_records,
+            scenario_fact_state=scenario_fact_state,
         )
         filtered = list(applicability.contexts)
         kept_applicability_keys = {
@@ -370,6 +532,91 @@ def prepare_generation_context(
         filtered_records = next_records
         decision_trace.extend(asdict(decision) for decision in applicability.decisions)
         retrieval_gap = applicability.retrieval_gap
+
+        # Exact contract provisions are deterministic retrieval invariants,
+        # not discretionary relevance guesses. If the small Applicability LLM
+        # removes one because of output variance, restore only records whose
+        # own text was previously labelled as a direct contract role.
+        present_record_keys = {article_key(record) for record in filtered_records}
+        protected_roles: set[str] = set()
+        for record in budgeted.records:
+            roles = set(record.get("retrieval_contract_roles") or [])
+            if not roles:
+                continue
+            protected_roles.update(roles)
+            key = article_key(record)
+            if key in present_record_keys:
+                continue
+            protected_contexts = records_to_context_texts([record])
+            if not protected_contexts:
+                continue
+            filtered.extend(
+                context
+                for context in protected_contexts
+                if context not in filtered
+            )
+            annotated = dict(record)
+            annotated.update(
+                {
+                    "contract_seed_protected": True,
+                    "seed_survived": True,
+                    "seed_removed": False,
+                    "applicability_removed": False,
+                    "reason_removed": "",
+                    "decision_stage": "applicability",
+                    "applicability_decision": "KEEP",
+                }
+            )
+            filtered_records.append(annotated)
+            present_record_keys.add(key)
+
+            protected_sources = build_grounded_sources(
+                protected_contexts, limit=4
+            )
+            if protected_sources:
+                source = protected_sources[0]
+                behavior_matches: list[tuple[str, str]] = [
+                    ("personal_data", "MATCH")
+                ]
+                if "personal_data_sale_prohibition" in roles:
+                    behavior_matches.append(("sell_personal_data", "MATCH"))
+                if "personal_data_consequence" in roles:
+                    behavior_matches.append(
+                        ("sell_personal_data", "PARTIAL_MATCH")
+                    )
+                decision_trace.append(
+                    {
+                        "candidate_id": "CONTRACT_PROTECTED",
+                        "document": source.document,
+                        "article": source.article,
+                        "scope": "Căn cứ trực tiếp theo retrieval contract.",
+                        "situation_behavior": "",
+                        "level": "HIGH",
+                        "explanation": (
+                            "Nội dung nguồn khớp trực tiếp vai trò pháp lý bắt "
+                            "buộc của sự kiện đã trích xuất."
+                        ),
+                        "missing_conditions": (
+                            "Chỉ giới hạn trong nội dung được trích dẫn."
+                        ),
+                        "behavior_matches": behavior_matches,
+                        "behavior_score": float(
+                            record.get("behavior_score") or 0.0
+                        ),
+                        "validation_status": "DETERMINISTIC_CONTRACT",
+                        "decision": "KEEP",
+                        "is_seed": bool(record.get("is_seed")),
+                        "seed_survived": True,
+                        "behavior_preserved": True,
+                        "applicability_removed": False,
+                        "decision_stage": "applicability",
+                    }
+                )
+        if {
+            "personal_data_sale_prohibition",
+            "personal_data_consequence",
+        }.issubset(protected_roles):
+            retrieval_gap = False
     update = {
         "context_texts": filtered,
         "context_records": filtered_records,
@@ -381,6 +628,7 @@ def prepare_generation_context(
         # expose this field, while the benchmark can identify the exact stage
         # at which a candidate was removed.
         "retrieval_decisions": decision_trace,
+        "scenario_fact_state": scenario_fact_state,
     }
     if llm_client is not None:
         update["retrieval_is_complete"] = bool(
