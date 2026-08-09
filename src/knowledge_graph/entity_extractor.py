@@ -396,7 +396,7 @@ class LegalEntityExtractor:
         Pass 1: Chỉ extract entities (compact format).
         max_new_tokens=1024 — đủ cho bất kỳ Điều nào, không bị truncate.
         """
-        from prompts import build_entities_only_prompt
+        from src.knowledge_graph.extraction_prompts import build_entities_only_prompt
         import torch
 
         messages = build_entities_only_prompt(
@@ -454,7 +454,7 @@ class LegalEntityExtractor:
         Pass 2: Chỉ extract relations dựa trên entity IDs từ Pass 1.
         max_new_tokens=768 — output cực nhỏ (chỉ list tuples), không bao giờ truncate.
         """
-        from prompts import build_relations_only_prompt
+        from src.knowledge_graph.extraction_prompts import build_relations_only_prompt
         import torch
 
         if not entity_ids:
@@ -590,7 +590,7 @@ class LegalEntityExtractor:
         Returns:
             dict {"entities": [...], "relations": [...]} hoặc None
         """
-        from prompts import build_extraction_prompt
+        from src.knowledge_graph.extraction_prompts import build_extraction_prompt
         import torch
 
         if self.verbose:
@@ -671,7 +671,7 @@ class LegalEntityExtractor:
         """
         Phát hiện tham chiếu chéo giữa các điều khoản.
         """
-        from prompts import build_cross_ref_prompt
+        from src.knowledge_graph.extraction_prompts import build_cross_ref_prompt
 
         messages = build_cross_ref_prompt(chunk_id=chunk_id, content=content)
 

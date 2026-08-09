@@ -15,7 +15,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 from qdrant_client import QdrantClient, models
 
 from src.retrieval.bm25_sparse import BM25SparseVectorizer, bm25_index_path
-from src.llm.embedding_model import DEFAULT_FINETUNED_DIR, load_embedding_model
+from src.embedding.embedding_model import DEFAULT_FINETUNED_DIR, load_embedding_model
 
 
 def _point_id(raw_id: str) -> str:
@@ -56,6 +56,7 @@ def hybrid_search(
     include_parent: bool,
     db_path: str | None = None,
     url: str | None = None,
+    bm25_dir: str | None = None,
     model_name: str | None = None,
     device: str | None = None,
     max_seq_length: int | None = None,
@@ -66,14 +67,15 @@ def hybrid_search(
     """
     Cho phép truyền sẵn client/model/bm25 (dùng khi gọi lặp lại nhiều query trong
     1 phiên, vd chatbot pipeline) để tránh load lại embedding model mỗi lần gọi.
-    Không truyền -> tự tạo mới từ db_path/url/model_name (hành vi CLI cũ).
+    Không truyền -> tự tạo mới từ url (Qdrant server) hoặc db_path (embedded
+    local-file, chỉ còn dùng khi chạy offline vd Colab) + bm25_dir/model_name.
     """
     if client is None:
         client = _make_client(db_path, url)
     if model is None:
         model = load_embedding_model(model_name or DEFAULT_FINETUNED_DIR, device=device, max_seq_length=max_seq_length)
     if bm25 is None:
-        bm25 = BM25SparseVectorizer.load(bm25_index_path(db_path, child_collection))
+        bm25 = BM25SparseVectorizer.load(bm25_index_path(bm25_dir or db_path, child_collection))
 
     dense_vector = model.encode([query], normalize_embeddings=True)[0].tolist()
     sparse_indices, sparse_values = bm25.encode_query(query)
@@ -157,21 +159,7 @@ def print_results(result: Dict[str, Any], max_chars: int, include_parent: bool) 
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Hybrid search over local Qdrant VBPL chunks")
-    parser.add_argument("--query", default=None)
-    parser.add_argument("--db-path", default="data/.qdrant", help="Nơi đọc BM25 index (luôn là file cục bộ, kể cả khi dùng --url)")
-    parser.add_argument("--url", default=os.getenv("QDRANT_URL"), help="URL Qdrant server (vd http://qdrant:6333). Bỏ trống để dùng embedded/local mode tại --db-path")
-    parser.add_argument("--child-collection", default="legal_child_chunks")
-    parser.add_argument("--parent-collection", default="legal_parent_chunks")
-    parser.add_argument("--model", default=DEFAULT_FINETUNED_DIR)
-    parser.add_argument("--device", default=None)
-    parser.add_argument("--max-seq-length", type=int, default=None)
-    parser.add_argument("--limit", type=int, default=5)
-    parser.add_argument("--prefetch-limit", type=int, default=30)
-    parser.add_argument("--fusion", choices=["rrf", "dbsf"], default="rrf")
-    parser.add_argument("--include-parent", action="store_true")
-    parser.add_argument("--max-chars", type=int, default=900)
-    args = parser.parse_args()
+    args = _parse_args()
 
     query = args.query or input("Nhập câu hỏi: ").strip()
     if not query:
@@ -180,7 +168,8 @@ def main() -> None:
     result = hybrid_search(
         query=query,
         db_path=args.db_path,
-        url=args.url,
+        url=args.url or None,
+        bm25_dir=args.bm25_dir,
         child_collection=args.child_collection,
         parent_collection=args.parent_collection,
         model_name=args.model,
@@ -192,6 +181,43 @@ def main() -> None:
         include_parent=args.include_parent,
     )
     print_results(result, max_chars=args.max_chars, include_parent=args.include_parent)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLI — mọi tham số dòng lệnh gom hết ở đây để main() phía trên chỉ còn logic.
+# Chatbot KHÔNG đi qua đây: pipeline gọi thẳng hàm hybrid_search() bên trên.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        description="Hybrid search (dense + BM25, hợp nhất RRF) trên chunk VBPL trong Qdrant"
+    )
+
+    # ── Câu hỏi ── bỏ trống thì hỏi tương tác qua input()
+    p.add_argument("--query", default=None)
+
+    # ── Nguồn đọc ──
+    p.add_argument("--child-collection", default="legal_child_chunks_base")
+    p.add_argument("--parent-collection", default="legal_parent_chunks_base")
+    p.add_argument("--url", default=os.getenv("QDRANT_URL", "http://localhost:6333"),
+                   help="URL Qdrant server. Truyền --url= để quay về embedded mode tại --db-path")
+    p.add_argument("--db-path", default="data/.qdrant", help="CHỈ dùng khi embedded mode (--url rỗng)")
+    p.add_argument("--bm25-dir", default="data/bm25", help="Thư mục chứa <child-collection>.bm25.json")
+
+    # ── Model embedding ── phải KHỚP model đã dùng lúc ingest, nếu không vector
+    # query nằm ở không gian khác với vector trong collection -> kết quả vô nghĩa.
+    p.add_argument("--model", default=DEFAULT_FINETUNED_DIR)
+    p.add_argument("--device", default=None, help="cpu / cuda — bỏ trống để tự chọn")
+    p.add_argument("--max-seq-length", type=int, default=None)
+
+    # ── Tham số tìm kiếm ──
+    p.add_argument("--limit", type=int, default=5, help="Số child chunk trả về sau khi hợp nhất")
+    p.add_argument("--prefetch-limit", type=int, default=30, help="Số ứng viên mỗi nhánh dense/BM25 trước hợp nhất")
+    p.add_argument("--fusion", choices=["rrf", "dbsf"], default="rrf")
+    p.add_argument("--include-parent", action="store_true", help="Lấy kèm toàn văn Điều chứa chunk")
+    p.add_argument("--max-chars", type=int, default=900, help="Độ dài tối đa mỗi đoạn khi in ra màn hình")
+
+    return p.parse_args()
 
 
 if __name__ == "__main__":

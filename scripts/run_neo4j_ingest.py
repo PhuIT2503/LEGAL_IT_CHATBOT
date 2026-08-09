@@ -29,9 +29,9 @@ from pathlib import Path
 
 # ── Thêm thư mục gốc project vào sys.path ─────────────────────────────────
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from knowledge_graph.neo4j_ingest import Neo4jGraphIngestor
+from src.knowledge_graph.neo4j_ingest import Neo4jGraphIngestor
 
 # ── Logging ────────────────────────────────────────────────────────────────
 logging.basicConfig(

@@ -34,10 +34,10 @@ from collections import Counter
 from neo4j import GraphDatabase
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from data_processing.chunking import VBPLChunker
-from knowledge_graph.graph_builder import get_van_ban_id, VAN_BAN_REGISTRY
+from src.data_processing.chunking import VBPLChunker
+from src.knowledge_graph.graph_builder import get_van_ban_id, VAN_BAN_REGISTRY
 
 logging.basicConfig(
     level=logging.INFO,

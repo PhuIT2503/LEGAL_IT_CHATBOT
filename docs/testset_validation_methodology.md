@@ -4,7 +4,7 @@
 
 Bộ 301 câu hỏi dùng làm ground-truth xuyên suốt khóa luận (`data/eval_testset.jsonl`) được sinh bằng LLM (Claude Opus 4.8). Vì **Legal Completeness Rate** — chỉ số trung tâm để so sánh 3 kịch bản (naive/article_expand/critic) — được tính hoàn toàn dựa trên `required_facts` và `reference_answer` của bộ test này, độ tin cậy của chính bộ dữ liệu quyết định độ tin cậy của mọi kết quả đánh giá phía sau. Nếu fact/đáp án mẫu sai lệch so với văn bản luật gốc, hoặc câu hỏi bị gán nhầm nhóm, các số liệu Completeness Rate tính ra sẽ không phản ánh đúng thực tế.
 
-Công cụ kiểm định (`scripts/validate_testset.py`, chạy qua `colab_validate_testset.ipynb`) đánh giá CHÍNH bộ test set này — không chạy chatbot, không đo naive/article_expand/critic.
+Công cụ kiểm định (`scripts/validate_testset.py`, chạy qua `notebooks/colab_validate_testset.ipynb`) đánh giá CHÍNH bộ test set này — không chạy chatbot, không đo naive/article_expand/critic.
 
 > **Tóm tắt (dùng cho thân bài khóa luận):** Bộ test set đã được kiểm định độ tin cậy qua 9 tiêu chí (existence, schema, duplicate, groundedness, tự nhất quán, chất lượng câu hỏi, độ chính xác nhãn phân loại — chi tiết Phụ lục X), đạt ngưỡng tin cậy cao, đảm bảo tính hợp lệ của ground-truth dùng trong đánh giá.
 

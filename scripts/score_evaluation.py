@@ -165,7 +165,7 @@ def build_ragas_llm_and_embeddings(provider: str, model_name: str = None):
     """
     from ragas.llms import LangchainLLMWrapper
     from ragas.embeddings import LangchainEmbeddingsWrapper
-    from src.llm.embedding_model import load_embedding_model
+    from src.embedding.embedding_model import load_embedding_model
 
     llm = build_llm_for_provider(provider, model_name)
 

@@ -1,12 +1,13 @@
 import logging
-from typing import Any, Dict, Optional
+import time
+from typing import Any, Callable, Dict, Optional
 
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage
 
 from src.retrieval.qdrant_hybrid_search import _make_client
 from src.retrieval.bm25_sparse import BM25SparseVectorizer, bm25_index_path
-from src.llm.embedding_model import load_embedding_model
+from src.embedding.embedding_model import load_embedding_model
 
 from src.agents.common.llm_client import LLMClient
 from src.agents.common.dieu_content_store import DieuContentStore
@@ -71,10 +72,17 @@ class ChatbotWorkflow:
     def __init__(
         self,
         llm,
-        qdrant_child_col: str = "legal_child_chunks",
-        qdrant_parent_col: str = "legal_parent_chunks",
-        qdrant_url: Optional[str] = None,
+        qdrant_child_col: str = "legal_child_chunks_base",
+        qdrant_parent_col: str = "legal_parent_chunks_base",
+        # Mặc định đọc Qdrant từ container (service qdrant trong docker-compose.yml,
+        # cổng 6333 ở máy host). qdrant_path chỉ còn là đường lui cho chế độ
+        # embedded/local-file (vd chạy đánh giá offline trên Colab, không có server)
+        # — CHỈ dùng khi qdrant_url = None.
+        qdrant_url: Optional[str] = "http://localhost:6333",
         qdrant_path: str = "data/.qdrant",
+        # BM25 index luôn là file cục bộ (không nằm trong Qdrant), mặc định
+        # data/bm25/<qdrant_child_col>.bm25.json.
+        bm25_dir: Optional[str] = "data/bm25",
         embedding_model_name: str = "data/ai_vietnamese_embedding_v2_finetuned_final",
         embedding_device: str = "cpu",
         embedding_max_seq_length: int = 256,
@@ -96,18 +104,26 @@ class ChatbotWorkflow:
         self.skip_router = skip_router
         self.top_k = top_k
 
+        # Thời gian chạy THỰC TẾ của từng node trong lần run() gần nhất (giây) —
+        # phục vụ chế độ Dev mode của app.py: hiện đúng những bước ĐÃ chạy (mỗi
+        # kịch bản đi 1 nhánh khác nhau) kèm chi phí thời gian. Ghi vào thuộc
+        # tính instance là an toàn vì mỗi pipeline chỉ chạy 1 câu hỏi tại 1 thời
+        # điểm (app.py giữ khóa riêng theo embedding_key quanh cả lượt run).
+        self._node_timings: Dict[str, float] = {}
+
         # Client/model/bm25 load 1 LẦN DUY NHẤT khi khởi tạo, dùng lại cho
         # mọi câu hỏi trong phiên — tránh load lại embedding model mỗi query.
         qdrant_client = _make_client(qdrant_path, qdrant_url)
         embedding_model = load_embedding_model(
             embedding_model_name, device=embedding_device, max_seq_length=embedding_max_seq_length
         )
+        bm25_file = bm25_index_path(bm25_dir or qdrant_path, qdrant_child_col)
         try:
-            bm25 = BM25SparseVectorizer.load(bm25_index_path(qdrant_path, qdrant_child_col))
+            bm25 = BM25SparseVectorizer.load(bm25_file)
         except FileNotFoundError:
             logger.warning(
-                f"Không tìm thấy BM25 index tại {bm25_index_path(qdrant_path, qdrant_child_col)} — "
-                f"hybrid search sẽ chỉ dùng dense vector. Hãy chạy qdrant_local_ingest.py trước."
+                f"Không tìm thấy BM25 index tại {bm25_file} — hybrid search sẽ chỉ dùng dense "
+                f"vector. Hãy chạy src/indexing/qdrant_ingest.py (hoặc scripts/migrate_qdrant_to_server.py) trước."
             )
             bm25 = None
 
@@ -138,18 +154,33 @@ class ChatbotWorkflow:
     def llm(self, value):
         self._llm_client.llm = value
 
+    def _timed(self, name: str, node: Callable) -> Callable:
+        """Bọc 1 node để ghi lại thời gian chạy — KHÔNG đổi input/output của node.
+
+        Nhờ đó Dev mode biết được ĐÚNG những node nào đã thực sự chạy trong lượt
+        vừa rồi (mỗi kịch bản/nhánh rẽ đi qua tập node khác nhau) mà không phải
+        suy đoán lại từ mode.
+        """
+        def wrapped(state):
+            start = time.perf_counter()
+            try:
+                return node(state)
+            finally:
+                self._node_timings[name] = time.perf_counter() - start
+        return wrapped
+
     def _build_graph(self) -> StateGraph:
         workflow = StateGraph(WorkflowState)
 
         if not self.skip_router:
-            workflow.add_node("router", make_node_agent_router(self._router_agent))
-        workflow.add_node("retrieval", make_node_agent_retrieval(self._retrieval_agent))
-        workflow.add_node("generate_single_pass", make_node_agent_generate_final(self._generation_agent))
-        workflow.add_node("expand_article", make_node_agent_article_expand(self._article_expand_agent))
-        workflow.add_node("generate_draft", make_node_agent_generate_draft(self._generation_agent))
-        workflow.add_node("critic_check", make_node_agent_critic(self._critic_agent))
-        workflow.add_node("regenerate", make_node_agent_regenerate(self._generation_agent))
-        workflow.add_node("finalize_draft", finalize_draft_node)
+            workflow.add_node("router", self._timed("router", make_node_agent_router(self._router_agent)))
+        workflow.add_node("retrieval", self._timed("retrieval", make_node_agent_retrieval(self._retrieval_agent)))
+        workflow.add_node("generate_single_pass", self._timed("generate_single_pass", make_node_agent_generate_final(self._generation_agent)))
+        workflow.add_node("expand_article", self._timed("expand_article", make_node_agent_article_expand(self._article_expand_agent)))
+        workflow.add_node("generate_draft", self._timed("generate_draft", make_node_agent_generate_draft(self._generation_agent)))
+        workflow.add_node("critic_check", self._timed("critic_check", make_node_agent_critic(self._critic_agent)))
+        workflow.add_node("regenerate", self._timed("regenerate", make_node_agent_regenerate(self._generation_agent)))
+        workflow.add_node("finalize_draft", self._timed("finalize_draft", finalize_draft_node))
 
         if self.skip_router:
             workflow.add_edge(START, "retrieval")
@@ -205,8 +236,11 @@ class ChatbotWorkflow:
         if mode not in MODES:
             raise ValueError(f"mode phải là một trong {MODES}, nhận được: {mode!r}")
 
-        # Reset đếm token — mỗi run() là 1 câu hỏi độc lập, không cộng dồn qua các câu.
+        # Reset đếm token + thời gian node — mỗi run() là 1 câu hỏi độc lập,
+        # không cộng dồn qua các câu.
         self._llm_client.reset_usage()
+        self._node_timings = {}
+        run_started_at = time.perf_counter()
 
         initial_state = {
             "query": query,
@@ -247,4 +281,9 @@ class ChatbotWorkflow:
             "graph_fetched_dieu_ids": result.get("graph_fetched_dieu_ids", []),
             "mode": mode,
             "is_chit_chat": result.get("is_chit_chat", False),
+            # 3 trường dưới CHỈ để quan sát/gỡ lỗi (Dev mode của app.py, phân
+            # tích chi phí khi đánh giá) — không tham gia vào logic trả lời.
+            "token_usage_by_tag": {tag: dict(usage) for tag, usage in by_tag.items()},
+            "node_timings": dict(self._node_timings),
+            "elapsed_seconds": time.perf_counter() - run_started_at,
         }

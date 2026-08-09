@@ -61,7 +61,7 @@ def get_van_ban_id(filename: str) -> str:
 # CẦU NỐI ID: Qdrant (retrieval, giữ hoa/thường, cấp Khoản/Điểm) <-> Neo4j
 # (KG, chữ thường, node Dieu.id dạng "{van_ban_id}_D<so>")
 #
-# Payload Qdrant (qdrant_local_ingest.py) lưu `dieu_id` = "{doc_id_giu_hoa}_D<so>[_O<n>]"
+# Payload Qdrant (src/indexing/qdrant_ingest.py) lưu `dieu_id` = "{doc_id_giu_hoa}_D<so>[_O<n>]"
 # và `van_ban_id` = doc_id giữ hoa. Node Dieu trong Neo4j có id = "{van_ban_id_thuong}_D<so>".
 # Hai hàm dưới đây quy đổi 1 chiều Qdrant -> Neo4j để Critic Agent tra đúng node.
 # ─────────────────────────────────────────────────────────────────────────────

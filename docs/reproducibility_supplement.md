@@ -33,7 +33,7 @@ Phương pháp luận LCR được báo cáo đã thực sự được implement
 
 ## 3. Pipeline Critic Agent & Orchestration (Rất Cao)
 Lỗ hổng (Runtime absent) được chỉ ra trong báo cáo đã được khắc phục. Mã nguồn *có tồn tại* các luồng thực thi đầy đủ tạo ra metrics báo cáo:
-- **Notebook Orchestrator**: `colab_full_evaluation.ipynb` là script end-to-end cài đặt cả môi trường Qdrant, Neo4j, Ollama trên Colab T4 GPU và chạy batch bộ 301 câu hỏi qua pipeline RAG.
+- **Notebook Orchestrator**: `notebooks/colab_full_evaluation.ipynb` là script end-to-end cài đặt cả môi trường Qdrant, Neo4j, Ollama trên Colab T4 GPU và chạy batch bộ 301 câu hỏi qua pipeline RAG.
 - **Evaluation Loop**: Script `scripts/run_evaluation.py` (chạy vòng lặp qua từng file input, thực hiện gọi API inference RAG và bắt log). Toàn bộ log này sinh ra file `eval_results_critic.jsonl` bao gồm các logs về `draft_response` và `critic_report`.
 - **Semantic Gate & Regeneration Loop**: Toàn bộ luồng đánh giá "Conditional Regeneration" có tồn tại và được gói trong phương thức `run` của `src/agent/chatbot_pipeline.py`.
 

@@ -1,5 +1,6 @@
 import logging
-from typing import Dict
+import re
+from typing import Dict, Optional
 
 from src.knowledge_graph.graph_builder import to_dieu_node_id
 from src.agents.common.focus_dieu import compute_focus_dieu_ids
@@ -7,6 +8,18 @@ from src.agents.agent_critic.relevance_gate import is_candidate_relevant, any_ch
 from src.agents.agent_critic.state import CriticState
 
 logger = logging.getLogger(__name__)
+
+# Mỗi chunk đã được gắn sẵn tiền tố dạng "[Điều 37, Luật Giao dịch điện tử 2023]"
+# (hoặc "[Khoản 1, Điều 16, ...]") lúc chunking — dùng lại làm nhãn đọc được cho
+# người dùng thay vì id kỹ thuật (lu_t_giao_d_ch_i_n_t_2023_D37).
+_DIEU_LABEL_RE = re.compile(r"^\[[^\]]*?Điều\s+([^,\]]+),\s*([^\]]+)\]")
+
+
+def _dieu_label(dieu_id: str, content: Optional[str]) -> str:
+    match = _DIEU_LABEL_RE.match((content or "").lstrip())
+    if not match:
+        return dieu_id
+    return f"Điều {match.group(1).strip()} — {match.group(2).strip()}"
 
 
 def critic_check_node(
@@ -103,6 +116,26 @@ def critic_check_node(
     fetched_dieu_ids: set = set()
 
     rejected_dieu_ids: list = []
+    # id Điều -> nhãn đọc được ("Điều 37 — Luật Giao dịch điện tử 2023"), để UI
+    # hiển thị cho người dùng thay vì id kỹ thuật. Ghi cho CẢ Điều đã bổ sung
+    # lẫn Điều bị relevance gate loại.
+    dieu_labels: Dict[str, str] = {}
+
+    def label_of(dieu_id: str, content: Optional[str] = None) -> str:
+        """Nhãn đọc được, cache lại — dùng CẢ trong ngữ cảnh gửi cho LLM lẫn
+        trong report hiển thị cho người dùng.
+
+        QUAN TRỌNG (phát hiện qua test thật): trước đây header bơm vào ngữ cảnh
+        nhúng thẳng id kỹ thuật (vd lu_t_giao_d_ch_i_n_t_2023_D37). LLM đọc phải
+        chuỗi đó thì không có cách nào trích dẫn lại cho người dùng, nên bỏ qua
+        luôn Điều được bổ sung dù nội dung nằm ngay trong ngữ cảnh — đã quan sát
+        đúng ca Điều 37 (điều khoản dẫn chiếu) bị bỏ khỏi câu trả lời.
+        """
+        if dieu_id not in dieu_labels:
+            if content is None:
+                content = dieu_content_store.fetch_parent_content(dieu_id)
+            dieu_labels[dieu_id] = _dieu_label(dieu_id, content)
+        return dieu_labels[dieu_id]
 
     if report["missing_references"]:
         for ref in report["missing_references"]:
@@ -110,11 +143,35 @@ def critic_check_node(
             if not missing_dieu_id or missing_dieu_id in fetched_dieu_ids:
                 continue
             content = dieu_content_store.fetch_parent_content(missing_dieu_id)
+            label = label_of(missing_dieu_id, content)
             if content and not is_candidate_relevant(query, content, llm_client=llm_client):
                 logger.info(f"Relevance gate: BỎ QUA Điều {missing_dieu_id} (missing_reference) — LLM đánh giá không liên quan tới câu hỏi.")
                 rejected_dieu_ids.append(missing_dieu_id)
                 continue
-            graph_text += f"[Điều liên quan do Critic Agent (Knowledge Graph) phát hiện — {ref.get('reason', '')}]\n"
+
+            related_id = ref.get("related_dieu_id")
+            related = label_of(related_id) if related_id else None
+            if related and ref.get("direction") == "incoming":
+                # Điều vừa bổ sung DẪN CHIẾU tới Điều đã có sẵn — nói thẳng
+                # quan hệ đó ra để câu trả lời dẫn được ĐỦ chuỗi căn cứ, thay
+                # vì chỉ trích Điều chứa nội dung chi tiết.
+                # Wording dưới đây đã ĐO THẬT: nhắc lại đầy đủ tên cả 2 Điều
+                # (không rút gọn thành "Điều 16") thì câu trả lời mới thực sự
+                # dẫn đủ chuỗi "Điều 37 dẫn chiếu Điều 16". Bản rút gọn cho
+                # tiết kiệm token đã thử và bị model bỏ qua — đừng rút gọn lại.
+                graph_text += (
+                    f"[{label} — Critic Agent bổ sung qua Knowledge Graph: Điều này DẪN CHIẾU tới "
+                    f"{related} (đã có trong ngữ cảnh), tức là căn cứ cho biết vì sao áp dụng "
+                    f"{related} vào tình huống đang được hỏi. Nếu dùng {related} để trả lời thì "
+                    f"nêu cả {label}.]\n"
+                )
+            elif related:
+                graph_text += (
+                    f"[{label} — Critic Agent bổ sung qua Knowledge Graph: {related} (đã có trong "
+                    f"ngữ cảnh) tham chiếu tới Điều này.]\n"
+                )
+            else:
+                graph_text += f"[{label} — Critic Agent (Knowledge Graph) phát hiện còn thiếu.]\n"
             if content:
                 graph_text += f"{content}\n\n"
                 fetched_dieu_ids.add(missing_dieu_id)
@@ -135,12 +192,13 @@ def critic_check_node(
             # nhieu chunk lam 1 (gay false-negative khac khi 1 chunk lac de
             # lam nhieu tin hieu chunk dung - da quan sat o D99).
             anchor_texts = dieu_to_retrieved_text.get(dieu_id) or ([content] if content else [])
+            label = label_of(dieu_id, content or (anchor_texts[0] if anchor_texts else None))
             if anchor_texts and not any_chunk_relevant(query, anchor_texts, llm_client=llm_client):
                 logger.info(f"Relevance gate: BỎ QUA Điều {dieu_id} (compound_penalty) — LLM đánh giá không liên quan tới câu hỏi.")
                 rejected_dieu_ids.append(dieu_id)
                 continue
             graph_text += (
-                f"[Toàn văn Điều {dieu_id} do Critic Agent (Knowledge Graph) tự bổ sung — phát hiện hành vi "
+                f"[Toàn văn {label} do Critic Agent (Knowledge Graph) tự bổ sung — phát hiện hành vi "
                 f"'{p.get('hanh_vi_mo_ta', '')}' có CẢ hình phạt chính lẫn bổ sung/biện pháp khắc phục hậu quả "
                 f"(2 phần này thường nằm ở Khoản khác nhau, top-k dễ chỉ trúng 1 phần) — đảm bảo không bỏ sót]\n"
             )
@@ -159,12 +217,13 @@ def critic_check_node(
             # Tuong tu compound_penalty o tren: kiem tra RIENG LE tung chunk
             # DA retrieve (khong gop chung, khong so toan van cat ngan).
             anchor_texts = dieu_to_retrieved_text.get(dieu_id) or ([content] if content else [])
+            label = label_of(dieu_id, content or (anchor_texts[0] if anchor_texts else None))
             if anchor_texts and not any_chunk_relevant(query, anchor_texts, llm_client=llm_client):
                 logger.info(f"Relevance gate: BỎ QUA Điều {dieu_id} (structurally_incomplete) — LLM đánh giá không liên quan tới câu hỏi.")
                 rejected_dieu_ids.append(dieu_id)
                 continue
             graph_text += (
-                f"[Toàn văn Điều {dieu_id} do Critic Agent (Knowledge Graph) tự bổ sung — Điều này có "
+                f"[Toàn văn {label} do Critic Agent (Knowledge Graph) tự bổ sung — Điều này có "
                 f"{si.get('total_parts')} Khoản/Điểm nhưng chỉ retrieve được {si.get('retrieved_parts')} phần, "
                 f"có thể còn nội dung liên quan ở Khoản/Điểm khác chưa lấy được]\n"
             )
@@ -205,11 +264,17 @@ def critic_check_node(
                 continue
             all_known_dieu_ids.add(missing_dieu_id)
             content = dieu_content_store.fetch_parent_content(missing_dieu_id)
+            label = label_of(missing_dieu_id, content)
             if content and not is_candidate_relevant(query, content, llm_client=llm_client):
                 logger.info(f"Relevance gate: BỎ QUA Điều {missing_dieu_id} (tham chiếu bắc cầu) — LLM đánh giá không liên quan tới câu hỏi.")
                 rejected_dieu_ids.append(missing_dieu_id)
                 continue
-            graph_text += f"[Điều liên quan do Critic Agent (Knowledge Graph, tham chiếu bắc cầu từ {', '.join(frontier)}) phát hiện — {ref.get('reason', '')}]\n"
+            related_id = ref.get("related_dieu_id")
+            related = label_of(related_id) if related_id else ", ".join(label_of(d) for d in frontier)
+            graph_text += (
+                f"[{label} — Critic Agent bổ sung qua Knowledge Graph (tham chiếu bắc cầu): "
+                f"liên hệ với {related} đã có trong ngữ cảnh.]\n"
+            )
             if content:
                 graph_text += f"{content}\n\n"
                 fetched_dieu_ids.add(missing_dieu_id)
@@ -253,7 +318,7 @@ def critic_check_node(
                     f"thiếu gì về cấu trúc — chủ động lặp lại toàn văn Điều {top_dieu_id} để phòng nhầm lẫn."
                 )
                 graph_text += (
-                    f"[Toàn văn Điều {top_dieu_id} — Critic Agent CHỦ ĐỘNG LẶP LẠI để phòng ngừa nhầm lẫn: "
+                    f"[Toàn văn {label_of(top_dieu_id, content)} — Critic Agent CHỦ ĐỘNG LẶP LẠI để phòng ngừa nhầm lẫn: "
                     f"ngữ cảnh có nội dung từ {len(distinct_van_ban)} văn bản khác nhau, dễ nhầm điều khoản "
                     f"cấu trúc giống nhau giữa các văn bản (vd \"Hiệu lực thi hành\")]\n{content}\n\n"
                 )
@@ -262,5 +327,7 @@ def critic_check_node(
 
     if rejected_dieu_ids:
         report["rejected_by_relevance_gate"] = rejected_dieu_ids
+    if dieu_labels:
+        report["dieu_labels"] = dieu_labels
 
     return {"graph_context": graph_text, "critic_report": report, "graph_fetched_dieu_ids": list(fetched_dieu_ids)}

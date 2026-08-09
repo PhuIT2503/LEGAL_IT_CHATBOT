@@ -4,11 +4,12 @@ scripts/run_chatbot.py
 Chạy thử toàn bộ pipeline Chatbot (Hybrid Search + Critic Agent + LLM) end-to-end.
 
 Yêu cầu trước khi chạy:
-    1. docker compose up -d neo4j ollama
-    2. docker compose --profile ingest up kg-ingest      (nạp Knowledge Graph)
-    3. python src/data_ingestion/qdrant_local_ingest.py --data-dir data/keep --model data/ai_vietnamese_embedding_v2_finetuned_final
-       (nạp Qdrant embedded — lưu file cục bộ tại data/.qdrant, không cần Qdrant server)
-    4. docker exec legal_ollama ollama pull qwen2.5:7b
+    1. docker compose --profile app up -d app
+       (tự kéo theo: neo4j + kg-ingest nạp Knowledge Graph, qdrant +
+        qdrant-ingest nạp 4 collection vector từ data/keep — cổng 6333)
+    2. CHỈ khi muốn dùng Qwen2.5 7B local (không bắt buộc):
+       docker compose --profile ollama up -d ollama
+       docker exec legal_ollama ollama pull qwen2.5:7b
 
 Cách dùng:
     python scripts/run_chatbot.py --query "Việc phá hoại thông tin trên môi trường mạng bị xử lý như thế nào?"
@@ -18,15 +19,16 @@ Cách dùng:
     python scripts/run_chatbot.py --query "..." --compare-all         # chạy cả 3 kịch bản để so sánh
     python scripts/run_chatbot.py                                     # chế độ nhập tương tác
 
-So sánh với embedding GỐC (chưa fine-tune) — không cần sửa code, chỉ set 2 biến môi
-trường trước khi chạy (build_pipeline() tự đọc, mặc định vẫn dùng bản fine-tune nếu
-không set):
-    QDRANT_PATH=data/.qdrant_base EMBEDDING_MODEL=AITeamVN/Vietnamese_Embedding_v2 \\
+Đổi sang model embedding khác — không cần sửa code, chỉ set biến môi trường trước
+khi chạy (build_pipeline() tự đọc). Mỗi model có 1 CẶP collection riêng trên cùng
+container qdrant, KHÔNG được dùng lẫn vì 2 không gian embedding khác dimension:
+    QDRANT_CHILD_COLLECTION=legal_child_chunks_gte \\
+    QDRANT_PARENT_COLLECTION=legal_parent_chunks_gte \\
+    EMBEDDING_MODEL=Alibaba-NLP/gte-multilingual-base \\
         python scripts/run_chatbot.py --query "..."
-    (data/.qdrant_base phải được ingest riêng trước bằng model gốc, xem
-    src/data_ingestion/qdrant_local_ingest.py --model AITeamVN/Vietnamese_Embedding_v2
-    --db-path data/.qdrant_base — KHÔNG dùng chung data/.qdrant với bản fine-tune vì
-    2 model có không gian embedding khác nhau, lẫn vào sẽ sai kết quả retrieval.)
+
+Chạy offline không có Qdrant server (vd Colab, chỉ còn thư mục embedded cũ):
+    QDRANT_URL= QDRANT_PATH=data/.qdrant_base python scripts/run_chatbot.py --query "..."
 """
 
 import os
@@ -50,20 +52,44 @@ def build_llm() -> ChatOpenAI:
     base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
     model = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
     logger.info(f"LLM: {model} @ {base_url}")
+    # Giữ khớp với app.py (LLM_TEMPERATURE) — đánh giá và chat tương tác phải
+    # dùng CÙNG cấu hình sinh, nếu không số đo không phản ánh hành vi thật.
     return ChatOpenAI(model=model, base_url=base_url, api_key="ollama", temperature=0.2)
 
 
 def build_pipeline(llm, top_k: int = 5, skip_router: bool = False) -> ChatbotWorkflow:
-    # QDRANT_PATH/EMBEDDING_MODEL cho phép trỏ sang 1 index/model KHÁC (vd so sánh
-    # embedding gốc chưa fine-tune) mà không cần sửa code — mặc định vẫn là Qdrant
-    # + embedding fine-tune chuẩn của repo nếu không set 2 biến môi trường này.
+    # Các biến QDRANT_* / EMBEDDING_MODEL cho phép trỏ sang cặp collection/model
+    # KHÁC (vd so sánh 2 model embedding) mà không cần sửa code.
+    #
+    # 2 chế độ, tự nhận biết:
+    # - Mặc định (máy có Docker): đọc Qdrant server ở container qdrant, collection
+    #   có hậu tố theo model embedding, BM25 index trong data/bm25/.
+    # - Embedded/local-file (Colab, không có server): chỉ cần set QDRANT_PATH trỏ
+    #   vào thư mục .qdrant* đã upload sẵn — tự chuyển về tên collection cũ
+    #   (không hậu tố) và đọc BM25 index ngay trong thư mục đó, đúng như trước
+    #   khi chuyển sang Docker. Set QDRANT_URL="" cũng cho kết quả tương tự.
+    qdrant_path = os.getenv("QDRANT_PATH")
+    default_url = "" if qdrant_path else "http://localhost:6333"
+    qdrant_url = os.getenv("QDRANT_URL", default_url) or None
+    suffix = "" if qdrant_url is None else "_base"
+    # Model embedding mặc định phải khớp ĐÚNG index đang dùng: collection *_base
+    # trên server được ingest bằng Vietnamese_Embedding_v2, còn thư mục
+    # data/.qdrant cũ (chế độ embedded) là bản fine-tune.
+    default_embedding = (
+        "data/ai_vietnamese_embedding_v2_finetuned_final" if qdrant_url is None
+        else "AITeamVN/Vietnamese_Embedding_v2"
+    )
+
     return ChatbotWorkflow(
         llm=llm,
-        # Qdrant chạy ở chế độ embedded/local-file (data/.qdrant trong repo) để dễ
-        # đóng gói/chuyển dự án — chỉ set QDRANT_URL nếu thật sự có Qdrant server riêng.
-        qdrant_url=os.getenv("QDRANT_URL") or None,
-        qdrant_path=os.getenv("QDRANT_PATH", str(PROJECT_ROOT / "data" / ".qdrant")),
-        embedding_model_name=os.getenv("EMBEDDING_MODEL", "data/ai_vietnamese_embedding_v2_finetuned_final"),
+        qdrant_url=qdrant_url,
+        qdrant_path=qdrant_path or str(PROJECT_ROOT / "data" / ".qdrant"),
+        qdrant_child_col=os.getenv("QDRANT_CHILD_COLLECTION", f"legal_child_chunks{suffix}"),
+        qdrant_parent_col=os.getenv("QDRANT_PARENT_COLLECTION", f"legal_parent_chunks{suffix}"),
+        # Chế độ embedded: BM25 index nằm ngay trong thư mục Qdrant (bm25_dir=None
+        # -> ChatbotWorkflow tự lùi về qdrant_path).
+        bm25_dir=os.getenv("BM25_DIR") or (None if qdrant_url is None else str(PROJECT_ROOT / "data" / "bm25")),
+        embedding_model_name=os.getenv("EMBEDDING_MODEL", default_embedding),
         neo4j_uri=os.getenv("NEO4J_URI", "bolt://localhost:7687"),
         neo4j_user=os.getenv("NEO4J_USER", "neo4j"),
         neo4j_pass=os.getenv("NEO4J_PASSWORD", "legal_kg_2024"),

@@ -79,7 +79,7 @@ class DieuContentStore:
         khiến critic thua graph_blind ở các Điều bị ingest KG thiếu).
 
         Đếm qua Qdrant child collection thay vì Neo4j vì Qdrant chunk trực tiếp
-        từ cấu trúc văn bản gốc lúc ingest (qdrant_local_ingest.py, chunking dựa
+        từ cấu trúc văn bản gốc lúc ingest (src/indexing/qdrant_ingest.py, chunking dựa
         trên regex/cấu trúc Khoản/Điểm thật) — KHÔNG qua bước LLM extraction dễ
         sai sót như lúc build đồ thị Neo4j, nên đáng tin cậy hơn làm "tổng số".
         """

@@ -136,6 +136,11 @@ class CriticQueryEngine:
                     "missing_dieu_id": b_dieu,
                     "missing_node_ten": b_label,
                     "direction": "outgoing",
+                    # related_*: đầu kia của cạnh THAM_CHIEU — Điều ĐÃ có trong
+                    # ngữ cảnh. Cần cho node_critic_check nói rõ quan hệ dẫn
+                    # chiếu ("Điều A dẫn chiếu Điều B") khi bơm vào prompt.
+                    "related_dieu_id": a_dieu,
+                    "related_node_ten": a_label,
                     "reason": f"Đã lấy '{a_label}' nhưng nó tham chiếu tới '{b_label}' (Điều {b_dieu}) chưa được lấy.",
                 })
 
@@ -144,6 +149,8 @@ class CriticQueryEngine:
                     "missing_dieu_id": a_dieu,
                     "missing_node_ten": a_label,
                     "direction": "incoming",
+                    "related_dieu_id": b_dieu,
+                    "related_node_ten": b_label,
                     "reason": (
                         f"'{a_label}' (Điều {a_dieu}) tham chiếu áp dụng vào '{b_label}' đã lấy, "
                         f"nhưng {a_dieu} chưa được lấy — có thể chứa hình phạt bổ sung/điều kiện liên quan."
