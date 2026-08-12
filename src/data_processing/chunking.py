@@ -1,5 +1,5 @@
 import os
-import re
+import re #(biểu thức chính quy)
 import sys
 from typing import List, Dict, Any
 
@@ -50,7 +50,6 @@ class VBPLChunker:
             r'^(?:\d+\s+|\[\d+\]\s*)(?:Tên|Luật|Nghị định|Thông tư|Quyết định|Điểm|Khoản|Điều|Cụm từ|Từ|Các|Mục)\b',
             re.IGNORECASE
         )
-
     def extract_doc_id(self, filename: str) -> str:
         """
         Trích xuất doc_id từ tên file. 

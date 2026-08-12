@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset='utf-8'><style>
+*{box-sizing:border-box}body{margin:0;background:#07111f;color:#eaf2ff;font:17px/1.45 Inter,Arial,sans-serif}
+.page{width:1720px;min-height:980px;padding:48px 58px;background:radial-gradient(circle at 85% 5%,#17365d 0,#07111f 36%)}
+h1{margin:0 0 8px;font-size:34px;letter-spacing:-.4px}.sub{color:#91a9c8;margin-bottom:30px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{background:#0e2036;border:1px solid #294968;border-radius:16px;padding:22px;min-width:0}.wide{grid-column:1/-1}
+h2{font-size:21px;margin:0 0 13px;color:#7dd3fc}.metric{font-size:34px;font-weight:700;color:#f8fafc}.label{color:#9fb4cf;font-size:14px;text-transform:uppercase;letter-spacing:.08em}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 12px;border-bottom:1px solid #24415d;text-align:left;vertical-align:top}th{color:#8ed6ff;font-size:14px}td{overflow-wrap:anywhere}
+code,pre{font-family:"SFMono-Regular",Menlo,monospace}code{color:#d7f0ff}.ok{color:#66e3a4}.warn{color:#ffd166}.no{color:#ff8f8f}
+.flow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.step{padding:12px 16px;border:1px solid #3c6b91;border-radius:12px;background:#102942}.arrow{color:#55c2ff;font-size:22px}
+.answer{white-space:pre-wrap;max-height:220px;overflow:hidden}.mono{font-family:"SFMono-Regular",Menlo,monospace;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pill{display:inline-block;padding:5px 10px;margin:3px;border-radius:999px;background:#173b59;border:1px solid #356382;font-size:14px}.foot{margin-top:20px;color:#7890ad;font-size:13px}
+</style></head><body><main class='page'><h1>Qdrant Base — trạng thái chỉ mục</h1><div class='sub'>Kiểm tra read-only trên data/.qdrant_base</div>
+    <div class='grid'>
+      <section class='card'><div class='label'>Parent collection</div><div class='metric'>1,211</div><code>legal_parent_chunks</code></section>
+      <section class='card'><div class='label'>Child collection</div><div class='metric'>10,355</div><code>legal_child_chunks</code></section>
+      <section class='card wide'><h2>Cấu hình vector được đọc trực tiếp từ Qdrant</h2><table>
+        <tr><th>Collection</th><th>Vector</th><th>Kích thước</th><th>Khoảng cách</th><th>Sparse</th></tr>
+        <tr><td><code>legal_child_chunks</code></td><td><code>dense</code></td><td>1.024</td><td>Cosine</td><td><code>bm25</code></td></tr>
+        <tr><td><code>legal_parent_chunks</code></td><td>unnamed placeholder</td><td>1</td><td>Cosine</td><td>—</td></tr>
+      </table></section>
+      <section class='card wide'><h2>BM25 Base</h2><div class='grid'>
+        <div><div class='label'>doc_count</div><div class='metric'>10,355</div></div>
+        <div><div class='label'>vocab</div><div class='metric'>1,914</div></div>
+        <div><div class='label'>k1 / b</div><div class='metric'>1.5 / 0.75</div></div>
+        <div><div class='label'>avgdl</div><div class='metric'>57.5987</div></div>
+      </div></section>
+    </div><div class='foot'>Nguồn: phiên chạy cục bộ ngày 04/08/2026 · Không chỉnh sửa quyết định retrieval/Critic.</div></main></body></html>

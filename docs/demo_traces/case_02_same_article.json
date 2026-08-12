@@ -1,0 +1,284 @@
+{
+  "run": {
+    "timestamp": "2026-08-04T10:16:04.784052+07:00",
+    "source_snapshot": "9bf145e6744599e1e15c21e2011a02f7ecff87f5",
+    "testset": "data/eval_testset.jsonl",
+    "retriever": "Base",
+    "qdrant_path": "data/.qdrant_base",
+    "embedding_model": "AITeamVN/Vietnamese_Embedding_v2",
+    "embedding_dimension": 1024,
+    "llm_provider": "Ollama native",
+    "llm_model": "qwen2.5:7b",
+    "mode": "critic",
+    "top_k": 5,
+    "skip_router": true
+  },
+  "case": {
+    "id": "cat1_01",
+    "category": "same_dieu_compound_penalty",
+    "question": "Doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép thì bị xử phạt như thế nào theo Nghị định 15/2020/NĐ-CP?",
+    "required_facts": [
+      "Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng",
+      "Tịch thu tang vật, phương tiện vi phạm hành chính",
+      "Buộc thu hồi hoặc buộc hoàn trả tên miền"
+    ],
+    "gold_article_ids": [
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98"
+    ],
+    "reference_answer": "Theo Điều 98 Nghị định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị định 14/2022/NĐ-CP), hành vi thiết lập mạng xã hội nhưng không có giấy phép bị phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng. Ngoài mức phạt tiền, tổ chức vi phạm còn bị áp dụng hình thức xử phạt bổ sung là tịch thu tang vật, phương tiện vi phạm hành chính. Đồng thời, cơ quan có thẩm quyền còn buộc áp dụng biện pháp khắc phục hậu quả là thu hồi hoặc buộc hoàn trả tên miền đã sử dụng để thực hiện hành vi vi phạm."
+  },
+  "retrieval": {
+    "retrieved_children": [
+      {
+        "child_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K3",
+        "article_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98",
+        "document_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022",
+        "score": 0.8333333333333333,
+        "text": "[Khoản 3, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 3. Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng đối với hành vi thiết lập mạng xã hội nhưng không có giấy phép."
+      },
+      {
+        "child_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K1_Pa",
+        "article_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98",
+        "document_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022",
+        "score": 0.5,
+        "text": "[Điểm a, Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a)111 Không làm thủ tục đề nghị cấp lại Giấy phép thiết lập mạng xã hội trong trường hợp bị mất hoặc bị hư hỏng hoặc sử dụng giấy phép thiết lập mạng xã hội hết hạn;"
+      },
+      {
+        "child_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K1",
+        "article_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98",
+        "document_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022",
+        "score": 0.3333333333333333,
+        "text": "[Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] Điều 98. Vi phạm quy định về Giấy phép thiết lập mạng xã hội\n1. Phạt tiền từ 10.000.000 đồng đến 20.000.000 đồng đối với một trong các hành vi sau:"
+      },
+      {
+        "child_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K2",
+        "article_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98",
+        "document_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022",
+        "score": 0.325,
+        "text": "[Khoản 2, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 2. Phạt tiền từ 20.000.000 đồng đến 30.000.000 đồng đối với hành vi không làm thủ tục đề nghị sửa đổi, bổ sung nội dung Giấy phép thiết lập mạng xã hội theo quy định trong trường hợp có thay đổi hoặc bổ sung thông tin trong giấy phép."
+      },
+      {
+        "child_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D15_K3",
+        "article_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D15",
+        "document_id_raw": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022",
+        "score": 0.26666666666666666,
+        "text": "[Khoản 3, Điều 15, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 3. Phạt tiền từ 70.000.000 đồng đến 100.000.000 đồng đối với hành vi thiết lập mạng viễn thông dùng riêng hoặc thử nghiệm mạng và dịch vụ viễn thông nhưng không có giấy phép."
+      }
+    ],
+    "retrieved_child_ids": [
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K3",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K1_Pa",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K1",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K2",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D15_K3"
+    ],
+    "retrieved_article_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98",
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D15"
+    ]
+  },
+  "critic": {
+    "draft_answer": "Theo ngữ cảnh được cung cấp, doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép sẽ bị xử phạt theo Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP). Cụ thể:\n\n- Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.\n\nKhông có thông tin về hình phạt bổ sung hoặc biện pháp khắc phục hậu quả trong ngữ cảnh được cung cấp, nên chúng ta chỉ có thể xác định rằng doanh nghiệp sẽ bị áp dụng hình thức xử phạt tiền theo mức quy định trên.",
+    "is_complete_before_gate": false,
+    "detected_gaps": {
+      "missing_references": [],
+      "compound_penalty_behaviors": [],
+      "structurally_incomplete_articles": [
+        {
+          "dieu_id": "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98",
+          "total_parts": 9,
+          "retrieved_parts": 4
+        }
+      ],
+      "multi_hop_references": [],
+      "mixed_document_safeguard": null
+    },
+    "candidate_article_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+    ],
+    "graph_fetched_article_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+    ],
+    "gate_observations": [
+      {
+        "decision": "accept",
+        "returned_boolean": true,
+        "candidate_article_id": "not_logged_by_gate_function",
+        "candidate_content_sha256": "c9c172880d0a8caa4f3641139ffb96fe7439b1aa4ce286578b64e831a8d77e41",
+        "candidate_preview": "[Khoản 3, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 3. Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng đối với hành vi thiết lập mạng xã hội nhưng không có giấy phép."
+      }
+    ],
+    "gate_decision_by_article": {
+      "accepted_article_ids": [
+        "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+      ],
+      "rejected_article_ids": [],
+      "mapping_note": "Accepted IDs are recorded from the production code path: an article appears in graph_fetched_dieu_ids and not in rejected_by_relevance_gate. The gate function does not log the article ID argument directly."
+    },
+    "critic_report": {
+      "is_complete": false,
+      "missing_dieu_ids": [],
+      "missing_references": [],
+      "compound_penalty_behaviors": [],
+      "structurally_incomplete_dieu": [
+        {
+          "dieu_id": "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98",
+          "total_parts": 9,
+          "retrieved_parts": 4
+        }
+      ],
+      "suggestions": [
+        {
+          "action": "retrieve",
+          "dieu_id": "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98",
+          "reason": "Điều ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98 có 9 Khoản/Điểm trong graph nhưng chỉ retrieve được 4 phần — nội dung liên quan có thể nằm ở Khoản/Điểm khác chưa lấy được, cần lấy lại toàn văn Điều."
+        }
+      ]
+    }
+  },
+  "generation": {
+    "final_context": {
+      "retrieved_contexts": [
+        "[Khoản 3, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 3. Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng đối với hành vi thiết lập mạng xã hội nhưng không có giấy phép.",
+        "[Điểm a, Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a)111 Không làm thủ tục đề nghị cấp lại Giấy phép thiết lập mạng xã hội trong trường hợp bị mất hoặc bị hư hỏng hoặc sử dụng giấy phép thiết lập mạng xã hội hết hạn;",
+        "[Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] Điều 98. Vi phạm quy định về Giấy phép thiết lập mạng xã hội\n1. Phạt tiền từ 10.000.000 đồng đến 20.000.000 đồng đối với một trong các hành vi sau:",
+        "[Khoản 2, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 2. Phạt tiền từ 20.000.000 đồng đến 30.000.000 đồng đối với hành vi không làm thủ tục đề nghị sửa đổi, bổ sung nội dung Giấy phép thiết lập mạng xã hội theo quy định trong trường hợp có thay đổi hoặc bổ sung thông tin trong giấy phép.",
+        "[Khoản 3, Điều 15, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 3. Phạt tiền từ 70.000.000 đồng đến 100.000.000 đồng đối với hành vi thiết lập mạng viễn thông dùng riêng hoặc thử nghiệm mạng và dịch vụ viễn thông nhưng không có giấy phép."
+      ],
+      "critic_graph_context": "[Toàn văn Điều ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98 do Critic Agent (Knowledge Graph) tự bổ sung — Điều này có 9 Khoản/Điểm nhưng chỉ retrieve được 4 phần, có thể còn nội dung liên quan ở Khoản/Điểm khác chưa lấy được]\n[Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] Điều 98. Vi phạm quy định về Giấy phép thiết lập mạng xã hội\n1. Phạt tiền từ 10.000.000 đồng đến 20.000.000 đồng đối với một trong các hành vi sau:\n[Điểm a, Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a)111 Không làm thủ tục đề nghị cấp lại Giấy phép thiết lập mạng xã hội trong trường hợp bị mất hoặc bị hư hỏng hoặc sử dụng giấy phép thiết lập mạng xã hội hết hạn;\n[Điểm b, Khoản 1, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Không thông báo đến cơ quan cấp giấy phép khi có sự thay đổi chủ sở hữu, địa chỉ trụ sở chính.\n[Khoản 2, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 2. Phạt tiền từ 20.000.000 đồng đến 30.000.000 đồng đối với hành vi không làm thủ tục đề nghị sửa đổi, bổ sung nội dung Giấy phép thiết lập mạng xã hội theo quy định trong trường hợp có thay đổi hoặc bổ sung thông tin trong giấy phép.\n[Khoản 3, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 3. Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng đối với hành vi thiết lập mạng xã hội nhưng không có giấy phép.\n[Khoản 4, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 4. Hình thức xử phạt bổ sung:\n[Điểm a, Khoản 4, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Tịch thu tang vật, phương tiện vi phạm hành chính đối với hành vi vi phạm quy định tại khoản 3 Điều này;\n[Điểm b, Khoản 4, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Đình chỉ hoạt động từ 01 tháng đến 03 tháng đối với hành vi vi phạm quy định tại khoản 2 Điều này.\n[Khoản 5, Điều 98, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] 5. Biện pháp khắc phục hậu quả:\nBuộc thu hồi hoặc buộc hoàn trả tên miền do thực hiện hành vi vi phạm quy định tại khoản 3 Điều này.\n\n"
+    },
+    "final_answer": "Theo Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP), doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép sẽ bị xử phạt như sau:\n\n1. **Hình thức chính:**\n   - Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.\n\n2. **Hình thức bổ sung (nếu cần):**\n   - Tịch thu tang vật, phương tiện vi phạm hành chính.\n   - Đình chỉ hoạt động từ 1 tháng đến 3 tháng.\n\n3. **Biện pháp khắc phục hậu quả:**\n   - Buộc thu hồi hoặc buộc hoàn trả tên miền nếu do thực hiện hành vi vi phạm quy định tại khoản 3 Điều này.\n\nNhững hình thức xử phạt trên được nêu rõ trong Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP).",
+    "regenerated": true
+  },
+  "usage": {
+    "total": {
+      "prompt_tokens": 3284,
+      "completion_tokens": 412,
+      "total_tokens": 3696,
+      "call_count": 3
+    },
+    "final_answer": {
+      "prompt_tokens": 1863,
+      "completion_tokens": 246,
+      "total_tokens": 2109,
+      "call_count": 1
+    },
+    "by_tag": {
+      "draft": {
+        "prompt_tokens": 990,
+        "completion_tokens": 164,
+        "total_tokens": 1154,
+        "call_count": 1
+      },
+      "gate": {
+        "prompt_tokens": 431,
+        "completion_tokens": 2,
+        "total_tokens": 433,
+        "call_count": 1
+      },
+      "final_generate": {
+        "prompt_tokens": 1863,
+        "completion_tokens": 246,
+        "total_tokens": 2109,
+        "call_count": 1
+      }
+    }
+  },
+  "warnings": [
+    {
+      "level": "WARNING",
+      "logger": "huggingface_hub.utils._http",
+      "message": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads."
+    },
+    {
+      "level": "WARNING",
+      "logger": "neo4j.notifications",
+      "message": "Received notification from DBMS server: <GqlStatusObject gql_status='01N52', status_description='warn: property key does not exist. The property `ghi_chu` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=5, column=18, offset=284>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 284, 'line': 5, 'column': 18}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '\\n        MATCH (a)-[r:THAM_CHIEU]->(b)\\n        RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,\\n               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,\\n               r.ghi_chu AS note\\n        '"
+    },
+    {
+      "level": "WARNING",
+      "logger": "neo4j.notifications",
+      "message": "Received notification from DBMS server: <GqlStatusObject gql_status='01N52', status_description='warn: property key does not exist. The property `ghi_chu` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=5, column=18, offset=284>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 284, 'line': 5, 'column': 18}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '\\n        MATCH (a)-[r:THAM_CHIEU]->(b)\\n        RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,\\n               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,\\n               r.ghi_chu AS note\\n        '"
+    }
+  ],
+  "errors": [],
+  "not_logged_fields": [
+    "per-step wall-clock latency",
+    "candidate article ID inside each individual gate call",
+    "explicit required-fact coverage judgment"
+  ],
+  "evidence_summary": {
+    "testset_id": "cat1_01",
+    "category": "same_dieu_compound_penalty",
+    "question": "Doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép thì bị xử phạt như thế nào theo Nghị định 15/2020/NĐ-CP?",
+    "required_facts": [
+      "Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng",
+      "Tịch thu tang vật, phương tiện vi phạm hành chính",
+      "Buộc thu hồi hoặc buộc hoàn trả tên miền"
+    ],
+    "gold_dieu_ids": [
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98"
+    ],
+    "mode": "critic",
+    "top_k": 5,
+    "retrieved_child_ids": [
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K3",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K1_Pa",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K1",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D98_K2",
+      "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D15_K3"
+    ],
+    "retrieved_dieu_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98",
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D15"
+    ],
+    "draft_answer": "Theo ngữ cảnh được cung cấp, doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép sẽ bị xử phạt theo Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP). Cụ thể:\n\n- Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.\n\nKhông có thông tin về hình phạt bổ sung hoặc biện pháp khắc phục hậu quả trong ngữ cảnh được cung cấp, nên chúng ta chỉ có thể xác định rằng doanh nghiệp sẽ bị áp dụng hình thức xử phạt tiền theo mức quy định trên.",
+    "detected_gap_types": [
+      "structurally_incomplete_articles"
+    ],
+    "candidate_dieu_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+    ],
+    "graph_fetched_dieu_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+    ],
+    "gate_decisions": [
+      "accept"
+    ],
+    "accepted_dieu_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+    ],
+    "rejected_dieu_ids": [],
+    "final_context_dieu_ids": [
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D15",
+      "ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98"
+    ],
+    "final_answer": "Theo Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP), doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép sẽ bị xử phạt như sau:\n\n1. **Hình thức chính:**\n   - Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.\n\n2. **Hình thức bổ sung (nếu cần):**\n   - Tịch thu tang vật, phương tiện vi phạm hành chính.\n   - Đình chỉ hoạt động từ 1 tháng đến 3 tháng.\n\n3. **Biện pháp khắc phục hậu quả:**\n   - Buộc thu hồi hoặc buộc hoàn trả tên miền nếu do thực hiện hành vi vi phạm quy định tại khoản 3 Điều này.\n\nNhững hình thức xử phạt trên được nêu rõ trong Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP).",
+    "required_facts_coverage": "not_logged_by_pipeline",
+    "token_usage": {
+      "prompt_tokens": 3284,
+      "completion_tokens": 412,
+      "total_tokens": 3696,
+      "call_count": 3
+    },
+    "llm_call_count": 3,
+    "errors": [],
+    "warnings": [
+      {
+        "level": "WARNING",
+        "logger": "huggingface_hub.utils._http",
+        "message": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads."
+      },
+      {
+        "level": "WARNING",
+        "logger": "neo4j.notifications",
+        "message": "Received notification from DBMS server: <GqlStatusObject gql_status='01N52', status_description='warn: property key does not exist. The property `ghi_chu` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=5, column=18, offset=284>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 284, 'line': 5, 'column': 18}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '\\n        MATCH (a)-[r:THAM_CHIEU]->(b)\\n        RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,\\n               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,\\n               r.ghi_chu AS note\\n        '"
+      },
+      {
+        "level": "WARNING",
+        "logger": "neo4j.notifications",
+        "message": "Received notification from DBMS server: <GqlStatusObject gql_status='01N52', status_description='warn: property key does not exist. The property `ghi_chu` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=5, column=18, offset=284>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 284, 'line': 5, 'column': 18}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '\\n        MATCH (a)-[r:THAM_CHIEU]->(b)\\n        RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,\\n               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,\\n               r.ghi_chu AS note\\n        '"
+      }
+    ]
+  }
+}

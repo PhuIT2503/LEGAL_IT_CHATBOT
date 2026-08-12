@@ -1,0 +1,1523 @@
+[
+  {
+    "id": "malware_easy_001",
+    "category": "Malware",
+    "difficulty": "Easy",
+    "question": "Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?",
+    "status": "completed",
+    "expected": {
+      "domains": [
+        "cybersecurity",
+        "digital_technology"
+      ],
+      "behaviors": [
+        "detect_or_remove_malware",
+        "website_or_information_system"
+      ],
+      "legal_units": [
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "",
+          "point": ""
+        }
+      ]
+    },
+    "actual": {
+      "selected_domains": [
+        "digital_technology",
+        "cybersecurity"
+      ],
+      "filtered_domains": [
+        "personal_data",
+        "civil_personality",
+        "advertising",
+        "intellectual_property",
+        "criminal",
+        "administrative_penalty",
+        "consumer_protection",
+        "artificial_intelligence",
+        "data_governance",
+        "electronic_transactions",
+        "e_commerce",
+        "telecommunications",
+        "digital_content",
+        "finance_payment",
+        "general_legal"
+      ],
+      "domain_scores": {
+        "cybersecurity": 4.0,
+        "digital_technology": 6.0
+      },
+      "domain_fallback": false,
+      "behavior_card": {
+        "actions": [],
+        "objects": [
+          "website_or_information_system"
+        ],
+        "purposes": [],
+        "conditions": []
+      },
+      "behaviors": [
+        "website_or_information_system"
+      ],
+      "candidate_count_by_domain": {
+        "digital_technology": 0,
+        "cybersecurity": 10
+      },
+      "retrieval_candidates": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "2",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K2",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.6866647091106588,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.23158656174237408,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 2, Điều 17, Luật An ninh mạng 2025] 2. Chủ quản hệ thống thông tin quan trọng về an ninh quốc gia triển khai hệ thống kỹ thuật nhằm phòng ngừa, phát hiện, ngăn chặn và xử lý kịp thời phần mềm độc hại."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D10_K1",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D10_PARENT",
+          "score": 0.9020000000000001,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.3350938763634468,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống\n1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.6836913015668374,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.2289145585351976,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K4",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.6275472769288787,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.2965088797022032,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 17, Luật An ninh mạng 2025] 4. Doanh nghiệp cung cấp dịch vụ Internet có biện pháp quản lý, phòng ngừa, phát hiện, ngăn chặn phát tán phần mềm độc hại và xử lý theo yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K3",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.4829670133808595,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.22079740036574405,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 17, Luật An ninh mạng 2025] 3. Tổ chức, doanh nghiệp cung cấp dịch vụ thư điện tử, truyền đưa, lưu trữ thông tin phải có hệ thống lọc phần mềm độc hại trong quá trình gửi, nhận, lưu trữ thông tin trên hệ thống của mình và báo cáo cơ quan nhà nước có thẩm quyền theo quy định của pháp luật."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "1",
+          "point": "d",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D11_K1_Pd",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D11_PARENT",
+          "score": 0.4704843310081886,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.11808805900043196,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm d, Khoản 1, Điều 11, Nghị Định 53 2022 NĐ-CP] d) Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng, không cần thiết trên hệ thống thông tin."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D11_K4",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D11_PARENT",
+          "score": 0.4203869977182981,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.0934331354243064,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 11, Nghị Định 53 2022 NĐ-CP] 4. Có biện pháp, giải pháp để dò tìm và phát hiện kịp thời các điểm yếu, lỗ hổng về mặt kỹ thuật của hệ thống mạng và những kết nối, thiết bị, phần mềm cài đặt bất hợp pháp vào mạng."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K2_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.38429536148166993,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.16905446214818992,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 2, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K1",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.38183284848076915,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.16370640228836816,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 17, Luật An ninh mạng 2025] Điều 17. Phòng ngừa, phát hiện, ngăn chặn và xử lý phần mềm độc hại\n1. Cơ quan, tổ chức, cá nhân có trách nhiệm chủ động phòng ngừa, phát hiện, ngăn chặn phần mềm độc hại và thực hiện theo hướng dẫn, yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "9",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D2_K9",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D2_PARENT",
+          "score": 0.3221014147740303,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.040942266753968344,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 9, Điều 2, Luật An ninh mạng 2025] 9. Phần mềm độc hại là phần mềm có khả năng gây ra hoạt động không bình thường cho một phần hoặc toàn bộ hệ thống thông tin hoặc thực hiện sao chép, sửa đổi, xóa bỏ trái phép thông tin lưu trữ trong hệ thống thông tin."
+        }
+      ],
+      "recursive_candidates": [],
+      "final_candidate_pool": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "2",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K2",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.6866647091106588,
+          "retrieval_score": 0.6866647091106588,
+          "cross_encoder_score": 0.23158656174237408,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K2"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 2, Điều 17, Luật An ninh mạng 2025] 2. Chủ quản hệ thống thông tin quan trọng về an ninh quốc gia triển khai hệ thống kỹ thuật nhằm phòng ngừa, phát hiện, ngăn chặn và xử lý kịp thời phần mềm độc hại."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.6836913015668374,
+          "retrieval_score": 0.6836913015668374,
+          "cross_encoder_score": 0.2289145585351976,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K4",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.6275472769288787,
+          "retrieval_score": 0.6275472769288787,
+          "cross_encoder_score": 0.2965088797022032,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K4"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 17, Luật An ninh mạng 2025] 4. Doanh nghiệp cung cấp dịch vụ Internet có biện pháp quản lý, phòng ngừa, phát hiện, ngăn chặn phát tán phần mềm độc hại và xử lý theo yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K3",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.4829670133808595,
+          "retrieval_score": 0.4829670133808595,
+          "cross_encoder_score": 0.22079740036574405,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 17, Luật An ninh mạng 2025] 3. Tổ chức, doanh nghiệp cung cấp dịch vụ thư điện tử, truyền đưa, lưu trữ thông tin phải có hệ thống lọc phần mềm độc hại trong quá trình gửi, nhận, lưu trữ thông tin trên hệ thống của mình và báo cáo cơ quan nhà nước có thẩm quyền theo quy định của pháp luật."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K2_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.38429536148166993,
+          "retrieval_score": 0.38429536148166993,
+          "cross_encoder_score": 0.16905446214818992,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D15_K2_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 2, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K1",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.38183284848076915,
+          "retrieval_score": 0.38183284848076915,
+          "cross_encoder_score": 0.16370640228836816,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K1"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 17, Luật An ninh mạng 2025] Điều 17. Phòng ngừa, phát hiện, ngăn chặn và xử lý phần mềm độc hại\n1. Cơ quan, tổ chức, cá nhân có trách nhiệm chủ động phòng ngừa, phát hiện, ngăn chặn phần mềm độc hại và thực hiện theo hướng dẫn, yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "9",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D2_K9",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D2_PARENT",
+          "score": 0.3221014147740303,
+          "retrieval_score": 0.3221014147740303,
+          "cross_encoder_score": 0.040942266753968344,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D2_K9"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 9, Điều 2, Luật An ninh mạng 2025] 9. Phần mềm độc hại là phần mềm có khả năng gây ra hoạt động không bình thường cho một phần hoặc toàn bộ hệ thống thông tin hoặc thực hiện sao chép, sửa đổi, xóa bỏ trái phép thông tin lưu trữ trong hệ thống thông tin."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D10_K1",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D10_PARENT",
+          "score": 0.9020000000000001,
+          "retrieval_score": 0.9020000000000001,
+          "cross_encoder_score": 0.3350938763634468,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D10_K1"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống\n1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "1",
+          "point": "d",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D11_K1_Pd",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D11_PARENT",
+          "score": 0.4704843310081886,
+          "retrieval_score": 0.4704843310081886,
+          "cross_encoder_score": 0.11808805900043196,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D11_K1_Pd"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm d, Khoản 1, Điều 11, Nghị Định 53 2022 NĐ-CP] d) Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng, không cần thiết trên hệ thống thông tin."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D11_K4",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D11_PARENT",
+          "score": 0.4203869977182981,
+          "retrieval_score": 0.4203869977182981,
+          "cross_encoder_score": 0.0934331354243064,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D11_K4"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 11, Nghị Định 53 2022 NĐ-CP] 4. Có biện pháp, giải pháp để dò tìm và phát hiện kịp thời các điểm yếu, lỗ hổng về mặt kỹ thuật của hệ thống mạng và những kết nối, thiết bị, phần mềm cài đặt bất hợp pháp vào mạng."
+        }
+      ],
+      "removed_before_generation": [],
+      "final_context": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "2",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K2",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.6866647091106588,
+          "retrieval_score": 0.6866647091106588,
+          "cross_encoder_score": 0.23158656174237408,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K2"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 2, Điều 17, Luật An ninh mạng 2025] 2. Chủ quản hệ thống thông tin quan trọng về an ninh quốc gia triển khai hệ thống kỹ thuật nhằm phòng ngừa, phát hiện, ngăn chặn và xử lý kịp thời phần mềm độc hại."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.6836913015668374,
+          "retrieval_score": 0.6836913015668374,
+          "cross_encoder_score": 0.2289145585351976,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K4",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.6275472769288787,
+          "retrieval_score": 0.6275472769288787,
+          "cross_encoder_score": 0.2965088797022032,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K4"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 17, Luật An ninh mạng 2025] 4. Doanh nghiệp cung cấp dịch vụ Internet có biện pháp quản lý, phòng ngừa, phát hiện, ngăn chặn phát tán phần mềm độc hại và xử lý theo yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K3",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.4829670133808595,
+          "retrieval_score": 0.4829670133808595,
+          "cross_encoder_score": 0.22079740036574405,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 17, Luật An ninh mạng 2025] 3. Tổ chức, doanh nghiệp cung cấp dịch vụ thư điện tử, truyền đưa, lưu trữ thông tin phải có hệ thống lọc phần mềm độc hại trong quá trình gửi, nhận, lưu trữ thông tin trên hệ thống của mình và báo cáo cơ quan nhà nước có thẩm quyền theo quy định của pháp luật."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K2_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.38429536148166993,
+          "retrieval_score": 0.38429536148166993,
+          "cross_encoder_score": 0.16905446214818992,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D15_K2_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 2, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D17_K1",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D17_PARENT",
+          "score": 0.38183284848076915,
+          "retrieval_score": 0.38183284848076915,
+          "cross_encoder_score": 0.16370640228836816,
+          "behavior_score": 0.0,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D17_K1"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 17, Luật An ninh mạng 2025] Điều 17. Phòng ngừa, phát hiện, ngăn chặn và xử lý phần mềm độc hại\n1. Cơ quan, tổ chức, cá nhân có trách nhiệm chủ động phòng ngừa, phát hiện, ngăn chặn phần mềm độc hại và thực hiện theo hướng dẫn, yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "9",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D2_K9",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D2_PARENT",
+          "score": 0.3221014147740303,
+          "retrieval_score": 0.3221014147740303,
+          "cross_encoder_score": 0.040942266753968344,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D2_K9"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": true,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 9, Điều 2, Luật An ninh mạng 2025] 9. Phần mềm độc hại là phần mềm có khả năng gây ra hoạt động không bình thường cho một phần hoặc toàn bộ hệ thống thông tin hoặc thực hiện sao chép, sửa đổi, xóa bỏ trái phép thông tin lưu trữ trong hệ thống thông tin."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D10_K1",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D10_PARENT",
+          "score": 0.9020000000000001,
+          "retrieval_score": 0.9020000000000001,
+          "cross_encoder_score": 0.3350938763634468,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D10_K1"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống\n1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "1",
+          "point": "d",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D11_K1_Pd",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D11_PARENT",
+          "score": 0.4704843310081886,
+          "retrieval_score": 0.4704843310081886,
+          "cross_encoder_score": 0.11808805900043196,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D11_K1_Pd"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Điểm d, Khoản 1, Điều 11, Nghị Định 53 2022 NĐ-CP] d) Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng, không cần thiết trên hệ thống thông tin."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D11_K4",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D11_PARENT",
+          "score": 0.4203869977182981,
+          "retrieval_score": 0.4203869977182981,
+          "cross_encoder_score": 0.0934331354243064,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D11_K4"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 11, Nghị Định 53 2022 NĐ-CP] 4. Có biện pháp, giải pháp để dò tìm và phát hiện kịp thời các điểm yếu, lỗ hổng về mặt kỹ thuật của hệ thống mạng và những kết nối, thiết bị, phần mềm cài đặt bất hợp pháp vào mạng."
+        }
+      ],
+      "applicability": [
+        {
+          "latency_ms": 55571.62198399601,
+          "decisions": [
+            {
+              "candidate_id": "A1",
+              "document": "Luật An ninh mạng 2025",
+              "article": "17",
+              "scope": "Chủ quản hệ thống thông tin quan trọng về an ninh quốc gia triển khai hệ thống kỹ thuật phòng ngừa, phát hiện và xử lý phần mềm độc hại.",
+              "situation_behavior": "website_or_information_system:MATCH",
+              "level": "HIGH",
+              "explanation": "Điều luật này trực tiếp yêu cầu chủ quản hệ thống thông tin quan trọng triển khai các biện pháp phát hiện và xử lý phần mềm độc hại.",
+              "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ an ninh mạng cho hệ thống thông tin quan trọng.",
+              "behavior_matches": [
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A2",
+              "document": "Luật An ninh mạng 2025",
+              "article": "15",
+              "scope": "Kiểm tra an ninh mạng để phát hiện, loại bỏ mã độc và phần cứng độc hại.",
+              "situation_behavior": "website_or_information_system:MATCH",
+              "level": "HIGH",
+              "explanation": "Điều luật này yêu cầu kiểm tra an ninh mạng để phát hiện, loại bỏ mã độc và phần cứng độc hại.",
+              "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi các mối đe dọa.",
+              "behavior_matches": [
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A3",
+              "document": "Luật An ninh mạng 2025",
+              "article": "2",
+              "scope": "Phần mềm độc hại là phần mềm gây ra hoạt động không bình thường cho hệ thống thông tin.",
+              "situation_behavior": "website_or_information_system:MATCH",
+              "level": "LOW",
+              "explanation": "Điều luật này chỉ định nghĩa về phần mềm độc hại, không trực tiếp yêu cầu biện pháp phát hiện và loại bỏ.",
+              "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi mã độc.",
+              "behavior_matches": [
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "WEAK_KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": true,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A4",
+              "document": "Nghị Định 53 2022 NĐ-CP",
+              "article": "10",
+              "scope": "Kiểm tra an ninh mạng đối với thiết bị phần cứng để phát hiện điểm yếu, lỗ hổng bảo mật và mã độc.",
+              "situation_behavior": "website_or_information_system:MATCH",
+              "level": "HIGH",
+              "explanation": "Điều luật này yêu cầu kiểm tra an ninh mạng đối với thiết bị phần cứng để phát hiện mã độc.",
+              "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi các mối đe dọa.",
+              "behavior_matches": [
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A5",
+              "document": "Nghị Định 53 2022 NĐ-CP",
+              "article": "11",
+              "scope": "Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng trên hệ thống thông tin.",
+              "situation_behavior": "website_or_information_system:MATCH",
+              "level": "MEDIUM",
+              "explanation": "Điều luật này chỉ yêu cầu loại bỏ các tính năng không cần thiết, không trực tiếp đề cập đến việc phát hiện và loại bỏ mã độc.",
+              "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi các mối đe dọa.",
+              "behavior_matches": [
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "WEAK_KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            }
+          ],
+          "retrieval_gap": false,
+          "gap_reason": ""
+        }
+      ],
+      "retrieval_decisions": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "scope": "2.",
+          "score": 0.8066604533737898,
+          "relative_score": 0.8256081633486668,
+          "level": "Cao",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "scope": "a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật;",
+          "score": 0.977049996819284,
+          "relative_score": 1.0,
+          "level": "Cao",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "scope": "9.",
+          "score": 0.20572865866415418,
+          "relative_score": 0.21056103508918586,
+          "level": "Trung bình",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "scope": "Điều 10.",
+          "score": 0.926636427897526,
+          "relative_score": 0.9484022628464504,
+          "level": "Cao",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "scope": "d) Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng, không cần thiết trên hệ thống thông tin.",
+          "score": 0.16448670914980937,
+          "relative_score": 0.16835035022289957,
+          "level": "Trung bình",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "candidate_id": "A1",
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "scope": "Chủ quản hệ thống thông tin quan trọng về an ninh quốc gia triển khai hệ thống kỹ thuật phòng ngừa, phát hiện và xử lý phần mềm độc hại.",
+          "situation_behavior": "website_or_information_system:MATCH",
+          "level": "HIGH",
+          "explanation": "Điều luật này trực tiếp yêu cầu chủ quản hệ thống thông tin quan trọng triển khai các biện pháp phát hiện và xử lý phần mềm độc hại.",
+          "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ an ninh mạng cho hệ thống thông tin quan trọng.",
+          "behavior_matches": [
+            [
+              "website_or_information_system",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A2",
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "scope": "Kiểm tra an ninh mạng để phát hiện, loại bỏ mã độc và phần cứng độc hại.",
+          "situation_behavior": "website_or_information_system:MATCH",
+          "level": "HIGH",
+          "explanation": "Điều luật này yêu cầu kiểm tra an ninh mạng để phát hiện, loại bỏ mã độc và phần cứng độc hại.",
+          "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi các mối đe dọa.",
+          "behavior_matches": [
+            [
+              "website_or_information_system",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A3",
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "scope": "Phần mềm độc hại là phần mềm gây ra hoạt động không bình thường cho hệ thống thông tin.",
+          "situation_behavior": "website_or_information_system:MATCH",
+          "level": "LOW",
+          "explanation": "Điều luật này chỉ định nghĩa về phần mềm độc hại, không trực tiếp yêu cầu biện pháp phát hiện và loại bỏ.",
+          "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi mã độc.",
+          "behavior_matches": [
+            [
+              "website_or_information_system",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "WEAK_KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": true,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A4",
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "scope": "Kiểm tra an ninh mạng đối với thiết bị phần cứng để phát hiện điểm yếu, lỗ hổng bảo mật và mã độc.",
+          "situation_behavior": "website_or_information_system:MATCH",
+          "level": "HIGH",
+          "explanation": "Điều luật này yêu cầu kiểm tra an ninh mạng đối với thiết bị phần cứng để phát hiện mã độc.",
+          "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi các mối đe dọa.",
+          "behavior_matches": [
+            [
+              "website_or_information_system",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A5",
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "scope": "Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng trên hệ thống thông tin.",
+          "situation_behavior": "website_or_information_system:MATCH",
+          "level": "MEDIUM",
+          "explanation": "Điều luật này chỉ yêu cầu loại bỏ các tính năng không cần thiết, không trực tiếp đề cập đến việc phát hiện và loại bỏ mã độc.",
+          "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc cần bảo vệ hệ thống thông tin khỏi các mối đe dọa.",
+          "behavior_matches": [
+            [
+              "website_or_information_system",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "WEAK_KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        }
+      ],
+      "grounded_sources": [
+        {
+          "source_id": "S1",
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp"
+        },
+        {
+          "source_id": "S2",
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "4",
+          "point": "",
+          "text": "[Khoản 4, Điều 17, Luật An ninh mạng 2025] 4. Doanh nghiệp cung cấp dịch vụ Internet có biện pháp quản lý, phòng ngừa, phát hiện, ngăn chặn phát tán phần mềm độc hại và xử lý theo yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "source_id": "S3",
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "9",
+          "point": "",
+          "text": "[Khoản 9, Điều 2, Luật An ninh mạng 2025] 9. Phần mềm độc hại là phần mềm có khả năng gây ra hoạt động không bình thường cho một phần hoặc toàn bộ hệ thống thông tin hoặc thực hiện sao chép, sửa đổi, xóa bỏ trái phép thông tin lưu trữ trong hệ thống thông tin."
+        },
+        {
+          "source_id": "S4",
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống 1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "source_id": "S5",
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "4",
+          "point": "",
+          "text": "[Khoản 4, Điều 11, Nghị Định 53 2022 NĐ-CP] 4. Có biện pháp, giải pháp để dò tìm và phát hiện kịp thời các điểm yếu, lỗ hổng về mặt kỹ thuật của hệ thống mạng và những kết nối, thiết bị, phần mềm cài đặt bất hợp pháp vào mạng."
+        },
+        {
+          "source_id": "S6",
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "2",
+          "point": "",
+          "text": "[Khoản 2, Điều 17, Luật An ninh mạng 2025] 2. Chủ quản hệ thống thông tin quan trọng về an ninh quốc gia triển khai hệ thống kỹ thuật nhằm phòng ngừa, phát hiện, ngăn chặn và xử lý kịp thời phần mềm độc hại."
+        },
+        {
+          "source_id": "S7",
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "3",
+          "point": "",
+          "text": "[Khoản 3, Điều 17, Luật An ninh mạng 2025] 3. Tổ chức, doanh nghiệp cung cấp dịch vụ thư điện tử, truyền đưa, lưu trữ thông tin phải có hệ thống lọc phần mềm độc hại trong quá trình gửi, nhận, lưu trữ thông tin trên hệ thống của mình và báo cáo cơ quan nhà nước có thẩm quyền theo quy định của pháp luật."
+        },
+        {
+          "source_id": "S8",
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "2",
+          "point": "a",
+          "text": "[Điểm a, Khoản 2, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng"
+        },
+        {
+          "source_id": "S9",
+          "document": "Luật An ninh mạng 2025",
+          "article": "17",
+          "clause": "1",
+          "point": "",
+          "text": "[Khoản 1, Điều 17, Luật An ninh mạng 2025] Điều 17. Phòng ngừa, phát hiện, ngăn chặn và xử lý phần mềm độc hại 1. Cơ quan, tổ chức, cá nhân có trách nhiệm chủ động phòng ngừa, phát hiện, ngăn chặn phần mềm độc hại và thực hiện theo hướng dẫn, yêu cầu của cơ quan nhà nước có thẩm quyền."
+        },
+        {
+          "source_id": "S10",
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "11",
+          "clause": "1",
+          "point": "d",
+          "text": "[Điểm d, Khoản 1, Điều 11, Nghị Định 53 2022 NĐ-CP] d) Loại bỏ hoặc tắt các tính năng, phần mềm tiện ích không sử dụng, không cần thiết trên hệ thống thông tin."
+        }
+      ],
+      "citations_by_generation": [
+        {
+          "source_id": "S4",
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống 1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "source_id": "S8",
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "2",
+          "point": "a",
+          "text": "[Điểm a, Khoản 2, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng"
+        }
+      ],
+      "citations_in_rendered_answer": [
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": ""
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "2",
+          "point": "a"
+        }
+      ],
+      "hallucinated_citations": [],
+      "raw_generation": "## Tóm tắt tình huống\nHệ thống thông tin cần xác định các biện pháp cụ thể để phát hiện và loại bỏ mã độc trong phần cứng và phần mềm.\n\n## Các vấn đề pháp lý\n1. Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?\n\n## Phân tích\n### Vấn đề 1\n[[QUOTE:S4]]\n- **Nội dung điều luật:** Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia.\n- **Hành vi phù hợp:** Kiểm tra an ninh mạng đối với hệ thống thông tin để phát hiện và loại bỏ mã độc trong phần cứng.\n- **Phân tích:** Theo Khoản 1, Điều 10 của Nghị Định 53/2022 NĐ-CP, các thiết bị phần cứng cần được kiểm tra an ninh mạng nhằm phát hiện mã độc. Đồng thời, theo Khoản 4, Điều 17 của Luật An ninh mạng 2025, doanh nghiệp có trách nhiệm quản lý và phòng ngừa phát tán phần mềm độc hại.\n- **Điều kiện còn thiếu:** Không có thông tin về việc kiểm tra an ninh mạng đối với phần mềm. Tuy nhiên, các quy định chung về kiểm tra an ninh mạng đều áp dụng cho cả phần cứng và phần mềm.\n- **Căn cứ pháp lý:** [[CITE:S4]]\n- **Đánh giá:** 🟢 Đủ căn cứ / 🟡 Chưa đủ điều kiện kết luận / 🔴 Chưa đủ căn cứ [kết luận cho vấn đề] [[CITE:S4]]\n\n### Vấn đề 2\n[[QUOTE:S8]]\n- **Nội dung điều luật:** Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng.\n- **Hành vi phù hợp:** Kiểm tra an ninh mạng đối với hệ thống thông tin để phát hiện và loại bỏ mã độc trong phần mềm.\n- **Phân tích:** Theo Khoản 2, Điểm a của Điều 15 của Luật An ninh mạng 2025, kiểm tra an ninh mạng nhằm mục đích phát hiện và loại bỏ mã độc. Đồng thời, theo Khoản 4, Điều 17 của Luật An ninh mạng 2025, doanh nghiệp có trách nhiệm quản lý và phòng ngừa phát tán phần mềm độc hại.\n- **Điều kiện còn thiếu:** Không có thông tin cụ thể về việc kiểm tra an ninh mạng đối với phần mềm. Tuy nhiên, các quy định chung về kiểm tra an ninh mạng đều áp dụng cho cả phần cứng và phần mềm.\n- **Căn cứ pháp lý:** [[CITE:S8]]\n- **Đánh giá:** 🟢 Đủ căn cứ / 🟡 Chưa đủ điều kiện kết luận / 🔴 Chưa đủ căn cứ [kết luận cho vấn đề] [[CITE:S8]]\n\n## Kết luận\nHệ thống thông tin cần thực hiện kiểm tra an ninh mạng đối với cả phần cứng và phần mềm để phát hiện và loại bỏ mã độc. Các quy định của Luật An ninh mạng 2025 và Nghị Định 53/2022 NĐ-CP đều yêu cầu các biện pháp này.\n\n- **Vì sao:** Hệ thống thông tin cần tuân thủ các quy định về kiểm tra an ninh mạng đối với cả phần cứng và phần mềm để đảm bảo an toàn cho hệ thống.\n- **Căn cứ:** [[CITE:S4], [CITE:S8]]\n- **Còn thiếu:** Không có thông tin cụ thể về việc kiểm tra an ninh mạng đối với phần mềm, nhưng các quy định chung đều áp dụng cho cả hai loại thiết bị.",
+      "rendered_answer": "> **Lưu ý:** Câu trả lời có thể chưa đầy đủ vì chưa truy xuất được toàn bộ căn cứ pháp luật.\n\n## Tóm tắt tình huống\nHệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?\n\n## Các vấn đề pháp lý\n- Xác định bản chất pháp lý của các hành vi được mô tả.\n- Xác định điều kiện áp dụng và hậu quả pháp lý trong phạm vi căn cứ đã truy xuất.\n\n## Phân tích\n### Nghị Định 53 2022 NĐ-CP — Điều 10\n> “Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống 1.…”\n>\n> (Trích từ: **Nghị Định 53 2022 NĐ-CP**, Điều 10, Khoản 1)\n\n- **Nội dung điều luật:** Trọng tâm của quy định là: Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống 1.….\n- **Hành vi phù hợp:** Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?\n- **Phân tích:** Tình huống mô tả “Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?”. Trọng tâm của quy định là: Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống 1.…. Khi đặt hai nội dung cạnh nhau, các yếu tố cần đối chiếu cụ thể là “hệ thống thông”, “thống thông tin”, “để phát hiện”, “hệ thống”, “thống thông”, “thông tin”; việc áp dụng chỉ giới hạn ở các yếu tố được chính đoạn luật này mô tả.\n- **Điều kiện còn thiếu:** Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?” với nội dung đã trích.\n- **Căn cứ pháp lý:** (Căn cứ: **Nghị Định 53 2022 NĐ-CP**, Điều 10, Khoản 1)\n- **Đánh giá:** 🟡 Chưa đủ điều kiện kết luận: Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?” với nội dung đã trích. (Căn cứ: **Nghị Định 53 2022 NĐ-CP**, Điều 10, Khoản 1)\n\n### Luật An ninh mạng 2025 — Điều 15\n> “a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng”\n>\n> (Trích từ: **Luật An ninh mạng 2025**, Điều 15, Khoản 2, Điểm a)\n\n- **Nội dung điều luật:** Trọng tâm của quy định là: a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng.\n- **Hành vi phù hợp:** Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?\n- **Phân tích:** Tình huống mô tả “Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?”. Trọng tâm của quy định là: a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng. Khi đặt hai nội dung cạnh nhau, các yếu tố cần đối chiếu cụ thể là “loại bỏ mã”, “bỏ mã độc”, “phát hiện”, “loại bỏ”, “bỏ mã”, “mã độc”; việc áp dụng chỉ giới hạn ở các yếu tố được chính đoạn luật này mô tả.\n- **Điều kiện còn thiếu:** Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?” với nội dung đã trích.\n- **Căn cứ pháp lý:** (Căn cứ: **Luật An ninh mạng 2025**, Điều 15, Khoản 2, Điểm a)\n- **Đánh giá:** 🟡 Chưa đủ điều kiện kết luận: Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?” với nội dung đã trích. (Căn cứ: **Luật An ninh mạng 2025**, Điều 15, Khoản 2, Điểm a)\n\n## Chế tài\n- **Đã xác định được:** Có căn cứ liên quan đến hành vi cần đánh giá.\n- **Chưa xác định được:** Chưa có đủ nội dung để xác định toàn bộ hậu quả và cách áp dụng.\n- **Muốn kết luận cần:** Bổ sung căn cứ trực tiếp về hậu quả và các điều kiện áp dụng còn thiếu.\n\n## Trả lời câu hỏi của người dùng\n### 1. Hệ thống thông tin phải thực hiện biện pháp nào để phát hiện và loại bỏ mã độc trong phần cứng, phần mềm?\n- **Trả lời trực tiếp:** Chưa đủ căn cứ để kết luận dứt khoát câu hỏi này.\n- **Vì sao:** Các nguồn hiện có xác định được một phần quy tắc liên quan: Trọng tâm của quy định là: Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống 1.…. Trọng tâm của quy định là: a) Kiểm tra an ninh mạng nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn và xử lý các hoạt động xâm nhập bất hợp pháp hoặc nguy cơ khác đe dọa an ninh mạng. Việc kết luận chỉ được giới hạn trong các nội dung đó. (Căn cứ: **Nghị Định 53 2022 NĐ-CP**, Điều 10, Khoản 1; **Luật An ninh mạng 2025**, Điều 15, Khoản 2, Điểm a)\n- **Căn cứ:** (Căn cứ: **Nghị Định 53 2022 NĐ-CP**, Điều 10, Khoản 1; **Luật An ninh mạng 2025**, Điều 15, Khoản 2, Điểm a)\n- **Còn thiếu:** Cần bổ sung dữ kiện đáp ứng các điều kiện được nêu trong từng nguồn và căn cứ trực tiếp cho phần câu hỏi chưa được bao phủ.\n\n## Căn cứ pháp lý\n\n- **Nghị Định 53 2022 NĐ-CP**, Điều 10, Khoản 1.\n- **Luật An ninh mạng 2025**, Điều 15, Khoản 2, Điểm a.",
+      "retrieval_is_complete": false,
+      "retrieval_is_relevant": true
+    },
+    "metrics": {
+      "domain_recall": 1.0,
+      "domain_precision": 1.0,
+      "behavior_recall": 0.5,
+      "behavior_precision": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.5,
+      "citation_accuracy": 0.6666666666666666,
+      "wrong_domain_rate": 0.0,
+      "wrong_behavior_rate": 0.0,
+      "recursive_precision": 1.0,
+      "recursive_noise_rate": 0.0,
+      "applicability_accuracy": 0.2,
+      "retrieval_latency_ms": 9104.514003993245,
+      "total_latency_ms": 116348.31942799792
+    },
+    "errors": [
+      "Wrong Behavior",
+      "Wrong Citation",
+      "Applicability Error",
+      "Generation Grounding Error"
+    ],
+    "grounding_validation": {
+      "is_valid": false,
+      "issues": [
+        "Thiếu heading bắt buộc: Chế tài.",
+        "Thiếu heading bắt buộc: Trả lời câu hỏi của người dùng.",
+        "Retrieval chưa đầy đủ nên không được gắn mức 🟢 Đủ căn cứ.",
+        "Phần trả lời cuối chưa chia theo từng câu hỏi của người dùng.",
+        "Số câu trả lời tổng hợp không khớp số câu hỏi người dùng: cần 1, nhận 0.",
+        "Điều 17 không khớp SOURCE_ID được cite trong cùng đoạn.",
+        "Khoản 4 không khớp SOURCE_ID được cite trong cùng đoạn.",
+        "Văn bản Luật An ninh mạng 2025 không khớp SOURCE_ID được cite trong cùng đoạn.",
+        "Con số chế tài 4 không tồn tại trong SOURCE_ID được cite.",
+        "Con số chế tài 17 không tồn tại trong SOURCE_ID được cite.",
+        "Con số chế tài 2025 không tồn tại trong SOURCE_ID được cite.",
+        "Có kết luận pháp lý chưa gắn citation trong cùng đoạn."
+      ],
+      "used_source_ids": [
+        "S4",
+        "S8"
+      ]
+    },
+    "token_usage": {
+      "prompt_tokens": 5421,
+      "completion_tokens": 1666,
+      "total_tokens": 7087,
+      "call_count": 2
+    }
+  }
+]

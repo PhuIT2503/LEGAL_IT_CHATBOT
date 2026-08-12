@@ -1,306 +1,393 @@
 # LEGAL IT CHATBOT
 
-Hệ thống RAG tra cứu và phân tích văn bản pháp luật công nghệ thông tin Việt
-Nam (sở hữu trí tuệ, an toàn thông tin, dữ liệu cá nhân, giao dịch điện tử,
-viễn thông, công nghiệp công nghệ số).
+Hệ thống hỏi đáp pháp luật tiếng Việt kết hợp **Retrieval-Augmented
+Generation (RAG)**, **Knowledge Graph** và **Critic Agent**. Dự án tập trung
+vào các văn bản pháp luật liên quan đến công nghệ thông tin, dữ liệu cá nhân,
+an toàn thông tin, giao dịch điện tử, viễn thông, sở hữu trí tuệ và công nghiệp
+công nghệ số.
 
-Điểm khác biệt so với RAG thông thường: hệ thống có **Critic Agent** dùng
-Knowledge Graph (Neo4j) để tự kiểm tra xem câu trả lời nháp đã đủ căn cứ pháp
-lý chưa — thiếu Điều tham chiếu, thiếu chế tài bổ sung, hay thiếu Khoản của
-chính Điều đang dẫn — rồi bổ sung ngữ cảnh và viết lại.
+Đây là sản phẩm của khóa luận:
 
----
+> **Xây dựng hệ thống hỏi đáp pháp luật tiếng Việt kết hợp
+> Retrieval-Augmented Generation, đồ thị tri thức và Critic Agent**
 
-## 1. Chạy nhanh bằng Docker
+Sinh viên thực hiện: **Phan Quyết Tâm Phú** và **Nguyễn Gia Huy**<br>
+Giảng viên hướng dẫn: **ThS. Huỳnh Thanh Việt**<br>
+Trường Đại học Giao thông Vận tải TP. Hồ Chí Minh, năm 2026.
 
-```bash
-cp .env.example .env          # điền OPENAI_API_KEY (model mặc định gpt-4o-mini qua api.shopaikey)
-
-# TÙY CHỌN nhưng NÊN LÀM — chép 2 thư mục Qdrant đã ingest sẵn vào data/
-# (xin từ người bàn giao; chúng nằm trong .gitignore nên không đi theo repo):
-#     data/.qdrant_base/
-#     data/.qdrant_gte_base/
-# Có 2 thư mục này thì bước nạp vector chỉ mất vài phút thay vì 1-3 tiếng.
-
-docker compose --profile app up -d app     # 1 lệnh duy nhất
-```
-
-Lệnh đó tự dựng đủ chuỗi phụ thuộc, đúng thứ tự:
-
-```
-neo4j (chờ healthy) ──► kg-ingest ─────────────┐
-                        nạp Knowledge Graph     │
-                        (3 script, vài phút)    ├──► app
-qdrant (chờ healthy) ─► qdrant-ingest ─────────┘    Chainlit :8000
-                        nạp 4 collection vector
-```
-
-`qdrant-ingest` **tự chọn 1 trong 2 đường**, không phải bấm gì:
-
-| Điều kiện | Đường đi | Thời gian |
-|---|---|---|
-| Có `data/.qdrant_base` **và** `data/.qdrant_gte_base` | Copy thẳng vector + payload sang server, không chạy embedding model | **vài phút** |
-| Không có | Chunking `data/keep` → encode dense + BM25 → upsert, lần lượt 2 model | **1–3 tiếng** |
-
-Đường thứ hai là lý do repo vẫn tự đứng được một mình: chỉ cần clone là dựng
-lại toàn bộ vector DB từ số 0, không phụ thuộc file nào bên ngoài.
-
-Xem tiến độ: `docker compose logs -f qdrant-ingest`.
-
-> Cả 2 đường đều **idempotent**. Đường nhanh bỏ qua collection đã có trên
-> server; đường chậm dùng `--resume`, đối chiếu ID từng batch nên bị ngắt giữa
-> chừng thì chạy lại là đi tiếp. Nhờ vậy mỗi lần `up` sau chỉ tốn khoảng một
-> phút, và lỡ xóa mất volume `legal_qdrant_data` thì cứ chạy lại đúng lệnh cũ
-> là nó nạp lại đúng phần thiếu.
-
-Xong thì mở `http://localhost:8000`, đăng nhập `admin` / `admin` (đổi bằng biến
-môi trường `CHAINLIT_DEMO_USER` / `CHAINLIT_DEMO_PASSWORD`).
-
-| Dịch vụ | Địa chỉ | Ghi chú |
-|---|---|---|
-| Giao diện chat (Chainlit) | http://localhost:8000 | `app.py` |
-| Qdrant dashboard | http://localhost:6333/dashboard | xem trực tiếp 4 collection |
-| Neo4j Browser | http://localhost:7474 | `neo4j` / `legal_kg_2024` |
-| Ollama (tùy chọn) | http://localhost:11434 | `docker compose --profile ollama up -d ollama` |
-
-Ollama (Qwen2.5 7B chạy cục bộ) **không bắt buộc** — máy thiếu RAM/CPU thì bỏ
-qua, dùng model qua `api.shopaikey` là đủ. Đổi model LLM và model embedding
-ngay trong khung chat, không cần sửa code.
+> Hệ thống là nguyên mẫu hỗ trợ tra cứu và nghiên cứu. Câu trả lời do mô hình
+> sinh ra không thay thế ý kiến thẩm định của chuyên gia pháp luật.
 
 ---
 
-## 2. Cấu trúc source code
+## 1. Bài toán và giải pháp
 
-Thư mục `src/` xếp theo **đúng thứ tự các bước của pipeline**:
+RAG thông thường lấy các đoạn văn bản có độ tương đồng cao với câu hỏi. Cách
+tiếp cận này có thể tìm đúng một Khoản hoặc Điểm nhưng vẫn bỏ sót:
 
-```text
-src/
-├── data_processing/     ①  Đọc .docx → chunk theo Điều/Khoản/Điểm
-│   └── chunking.py
-├── embedding/           ②  Nạp model embedding tiếng Việt
-│   └── embedding_model.py
-├── indexing/            ③  Encode chunk → upsert lên Qdrant
-│   └── qdrant_ingest.py
-├── retrieval/           ④  Truy xuất hybrid (dense + BM25, hợp nhất RRF)
-│   ├── bm25_sparse.py
-│   └── qdrant_hybrid_search.py
-├── knowledge_graph/     ⑤  Trích xuất thực thể/quan hệ → Neo4j
-│   ├── extraction_prompts.py
-│   ├── entity_extractor.py
-│   ├── graph_builder.py
-│   ├── neo4j_ingest.py
-│   └── build_graph.py
-├── agents/              ⑥  5 agent LangGraph, mỗi agent 1 nhiệm vụ
-│   ├── agent_router/          phân loại chit-chat vs câu hỏi pháp lý
-│   ├── agent_retrieval/       viết lại truy vấn + gọi hybrid search
-│   ├── agent_article_expand/  mở rộng child chunk → toàn văn Điều
-│   ├── agent_critic/          kiểm tra đủ căn cứ bằng Knowledge Graph
-│   ├── agent_generation/      sinh câu trả lời nháp và câu trả lời cuối
-│   └── common/                tài nguyên dùng chung (LLM client, kho Điều)
-└── workflow/            ⑦  Nối 5 agent thành 1 đồ thị LangGraph
-    ├── pipeline.py            ChatbotWorkflow — điểm vào của toàn bộ luồng chat
-    ├── state.py
-    └── node_agent_*.py
-```
+- điều kiện, ngoại lệ hoặc thành phần khác trong cùng một Điều;
+- hình thức xử phạt bổ sung và biện pháp khắc phục hậu quả;
+- căn cứ nằm tại Điều khác được dẫn chiếu trong văn bản.
 
-### Từng file làm gì
+LEGAL IT CHATBOT xử lý vấn đề trên bằng ba lớp:
 
-| Bước | File | Nhiệm vụ |
-|---|---|---|
-| ① Chunking | [src/data_processing/chunking.py](src/data_processing/chunking.py) | `VBPLChunker` parse `.docx` theo cấu trúc Điều – Khoản – Điểm, sinh **parent chunk** (trọn 1 Điều) và **child chunk** (từng Khoản/Điểm) |
-| ② Embedding | [src/embedding/embedding_model.py](src/embedding/embedding_model.py) | `load_embedding_model()` — nạp `AITeamVN/Vietnamese_Embedding_v2` (1024d) hoặc `Alibaba-NLP/gte-multilingual-base` (768d); tự giải nén model finetune trong `references/` nếu có |
-| ③ Ingest vector | [src/indexing/qdrant_ingest.py](src/indexing/qdrant_ingest.py) | Chunk → encode dense + BM25 sparse → upsert lên Qdrant, tạo cả collection child lẫn parent |
-| ③ BM25 | [src/retrieval/bm25_sparse.py](src/retrieval/bm25_sparse.py) | `BM25SparseVectorizer` — xây/nạp chỉ mục BM25, lưu ra `data/bm25/<collection>.bm25.json` |
-| ④ Truy xuất | [src/retrieval/qdrant_hybrid_search.py](src/retrieval/qdrant_hybrid_search.py) | `hybrid_search()` — chạy song song dense + sparse trên child chunk, Qdrant hợp nhất bằng RRF, rồi lấy parent chunk theo `parent_id` |
-| ⑤ Prompt trích xuất | [src/knowledge_graph/extraction_prompts.py](src/knowledge_graph/extraction_prompts.py) | Few-shot + CoT prompt cho Qwen2.5-7B trích xuất entity/relation từ mỗi Điều |
-| ⑤ Trích xuất | [src/knowledge_graph/entity_extractor.py](src/knowledge_graph/entity_extractor.py) | Gọi LLM, parse JSON, retry khi hỏng — kết quả ghi ra `data/extracted_json/` |
-| ⑤ Dựng đồ thị | [src/knowledge_graph/graph_builder.py](src/knowledge_graph/graph_builder.py) | Chuẩn hóa + khử trùng lặp node/edge, giải tham chiếu chéo giữa các văn bản; chứa `to_dieu_node_id()` nối payload Qdrant ↔ node Neo4j |
-| ⑤ Nạp Neo4j | [src/knowledge_graph/neo4j_ingest.py](src/knowledge_graph/neo4j_ingest.py) | `Neo4jGraphIngestor` — MERGE node/relationship vào Neo4j (idempotent) |
-| ⑤ Entry point | [src/knowledge_graph/build_graph.py](src/knowledge_graph/build_graph.py) | Chạy 4 bước trên tuần tự — **chỉ chạy 1 lần trên Colab** (cần GPU), runtime không dùng |
-| ⑥ Router | [src/agents/agent_router/](src/agents/agent_router/) | Chit-chat thì trả lời luôn, câu hỏi pháp lý thì đẩy sang retrieval |
-| ⑥ Retrieval | [src/agents/agent_retrieval/](src/agents/agent_retrieval/) | Viết lại truy vấn, gọi hybrid search, trả top-k child chunk |
-| ⑥ Article expand | [src/agents/agent_article_expand/](src/agents/agent_article_expand/) | Từ child chunk lấy trọn toàn văn Điều chứa nó |
-| ⑥ Critic | [src/agents/agent_critic/](src/agents/agent_critic/) | Truy vấn Neo4j tìm căn cứ còn thiếu, lọc ứng viên qua cổng LLM, bơm thêm ngữ cảnh — xem `critic_query.py`, `node_critic_check.py`, `relevance_gate.py` |
-| ⑥ Generation | [src/agents/agent_generation/](src/agents/agent_generation/) | Sinh câu trả lời nháp và câu trả lời cuối; prompt ở `prompts.py` |
-| ⑦ Orchestrator | [src/workflow/pipeline.py](src/workflow/pipeline.py) | `ChatbotWorkflow` — dựng tài nguyên dùng chung 1 lần, lắp 5 agent thành đồ thị LangGraph, hỗ trợ 3 kịch bản |
-| Giao diện | [app.py](app.py) | Chainlit: chọn kịch bản, đổi model LLM/embedding, hiển thị Critic Report và chế độ Dev (các bước pipeline đã chạy) |
+1. **Chunking theo Điều – Khoản – Điểm:** child chunk phục vụ truy xuất chi
+   tiết; parent Article giữ toàn văn Điều để khôi phục ngữ cảnh.
+2. **Hybrid retrieval:** dense embedding và BM25 được hợp nhất bằng Reciprocal
+   Rank Fusion (RRF) trong Qdrant.
+3. **Kiểm tra độ đầy đủ sau truy xuất:** Critic Agent dùng Knowledge Graph
+   trong Neo4j để phát hiện khoảng trống bằng chứng, lọc Điều ứng viên qua
+   semantic relevance gate và chỉ sinh lại câu trả lời khi có bằng chứng phù
+   hợp.
 
-### Thư mục khác
+Knowledge Graph không thay thế bộ truy xuất văn bản. Graph giúp định vị quan
+hệ và Điều có khả năng bị thiếu; nội dung pháp lý đưa vào mô hình sinh vẫn
+được lấy từ parent Article trong Qdrant.
 
-```text
-scripts/     # các lệnh chạy tay (xem mục 5)
-notebooks/   # 2 notebook Colab: chạy đánh giá 301 câu, kiểm định test set
-data/
-├── keep/            # corpus gốc: 18 file .docx (đã parse) + 5 .pdf (nguồn tham khảo)
-├── extracted_json/  # entity/relation LLM đã trích xuất sẵn → nguồn nạp Neo4j
-├── bm25/            # chỉ mục BM25 (phần sparse của hybrid search)
-└── eval_testset.jsonl   # bộ 301 câu hỏi đánh giá
-docs/        # tài liệu khóa luận, sơ đồ kiến trúc, phương pháp đánh giá
-```
+![Kiến trúc hệ thống RAG](docs/assets/rag-system-architecture.jpg)
 
 ---
 
-## 3. Luồng xử lý một câu hỏi
+## 2. Kết quả nghiên cứu
 
-![RAG query flow](docs/assets/rag-query-flow.jpg)
+Các số liệu dưới đây được tổng hợp từ Chương 5 của bản khóa luận cuối và dùng
+dấu phẩy làm dấu thập phân theo quy ước trình bày tiếng Việt.
 
-Hệ thống chạy được 3 kịch bản (chọn ở Chat Profile góc trên bên trái) để so
-sánh A/B/C trong khóa luận:
+### 2.1. Thiết kế thực nghiệm
 
-| Kịch bản | Luồng |
+Ba chế độ được đánh giá trên cùng corpus, cùng câu hỏi và cùng retriever trong
+từng cấu hình:
+
+| Chế độ | Cách xây dựng ngữ cảnh |
 |---|---|
-| `naive` | router → retrieval → sinh câu trả lời từ đúng top-k child chunk |
-| `article_expand` | thêm bước mở rộng child chunk → toàn văn Điều trước khi sinh |
-| `critic` | thêm Critic Agent: sinh nháp → soi Knowledge Graph tìm căn cứ thiếu → bơm ngữ cảnh → viết lại |
+| **Naive RAG** | Sinh câu trả lời trực tiếp từ top-5 child chunks |
+| **Article Expansion** | Mở rộng các child chunks thành toàn văn Điều |
+| **KG-based Critic** | Sinh nháp, kiểm tra evidence gap bằng graph, bổ sung bằng chứng có chọn lọc rồi sinh lại khi cần |
 
-Critic Agent kiểm tra 3 tín hiệu trên đồ thị:
+Benchmark gồm **301 câu hỏi**:
 
-1. **missing_references** — Điều đang dẫn có `THAM_CHIEU` sang Điều khác chưa được đưa vào ngữ cảnh.
-2. **compound_penalty** — hành vi có cả chế tài chính lẫn chế tài bổ sung (`CHE_TAI_CHINH` + `CHE_TAI_BO_SUNG`) nhưng ngữ cảnh mới có một loại.
-3. **structurally_incomplete** — mới lấy được vài Khoản/Điểm của một Điều nhiều Khoản.
+| Nhóm | Số câu | Mục tiêu đánh giá |
+|---|---:|---|
+| same_dieu_compound_penalty | 51 | Nhiều chế tài hoặc thành phần trong cùng Điều |
+| cross_reference | 16 | Cần căn cứ từ Điều được dẫn chiếu |
+| structural_multi_part | 130 | Cần tổng hợp nhiều Khoản/Điểm |
+| control_no_gap | 104 | Điều đã đủ căn cứ, dùng làm nhóm đối chứng |
 
-Mỗi Điều ứng viên phải qua **cổng lọc LLM** (`relevance_gate.py`) hỏi "đoạn này
-có liên quan câu hỏi không" mới được bơm vào ngữ cảnh — tránh làm loãng prompt.
+Cấu hình chính sử dụng **AITeamVN/Vietnamese_Embedding_v2**; cấu hình
+**Alibaba-NLP/gte-multilingual-base** được chạy bổ sung để kiểm tra độ ổn định
+của xu hướng.
+
+### 2.2. Kết quả tổng hợp
+
+| Embedding | MRR | nDCG@5 | Naive RAG LCR | Article Expansion LCR | KG-based Critic LCR |
+|---|---:|---:|---:|---:|---:|
+| Vietnamese_Embedding_v2 | **0,856** | **0,866** | 43,77% | 72,72% | **81,33%** |
+| GTE Multilingual Base | 0,831 | 0,843 | 40,28% | 73,51% | **77,44%** |
+
+Với cấu hình chính, Article Expansion tăng Legal Completeness Rate (LCR) từ
+43,77% lên 72,72%. KG-based Critic đạt 81,33%, cao hơn Naive RAG **37,56 điểm
+phần trăm** và cao hơn Article Expansion **8,61 điểm phần trăm**. Trên GTE,
+Critic vẫn đạt LCR tổng cao nhất, cho thấy xu hướng chính được duy trì khi đổi
+embedding.
+
+### 2.3. Legal Completeness Rate theo nhóm
+
+**Vietnamese_Embedding_v2 — cấu hình phân tích chính**
+
+| Nhóm câu hỏi | Naive RAG | Article Expansion | KG-based Critic |
+|---|---:|---:|---:|
+| Cùng Điều, chế tài kép | 27,45% | 58,01% | **75,49%** |
+| Tham chiếu chéo | 45,83% | 49,48% | **70,83%** |
+| Nhiều thành phần cấu trúc | 28,27% | 68,64% | **77,67%** |
+| Nhóm đối chứng | 70,83% | 88,62% | **90,38%** |
+| **Toàn bộ 301 câu** | **43,77%** | **72,72%** | **81,33%** |
+
+**GTE Multilingual Base — cấu hình đối chiếu**
+
+| Nhóm câu hỏi | Naive RAG | Article Expansion | KG-based Critic |
+|---|---:|---:|---:|
+| Cùng Điều, chế tài kép | 25,33% | 58,17% | **71,73%** |
+| Tham chiếu chéo | 39,58% | 56,77% | **61,98%** |
+| Nhiều thành phần cấu trúc | 24,35% | 68,98% | **74,04%** |
+| Nhóm đối chứng | 67,63% | **89,26%** | 86,86% |
+| **Toàn bộ 301 câu** | **40,28%** | **73,51%** | **77,44%** |
+
+Lợi thế rõ nhất của Critic trên cấu hình chính nằm ở nhóm tham chiếu chéo:
+70,83%, so với 49,48% của Article Expansion. Điều này phù hợp với vai trò của
+cạnh THAM_CHIEU trong việc tìm Điều liên quan ngoài phạm vi Điều ban đầu.
+Tuy nhiên, Critic không đứng đầu ở mọi nhóm: với nhóm đối chứng trên GTE,
+Article Expansion đạt 89,26%, cao hơn 86,86% của Critic.
+
+### 2.4. Chất lượng câu trả lời theo RAGAS
+
+| Cấu hình | Chế độ | Faithfulness | Answer Relevancy | Context Precision | Answer Correctness |
+|---|---|---:|---:|---:|---:|
+| Vietnamese_Embedding_v2 | Naive RAG | 0,705 | 0,349 | **0,965** | 0,544 |
+| Vietnamese_Embedding_v2 | Article Expansion | 0,841 | **0,597** | 0,963 | 0,657 |
+| Vietnamese_Embedding_v2 | KG-based Critic | **0,857** | 0,593 | 0,961 | **0,668** |
+| GTE Base | Naive RAG | 0,656 | 0,408 | **0,974** | 0,521 |
+| GTE Base | Article Expansion | 0,858 | **0,776** | 0,944 | **0,717** |
+| GTE Base | KG-based Critic | **0,873** | 0,709 | 0,943 | 0,707 |
+
+Critic có Faithfulness cao nhất ở cả hai embedding. Các chỉ số còn lại không
+cho thấy một cấu hình hoặc một chế độ tốt nhất tuyệt đối: Article Expansion
+nhỉnh hơn Critic về Answer Relevancy ở cả hai cấu hình và về Answer Correctness
+trên GTE.
+
+### 2.5. Độ dài ngữ cảnh và chi phí
+
+| Cấu hình | Chế độ | Context Recall | Ký tự context/câu | Tổng token/câu | Token lượt sinh cuối | Lượt gọi LLM/câu |
+|---|---|---:|---:|---:|---:|---:|
+| Vietnamese_Embedding_v2 | Naive RAG | 0,952 | 1.594 | 1.516 | 1.352 | 1,0 |
+| Vietnamese_Embedding_v2 | Article Expansion | 0,952 | 8.296 | 2.782 | 2.618 | 1,0 |
+| Vietnamese_Embedding_v2 | KG-based Critic | **0,962** | 4.748 | 6.540 | 2.187 | 5,7 |
+| GTE Base | Naive RAG | 0,942 | 1.612 | 1.358 | 1.358 | 1,0 |
+| GTE Base | Article Expansion | 0,945 | 8.769 | 2.775 | 2.775 | 1,0 |
+| GTE Base | KG-based Critic | **0,955** | 4.512 | 6.308 | 2.190 | 5,7 |
+
+Critic tạo context cuối ngắn hơn Article Expansion nhưng đạt Context Recall cao
+hơn trên cả hai embedding. Đổi lại, Critic dùng trung bình **5,7 lượt gọi
+LLM/câu** và có tổng token toàn pipeline cao nhất. Vì vậy, đây là đánh đổi giữa
+độ đầy đủ pháp lý với chi phí và độ trễ, không phải một phương án rẻ hơn.
+
+### 2.6. Độ tin cậy của test set
+
+Kiểm định test set trong khóa luận đạt:
+
+| Tiêu chí | Kết quả toàn bộ |
+|---|---:|
+| B1 — Required facts có căn cứ | 99,7% |
+| B2 — Reference answer có căn cứ | 99,3% |
+| B3 — Reference answer bao phủ required facts | 100,0% |
+| B4 — Câu hỏi tự nhiên, rõ nghĩa | 100,0% |
+| B5 — Câu hỏi cần viện dẫn pháp luật | 100,0% |
+| B6 — Nhãn category chính xác | 71,4% |
+
+B6 thấp hơn các tiêu chí còn lại nên kết quả theo từng category cần được diễn
+giải thận trọng. Kết quả hiện tại cũng chưa thay thế đánh giá mù từ nhiều
+chuyên gia pháp luật.
 
 ---
 
-## 4. Hai cơ sở dữ liệu
+## 3. Luồng xử lý
 
-### Knowledge Graph (Neo4j) — 3 bước nạp
+![Luồng xử lý một câu hỏi](docs/assets/rag-query-flow.jpg)
 
-Service `kg-ingest` chạy tự động khi `docker compose --profile app up -d app`,
-gồm 3 script tuần tự, tất cả đều idempotent (chạy lại không tạo trùng):
+Một legal query đi qua các bước:
 
-1. `scripts/run_neo4j_ingest.py` — nạp entity/quan hệ đã trích xuất sẵn
-   (`data/extracted_json/`) vào Neo4j.
-2. `scripts/build_cross_references.py` — vá cạnh `THAM_CHIEU` bằng regex trên
-   text gốc, vì bước trích xuất LLM chỉ nhìn trong phạm vi 1 chunk nên bỏ sót
-   tham chiếu chéo sang Điều khác.
-3. `scripts/repair_che_tai_links.py --apply` — vá cạnh `CHE_TAI_CHINH` /
-   `CHE_TAI_BO_SUNG` cho các node chế tài bị bỏ rơi (trích xuất ra nhưng không
-   nối vào `HanhVi` nào). **Không có bước này thì tín hiệu "chế tài kép" của
-   Critic Agent chỉ kích hoạt được ở đúng 1 Điều trên tổng 1211 Điều** — đo
-   thật: sau khi vá tăng lên 5 Điều, số `HanhVi` có cả 2 loại chế tài tăng từ
-   3 lên 16.
+1. Router phân biệt hội thoại thông thường và câu hỏi pháp luật.
+2. Retrieval Agent viết lại truy vấn, tìm kiếm dense và BM25 trên child chunks,
+   sau đó hợp nhất thứ hạng bằng RRF.
+3. Tùy chế độ, hệ thống giữ nguyên top-k child, mở rộng toàn Điều hoặc sinh câu
+   trả lời nháp để Critic kiểm tra.
+4. Critic Agent tìm ba loại khoảng trống:
+   - thiếu Điều được dẫn qua quan hệ THAM_CHIEU;
+   - thiếu chế tài chính hoặc chế tài bổ sung;
+   - thiếu Khoản/Điểm thuộc cùng một Điều nhiều thành phần.
+5. Candidate evidence phải qua semantic relevance gate trước khi được thêm vào
+   ngữ cảnh.
+6. Generator giữ nguyên bản nháp nếu không có bằng chứng mới, hoặc sinh lại câu
+   trả lời cuối nếu Critic tìm thấy phần cần bổ sung.
 
-Chạy riêng bước 3 khi cần:
+Thông số thực nghiệm chính:
 
-```bash
-docker compose run --rm --entrypoint bash kg-ingest \
-  -c "pip install neo4j --quiet && python scripts/repair_che_tai_links.py"
-```
-
-(bỏ `--apply` để xem trước, thêm `--undo` để hoàn tác.)
-
-### Vector DB (Qdrant) — container riêng, cổng 6333
-
-Qdrant chạy như một service trong `docker-compose.yml` (container
-`legal_qdrant`), **không còn** ở chế độ embedded/thư mục trong repo. Dữ liệu
-nằm trong volume Docker `legal_qdrant_data`.
-
-4 collection = 2 model embedding × cặp parent/child của kiến trúc chunking:
-
-| Collection | Model embedding | Dim | Số point |
-|---|---|---|---|
-| `legal_child_chunks_base` / `legal_parent_chunks_base` | `AITeamVN/Vietnamese_Embedding_v2` | 1024 | 10.355 / 1.211 |
-| `legal_child_chunks_gte` / `legal_parent_chunks_gte` | `Alibaba-NLP/gte-multilingual-base` | 768 | 10.355 / 1.211 |
-
-Hai không gian embedding khác dimension nên **bắt buộc tách tên collection**,
-không được dùng lẫn. BM25 index (phần sparse) là file cục bộ, không nằm trong
-Qdrant: `data/bm25/<tên child collection>.bm25.json`.
-
-Container `qdrant` khởi động lên là **rỗng**. Dữ liệu do service `qdrant-ingest`
-nạp vào, chạy tự động cùng `docker compose --profile app up -d app`, tự chọn
-đường nhanh hay chậm theo bảng ở [mục 1](#1-chạy-nhanh-bằng-docker).
-
-```bash
-docker compose --profile app up qdrant-ingest        # chạy và xem log trực tiếp
-docker compose logs -f qdrant-ingest                 # xem log khi đang chạy nền
-```
-
-**Đường nhanh** dùng `scripts/migrate_qdrant_to_server.py`: copy nguyên vector +
-payload từ 2 thư mục embedded sang server, không load embedding model. Nó bỏ
-qua collection đã có; muốn ghi đè thì thêm `--recreate`. Chạy trên máy không có
-2 thư mục đó thì báo lỗi kèm chỉ dẫn chứ không im lặng "thành công".
-
-**Đường chậm** dùng `src/indexing/qdrant_ingest.py`, mỗi model 3 việc: chunking
-`data/keep` → encode dense + fit BM25 → upsert. Nạp lại từ đầu cho một model:
-
-```bash
-docker compose --profile app run --rm --no-deps qdrant-ingest \
-  python src/indexing/qdrant_ingest.py --data-dir data/keep \
-  --model AITeamVN/Vietnamese_Embedding_v2 \
-  --child-collection legal_child_chunks_base \
-  --parent-collection legal_parent_chunks_base --recreate
-```
+| Tham số | Giá trị |
+|---|---:|
+| Top-k child | 5 |
+| Candidate pool của Article Expansion | 20 |
+| Ngưỡng Article Expansion | 0,40 × điểm cao nhất |
+| Số Điều mở rộng tối đa | 5 |
+| Ngưỡng Critic | 0,60 × điểm cao nhất |
+| Số Điều Critic kiểm tra tối đa | 4 |
+| Duyệt THAM_CHIEU | Tối đa 2 hop, tối đa 8 Điều |
+| Generator/semantic gate | Qwen2.5-7B, temperature 0,2 |
+| LCR judge | GPT-4o-mini, temperature 0 |
 
 ---
 
-## 5. Chạy từng bước bằng tay
+## 4. Dữ liệu và chỉ mục
 
-```bash
-# Kiểm thử chunking
-python src/data_processing/chunking.py
+Corpus chính trong **data/keep/** gồm **18 tệp DOCX** được pipeline parse và
+**5 tệp PDF** lưu làm nguồn tham khảo. Kết quả ingest hiện tại:
 
-# Kiểm thử hybrid search (mặc định đọc container qdrant cổng 6333)
-python src/retrieval/qdrant_hybrid_search.py \
-  --query "Doanh nghiệp cần làm gì khi xử lý dữ liệu cá nhân?" \
-  --model AITeamVN/Vietnamese_Embedding_v2 --limit 5 --include-parent
+| Thành phần | Quy mô |
+|---|---:|
+| Parent Article | 1.211 |
+| Child chunk | 10.355 |
+| Bộ câu hỏi đánh giá | 301 |
+| Nhóm câu hỏi đánh giá | 4 |
 
-# Chat trong terminal (không cần Chainlit)
-python scripts/run_chatbot.py --mode critic
-```
+Qdrant sử dụng bốn collection độc lập:
 
-Xây lại Knowledge Graph từ đầu (cần GPU, chạy trên Colab):
+| Collection | Embedding | Số chiều | Số point |
+|---|---|---:|---:|
+| legal_child_chunks_base | Vietnamese_Embedding_v2 | 1.024 | 10.355 |
+| legal_parent_chunks_base | Vietnamese_Embedding_v2 | 1.024 | 1.211 |
+| legal_child_chunks_gte | GTE Multilingual Base | 768 | 10.355 |
+| legal_parent_chunks_gte | GTE Multilingual Base | 768 | 1.211 |
 
-```bash
-python src/knowledge_graph/build_graph.py --data-dir data/keep
-```
+Hai embedding có số chiều khác nhau nên không được dùng lẫn collection. Chỉ
+mục BM25 của mỗi child collection nằm tại **data/bm25/**.
 
 ---
 
-## 6. Đánh giá
+## 5. Chạy nhanh bằng Docker
 
-| Script | Việc |
+### 5.1. Yêu cầu
+
+- Docker và Docker Compose;
+- API key nếu dùng các LLM qua endpoint tương thích OpenAI; hoặc Ollama nếu
+  chạy Qwen2.5-7B cục bộ;
+- đủ dung lượng để tải hai embedding model nếu chưa có Qdrant snapshot.
+
+### 5.2. Khởi động
+
+~~~bash
+cp .env.example .env
+# Điền OPENAI_API_KEY trong .env nếu dùng model qua API.
+
+docker compose --profile app up -d app
+~~~
+
+Lệnh trên tự khởi động Neo4j và Qdrant, nạp Knowledge Graph, tạo/nạp bốn
+collection vector rồi mới mở ứng dụng Chainlit.
+
+Nếu có sẵn hai snapshot **data/.qdrant_base/** và
+**data/.qdrant_gte_base/**, service ingest sẽ copy vector vào Qdrant trong vài
+phút. Nếu không có snapshot, hệ thống tự xây lại chỉ mục từ **data/keep/**;
+bước encode hai embedding có thể mất khoảng 1–3 giờ tùy phần cứng.
+
+Theo dõi tiến độ:
+
+~~~bash
+docker compose logs -f qdrant-ingest
+~~~
+
+Chạy Qwen2.5-7B bằng Ollama:
+
+~~~bash
+docker compose --profile ollama up -d ollama
+docker exec legal_ollama ollama pull qwen2.5:7b
+~~~
+
+Sau khi hệ thống sẵn sàng, mở:
+
+| Dịch vụ | Địa chỉ |
 |---|---|
-| `scripts/run_evaluation.py` | Chạy bộ test qua pipeline thật, xuất `data/eval_results_<mode>.jsonl` theo chuẩn RAGAS |
-| `scripts/score_evaluation.py` | Chấm điểm: RAGAS (faithfulness, answer_relevancy, context_precision, answer_correctness) + **Legal Completeness Rate** (chỉ số trung tâm của khóa luận) |
-| `scripts/validate_testset.py` | Kiểm định độ tin cậy của chính bộ test set so với văn bản luật gốc |
-| `notebooks/colab_full_evaluation.ipynb` | Chạy toàn bộ 301 câu × 3 kịch bản trên Colab T4 |
-| `notebooks/colab_validate_testset.ipynb` | Chạy kiểm định test set trên Colab |
+| Chainlit | http://localhost:8000 |
+| Qdrant Dashboard | http://localhost:6333/dashboard |
+| Neo4j Browser | http://localhost:7474 |
+| Ollama API | http://localhost:11434 |
 
-```bash
+Tài khoản Chainlit mặc định là **admin / admin**. Có thể đổi bằng
+**CHAINLIT_DEMO_USER** và **CHAINLIT_DEMO_PASSWORD**.
+
+---
+
+## 6. Chạy bằng dòng lệnh
+
+Sau khi các dịch vụ dữ liệu và môi trường Python đã sẵn sàng:
+
+~~~bash
+# Một chế độ
+python scripts/run_chatbot.py --query "Doanh nghiệp phải làm gì khi xử lý dữ liệu cá nhân?" --mode critic
+
+# So sánh cả ba chế độ trên cùng câu hỏi
+python scripts/run_chatbot.py --query "Hành vi này bị xử phạt và khắc phục hậu quả như thế nào?" --compare-all
+~~~
+
+Đổi sang GTE và cặp collection tương ứng:
+
+~~~bash
+QDRANT_CHILD_COLLECTION=legal_child_chunks_gte QDRANT_PARENT_COLLECTION=legal_parent_chunks_gte EMBEDDING_MODEL=Alibaba-NLP/gte-multilingual-base python scripts/run_chatbot.py --query "Điều kiện của hợp đồng điện tử là gì?"
+~~~
+
+---
+
+## 7. Tái lập đánh giá
+
+~~~bash
+# Chạy 301 câu qua cả ba chế độ
 python scripts/run_evaluation.py --all-modes
-python scripts/score_evaluation.py --modes naive article_expand critic
-```
 
-Chi tiết phương pháp: [docs/evaluation_guide.md](docs/evaluation_guide.md),
-[docs/testset_validation_methodology.md](docs/testset_validation_methodology.md),
-[docs/reproducibility_supplement.md](docs/reproducibility_supplement.md).
+# Chấm Legal Completeness Rate và bốn chỉ số RAGAS
+python scripts/score_evaluation.py --modes naive article_expand critic --judge-provider openai --judge-model gpt-4o-mini
 
----
+# Kiểm định bộ test set
+python scripts/validate_testset.py
+~~~
 
-## 7. Dữ liệu
+Các tài liệu liên quan:
 
-`data/keep/` chứa corpus chính: **18 file `.docx`** đã được chunk và ingest
-(→ 1.211 Điều = 1.211 parent chunk, 10.355 child chunk, và 18 thư mục tương
-ứng trong `data/extracted_json/`). 5 file `.pdf` còn lại lưu như nguồn tài liệu
-gốc — chunker hiện chỉ xử lý `.docx`, chưa parse `.pdf`.
-
-Bộ đánh giá `data/eval_testset.jsonl` gồm **301 câu hỏi**, chia 4 nhóm: chế tài
-kép, cross-Điều, structural đa Khoản, và nhóm control.
+- [Hướng dẫn đánh giá](docs/evaluation_guide.md)
+- [Phương pháp kiểm định test set](docs/testset_validation_methodology.md)
+- [Bổ sung khả năng tái lập](docs/reproducibility_supplement.md)
+- [Audit hiệu lực văn bản](docs/legal_effectiveness_audit_2026-07-01.md)
 
 ---
 
-## 8. Công nghệ
+## 8. Cấu trúc mã nguồn
 
-Python 3.11 · `python-docx` · `sentence-transformers` · Qdrant · Neo4j 5.26 ·
-LangGraph · LangChain · Chainlit · Qwen2.5-7B-Instruct (Ollama) hoặc
-gpt-4o-mini · RAGAS.
+~~~text
+.
+├── app.py                         # Giao diện Chainlit
+├── src/
+│   ├── data_processing/           # Parse DOCX, parent/child chunking
+│   ├── embedding/                 # Nạp embedding model
+│   ├── indexing/                  # Ingest Qdrant
+│   ├── retrieval/                 # Dense + BM25 + RRF
+│   ├── knowledge_graph/           # Trích xuất và nạp Neo4j
+│   ├── agents/
+│   │   ├── agent_router/          # Phân loại truy vấn
+│   │   ├── agent_retrieval/       # Hybrid retrieval
+│   │   ├── agent_article_expand/  # Khôi phục toàn văn Điều
+│   │   ├── agent_critic/          # Phát hiện evidence gap
+│   │   └── agent_generation/      # Sinh nháp và câu trả lời cuối
+│   └── workflow/                  # Đồ thị điều phối LangGraph
+├── scripts/                       # Chat CLI, ingest và evaluation
+├── notebooks/                     # Notebook Colab
+├── data/                          # Corpus, BM25, test set, kết quả
+├── docs/                          # Tài liệu kỹ thuật và đánh giá
+└── tests/                         # Kiểm thử
+~~~
+
+Các điểm vào chính:
+
+| Tệp | Vai trò |
+|---|---|
+| [app.py](app.py) | Giao diện chat và lựa chọn model/chế độ |
+| [src/workflow/pipeline.py](src/workflow/pipeline.py) | Điều phối toàn bộ pipeline |
+| [src/data_processing/chunking.py](src/data_processing/chunking.py) | Chunking Điều – Khoản – Điểm |
+| [src/retrieval/qdrant_hybrid_search.py](src/retrieval/qdrant_hybrid_search.py) | Hybrid search và RRF |
+| [src/agents/agent_critic/node_critic_check.py](src/agents/agent_critic/node_critic_check.py) | Logic Critic Agent |
+| [scripts/run_evaluation.py](scripts/run_evaluation.py) | Chạy benchmark |
+| [scripts/score_evaluation.py](scripts/score_evaluation.py) | Tính LCR và RAGAS |
 
 ---
 
-## 9. Bảo mật
+## 9. Giới hạn
 
-Không commit: `.env`, `.env.*`, `.venv/`, `data/.qdrant*/`, API key, service
-key, database password. Đã cấu hình sẵn trong `.gitignore`.
+- Corpus mới bao phủ một số lĩnh vực pháp luật Việt Nam và phụ thuộc vào
+  snapshot hiệu lực của văn bản.
+- LCR và RAGAS có sử dụng đánh giá tự động; chưa có đánh giá mù quy mô lớn từ
+  nhiều chuyên gia pháp luật.
+- Độ chính xác nhãn category của test set đạt 71,4%, thấp hơn các tiêu chí chất
+  lượng nội dung còn lại.
+- Chưa có component ablation đầy đủ để cô lập đóng góp của từng tín hiệu
+  Critic, semantic gate và bước sinh lại.
+- Knowledge Graph có thể thiếu hoặc sai entity/relation, từ đó làm Critic bỏ
+  sót hoặc lấy thừa bằng chứng.
+- Critic cải thiện độ đầy đủ nhưng tăng số lượt gọi LLM, tổng token và độ trễ.
+
+---
+
+## 10. Công nghệ
+
+Python 3.11 · LangGraph · LangChain · Chainlit · Qdrant · Neo4j 5.26 ·
+sentence-transformers · BM25 · Qwen2.5-7B · GPT-4o-mini · RAGAS.
+
+## 11. Bảo mật
+
+Không commit API key, mật khẩu thật, tệp **.env**, thư mục môi trường ảo hoặc
+snapshot Qdrant chứa dữ liệu riêng. Mẫu cấu hình được cung cấp tại
+[.env.example](.env.example).

@@ -1,0 +1,322 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20260727_183438",
+  "generated_at": "2026-07-27T18:34:38+07:00",
+  "benchmark_file": "/Users/nguyengiahuy/Project/LEGAL_IT_CHATBOT/evaluation/benchmark/benchmark.json",
+  "benchmark_sha256": "126438a83f9902d950b140f74fd1f527b899ec9dc160ce1163f47c0c5d3e114c",
+  "selected_cases": 30,
+  "completed_cases": 30,
+  "runtime_error_cases": 0,
+  "filters": {
+    "category": null,
+    "difficulty": null,
+    "case_id": null,
+    "limit": null
+  },
+  "pipeline_config": {
+    "mode": "critic",
+    "top_k": 10,
+    "qdrant_path": "data/.qdrant_base",
+    "qdrant_url_configured": false,
+    "embedding_model": "AITeamVN/Vietnamese_Embedding_v2",
+    "ollama_model": "qwen2.5:7b"
+  },
+  "git": {
+    "commit": "198958af4639361100aa7b91332b2b0e390313ae",
+    "branch": "main",
+    "dirty": true
+  },
+  "overall_metrics": {
+    "domain_recall": 0.5783333333333334,
+    "domain_precision": 0.8044444444444444,
+    "behavior_recall": 0.308505291005291,
+    "behavior_precision": 0.5916666666666668,
+    "recall_at_5": 0.38333333333333336,
+    "recall_at_10": 0.4166666666666667,
+    "mrr": 0.31142857142857144,
+    "citation_accuracy": 0.2111111111111111,
+    "wrong_domain_rate": 0.19555555555555554,
+    "wrong_behavior_rate": 0.4083333333333333,
+    "recursive_precision": 0.9,
+    "recursive_noise_rate": 0.1,
+    "applicability_accuracy": 0.5901190476190475,
+    "retrieval_latency_ms": 3891.4798514325716,
+    "total_latency_ms": 105204.89723746698
+  },
+  "metrics_by_category": {
+    "AI Copyright": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.6666666666666666,
+        "domain_precision": 1.0,
+        "behavior_recall": 0.4166666666666667,
+        "behavior_precision": 1.0,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.6666666666666666,
+        "mrr": 0.21428571428571427,
+        "citation_accuracy": 0.3333333333333333,
+        "wrong_domain_rate": 0.0,
+        "wrong_behavior_rate": 0.0,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.7380952380952381,
+        "retrieval_latency_ms": 3857.5657223312496,
+        "total_latency_ms": 131820.4973056636
+      }
+    },
+    "AI Deepfake": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.7333333333333334,
+        "domain_precision": 1.0,
+        "behavior_recall": 0.46759259259259256,
+        "behavior_precision": 1.0,
+        "recall_at_5": 0.16666666666666666,
+        "recall_at_10": 0.16666666666666666,
+        "mrr": 0.3333333333333333,
+        "citation_accuracy": 0.2222222222222222,
+        "wrong_domain_rate": 0.0,
+        "wrong_behavior_rate": 0.0,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.6666666666666666,
+        "retrieval_latency_ms": 5178.676235998864,
+        "total_latency_ms": 71159.85976400164
+      }
+    },
+    "Advertising": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.8055555555555555,
+        "domain_precision": 1.0,
+        "behavior_recall": 0.3333333333333333,
+        "behavior_precision": 0.5555555555555555,
+        "recall_at_5": 0.6666666666666666,
+        "recall_at_10": 0.6666666666666666,
+        "mrr": 0.5,
+        "citation_accuracy": 0.2222222222222222,
+        "wrong_domain_rate": 0.0,
+        "wrong_behavior_rate": 0.4444444444444445,
+        "recursive_precision": 0.6666666666666666,
+        "recursive_noise_rate": 0.3333333333333333,
+        "applicability_accuracy": 0.8333333333333334,
+        "retrieval_latency_ms": 3685.6901806677342,
+        "total_latency_ms": 102311.97037500048
+      }
+    },
+    "Consumer Protection": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.27777777777777773,
+        "domain_precision": 0.6666666666666666,
+        "behavior_recall": 0.0,
+        "behavior_precision": 0.0,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.3333333333333333,
+        "citation_accuracy": 0.2222222222222222,
+        "wrong_domain_rate": 0.3333333333333333,
+        "wrong_behavior_rate": 1.0,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.7138888888888889,
+        "retrieval_latency_ms": 3500.2774029999273,
+        "total_latency_ms": 97013.19405566755
+      }
+    },
+    "Cyber Attack": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.4444444444444444,
+        "domain_precision": 0.35555555555555557,
+        "behavior_recall": 0.3452380952380952,
+        "behavior_precision": 0.8888888888888888,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.16666666666666666,
+        "citation_accuracy": 0.0,
+        "wrong_domain_rate": 0.6444444444444445,
+        "wrong_behavior_rate": 0.11111111111111112,
+        "recursive_precision": 0.6666666666666666,
+        "recursive_noise_rate": 0.3333333333333333,
+        "applicability_accuracy": 0.4814814814814814,
+        "retrieval_latency_ms": 3820.5356386703593,
+        "total_latency_ms": 122322.7663889993
+      }
+    },
+    "Electronic Transactions": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.5,
+        "domain_precision": 0.4666666666666666,
+        "behavior_recall": 0.0,
+        "behavior_precision": 0.0,
+        "recall_at_5": 0.8333333333333334,
+        "recall_at_10": 0.8333333333333334,
+        "mrr": 0.8333333333333334,
+        "citation_accuracy": 0.2222222222222222,
+        "wrong_domain_rate": 0.5333333333333333,
+        "wrong_behavior_rate": 1.0,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.5407407407407407,
+        "retrieval_latency_ms": 3998.132013999566,
+        "total_latency_ms": 84155.00691633497
+      }
+    },
+    "Malware": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.611111111111111,
+        "domain_precision": 0.8333333333333334,
+        "behavior_recall": 0.2222222222222222,
+        "behavior_precision": 0.6666666666666666,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.16666666666666666,
+        "citation_accuracy": 0.2222222222222222,
+        "wrong_domain_rate": 0.16666666666666666,
+        "wrong_behavior_rate": 0.3333333333333333,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.43809523809523815,
+        "retrieval_latency_ms": 3151.488402664351,
+        "total_latency_ms": 112553.7003193361
+      }
+    },
+    "Network Security": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.6666666666666666,
+        "domain_precision": 1.0,
+        "behavior_recall": 0.16666666666666666,
+        "behavior_precision": 0.3333333333333333,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.16666666666666666,
+        "citation_accuracy": 0.3333333333333333,
+        "wrong_domain_rate": 0.0,
+        "wrong_behavior_rate": 0.6666666666666666,
+        "recursive_precision": 0.6666666666666666,
+        "recursive_noise_rate": 0.3333333333333333,
+        "applicability_accuracy": 0.5111111111111111,
+        "retrieval_latency_ms": 3967.523513997245,
+        "total_latency_ms": 105553.59766666515
+      }
+    },
+    "Personal Data": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.6666666666666666,
+        "domain_precision": 0.8888888888888888,
+        "behavior_recall": 0.5,
+        "behavior_precision": 0.5555555555555555,
+        "recall_at_5": 0.3333333333333333,
+        "recall_at_10": 0.3333333333333333,
+        "mrr": 0.3333333333333333,
+        "citation_accuracy": 0.3333333333333333,
+        "wrong_domain_rate": 0.11111111111111112,
+        "wrong_behavior_rate": 0.4444444444444445,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.7000000000000001,
+        "retrieval_latency_ms": 3691.945124997195,
+        "total_latency_ms": 87231.59630533337
+      }
+    },
+    "SQL Injection": {
+      "case_count": 3,
+      "metrics": {
+        "domain_recall": 0.41111111111111115,
+        "domain_precision": 0.8333333333333334,
+        "behavior_recall": 0.6333333333333333,
+        "behavior_precision": 0.9166666666666666,
+        "recall_at_5": 0.16666666666666666,
+        "recall_at_10": 0.16666666666666666,
+        "mrr": 0.06666666666666667,
+        "citation_accuracy": 0.0,
+        "wrong_domain_rate": 0.16666666666666666,
+        "wrong_behavior_rate": 0.08333333333333333,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.27777777777777773,
+        "retrieval_latency_ms": 4062.964277999223,
+        "total_latency_ms": 137926.7832776677
+      }
+    }
+  },
+  "metrics_by_difficulty": {
+    "Easy": {
+      "case_count": 10,
+      "metrics": {
+        "domain_recall": 0.75,
+        "domain_precision": 0.8066666666666666,
+        "behavior_recall": 0.4333333333333334,
+        "behavior_precision": 0.7,
+        "recall_at_5": 0.65,
+        "recall_at_10": 0.75,
+        "mrr": 0.5142857142857142,
+        "citation_accuracy": 0.39999999999999997,
+        "wrong_domain_rate": 0.19333333333333333,
+        "wrong_behavior_rate": 0.3,
+        "recursive_precision": 0.8,
+        "recursive_noise_rate": 0.2,
+        "applicability_accuracy": 0.5833333333333334,
+        "retrieval_latency_ms": 4116.462508297991,
+        "total_latency_ms": 112964.97198340073
+      }
+    },
+    "Hard": {
+      "case_count": 10,
+      "metrics": {
+        "domain_recall": 0.5316666666666666,
+        "domain_precision": 0.9166666666666666,
+        "behavior_recall": 0.20468253968253966,
+        "behavior_precision": 0.5333333333333333,
+        "recall_at_5": 0.1,
+        "recall_at_10": 0.1,
+        "mrr": 0.05,
+        "citation_accuracy": 0.0,
+        "wrong_domain_rate": 0.08333333333333334,
+        "wrong_behavior_rate": 0.4666666666666667,
+        "recursive_precision": 1.0,
+        "recursive_noise_rate": 0.0,
+        "applicability_accuracy": 0.6489285714285715,
+        "retrieval_latency_ms": 3917.8266793001967,
+        "total_latency_ms": 100426.53886229964
+      }
+    },
+    "Medium": {
+      "case_count": 10,
+      "metrics": {
+        "domain_recall": 0.4533333333333333,
+        "domain_precision": 0.6900000000000001,
+        "behavior_recall": 0.2875,
+        "behavior_precision": 0.5416666666666666,
+        "recall_at_5": 0.4,
+        "recall_at_10": 0.4,
+        "mrr": 0.37,
+        "citation_accuracy": 0.2333333333333333,
+        "wrong_domain_rate": 0.30999999999999994,
+        "wrong_behavior_rate": 0.45833333333333337,
+        "recursive_precision": 0.9,
+        "recursive_noise_rate": 0.1,
+        "applicability_accuracy": 0.5380952380952381,
+        "retrieval_latency_ms": 3640.150366699527,
+        "total_latency_ms": 102223.18086670057
+      }
+    }
+  },
+  "error_counts": {
+    "Wrong Domain": 24,
+    "Wrong Behavior": 29,
+    "Wrong Citation": 27,
+    "Missing Relevant Law": 19,
+    "Recursive Noise": 3,
+    "Applicability Error": 24,
+    "Generation Grounding Error": 30,
+    "Hallucinated Citation": 0
+  },
+  "plot_files": [],
+  "plot_error": ""
+}

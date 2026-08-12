@@ -1,0 +1,225 @@
+{
+  "run": {
+    "timestamp": "2026-08-04T10:15:01.654182+07:00",
+    "source_snapshot": "9bf145e6744599e1e15c21e2011a02f7ecff87f5",
+    "testset": "data/eval_testset.jsonl",
+    "retriever": "Base",
+    "qdrant_path": "data/.qdrant_base",
+    "embedding_model": "AITeamVN/Vietnamese_Embedding_v2",
+    "embedding_dimension": 1024,
+    "llm_provider": "Ollama native",
+    "llm_model": "qwen2.5:7b",
+    "mode": "critic",
+    "top_k": 5,
+    "skip_router": true
+  },
+  "case": {
+    "id": "cat4_02",
+    "category": "control_no_gap",
+    "question": "Theo Luật Giao dịch điện tử 2023, thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thế nào?",
+    "required_facts": [
+      "Thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thông báo bằng văn bản giấy"
+    ],
+    "gold_article_ids": [
+      "lu_t_giao_d_ch_i_n_t_2023_D38"
+    ],
+    "reference_answer": "Trong giao kết và thực hiện hợp đồng điện tử, thông báo dưới dạng thông điệp dữ liệu có giá trị pháp lý như thông báo bằng văn bản giấy."
+  },
+  "retrieval": {
+    "retrieved_children": [
+      {
+        "child_id": "Lu_t_Giao_d_ch_i_n_t_2023_D38_preamble",
+        "article_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023_D38",
+        "document_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023",
+        "score": 1.0,
+        "text": "[Điều 38, Luật Giao dịch điện tử 2023] Điều 38. Giá trị pháp lý của thông báo trong giao kết và thực hiện hợp đồng điện tử\nTrong giao kết và thực hiện hợp đồng điện tử, thông báo dưới dạng thông điệp dữ liệu có giá trị pháp lý như thông báo bằng văn bản giấy.\nChương V\nGIAO DỊCH ĐIỆN TỬ CỦA CƠ QUAN NHÀ NƯỚC"
+      },
+      {
+        "child_id": "Lu_t_Giao_d_ch_i_n_t_2023_D8_preamble",
+        "article_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023_D8",
+        "document_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023",
+        "score": 0.6666666666666666,
+        "text": "[Điều 8, Luật Giao dịch điện tử 2023] Điều 8. Giá trị pháp lý của thông điệp dữ liệu\nThông tin trong thông điệp dữ liệu không bị phủ nhận giá trị pháp lý chỉ vì thông tin đó được thể hiện dưới dạng thông điệp dữ liệu."
+      },
+      {
+        "child_id": "Lu_t_Giao_d_ch_i_n_t_2023_D7_K1",
+        "article_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023_D7",
+        "document_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023",
+        "score": 0.375,
+        "text": "[Khoản 1, Điều 7, Luật Giao dịch điện tử 2023] Điều 7. Hình thức thể hiện của thông điệp dữ liệu\n1. Thông điệp dữ liệu được thể hiện dưới hình thức văn bản điện tử, tài liệu điện tử, chứng thư điện tử, chứng từ điện tử, hợp đồng điện tử, thư điện tử, điện tín, điện báo, fax và hình thức trao đổi dữ liệu điện tử khác theo quy định của pháp luật."
+      },
+      {
+        "child_id": "Lu_t_Giao_d_ch_i_n_t_2023_D3_K16",
+        "article_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023_D3",
+        "document_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023",
+        "score": 0.3111111111111111,
+        "text": "[Khoản 16, Điều 3, Luật Giao dịch điện tử 2023] 16. Hợp đồng điện tử là hợp đồng được thiết lập dưới dạng thông điệp dữ liệu."
+      },
+      {
+        "child_id": "Lu_t_Giao_d_ch_i_n_t_2023_D10_preamble",
+        "article_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023_D10",
+        "document_id_raw": "Lu_t_Giao_d_ch_i_n_t_2023",
+        "score": 0.30952380952380953,
+        "text": "[Điều 10, Luật Giao dịch điện tử 2023] Điều 10. Thông điệp dữ liệu có giá trị như bản gốc\nThông điệp dữ liệu được sử dụng và có giá trị như bản gốc khi đáp ứng đủ các yêu cầu sau đây:"
+      }
+    ],
+    "retrieved_child_ids": [
+      "Lu_t_Giao_d_ch_i_n_t_2023_D38_preamble",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D8_preamble",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D7_K1",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D3_K16",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D10_preamble"
+    ],
+    "retrieved_article_ids": [
+      "lu_t_giao_d_ch_i_n_t_2023_D38",
+      "lu_t_giao_d_ch_i_n_t_2023_D8",
+      "lu_t_giao_d_ch_i_n_t_2023_D7",
+      "lu_t_giao_d_ch_i_n_t_2023_D3",
+      "lu_t_giao_d_ch_i_n_t_2023_D10"
+    ]
+  },
+  "critic": {
+    "draft_answer": "Theo Điều 8 của Luật Giao dịch điện tử 2023, thông tin trong thông điệp dữ liệu không bị phủ nhận giá trị pháp lý chỉ vì thông tin đó được thể hiện dưới dạng thông điệp dữ liệu. \n\nĐiều này đồng nghĩa với việc, theo quy định của Luật Giao dịch điện tử 2023, thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thông báo bằng văn bản giấy.\n\nTuy nhiên, cần lưu ý rằng để đảm bảo tính pháp lý của thông điệp dữ liệu, chúng phải đáp ứng các yêu cầu về hình thức theo quy định tại Điều 7, Khoản 1 của Luật Giao dịch điện tử 2023.",
+    "is_complete_before_gate": true,
+    "detected_gaps": {
+      "missing_references": [],
+      "compound_penalty_behaviors": [],
+      "structurally_incomplete_articles": [],
+      "multi_hop_references": [],
+      "mixed_document_safeguard": null
+    },
+    "candidate_article_ids": [],
+    "graph_fetched_article_ids": [],
+    "gate_observations": [],
+    "gate_decision_by_article": {
+      "accepted_article_ids": [],
+      "rejected_article_ids": [],
+      "mapping_note": "Accepted IDs are recorded from the production code path: an article appears in graph_fetched_dieu_ids and not in rejected_by_relevance_gate. The gate function does not log the article ID argument directly."
+    },
+    "critic_report": {
+      "is_complete": true,
+      "missing_dieu_ids": [],
+      "missing_references": [],
+      "compound_penalty_behaviors": [],
+      "structurally_incomplete_dieu": [],
+      "suggestions": []
+    }
+  },
+  "generation": {
+    "final_context": {
+      "retrieved_contexts": [
+        "[Điều 38, Luật Giao dịch điện tử 2023] Điều 38. Giá trị pháp lý của thông báo trong giao kết và thực hiện hợp đồng điện tử\nTrong giao kết và thực hiện hợp đồng điện tử, thông báo dưới dạng thông điệp dữ liệu có giá trị pháp lý như thông báo bằng văn bản giấy.\nChương V\nGIAO DỊCH ĐIỆN TỬ CỦA CƠ QUAN NHÀ NƯỚC",
+        "[Điều 8, Luật Giao dịch điện tử 2023] Điều 8. Giá trị pháp lý của thông điệp dữ liệu\nThông tin trong thông điệp dữ liệu không bị phủ nhận giá trị pháp lý chỉ vì thông tin đó được thể hiện dưới dạng thông điệp dữ liệu.",
+        "[Khoản 1, Điều 7, Luật Giao dịch điện tử 2023] Điều 7. Hình thức thể hiện của thông điệp dữ liệu\n1. Thông điệp dữ liệu được thể hiện dưới hình thức văn bản điện tử, tài liệu điện tử, chứng thư điện tử, chứng từ điện tử, hợp đồng điện tử, thư điện tử, điện tín, điện báo, fax và hình thức trao đổi dữ liệu điện tử khác theo quy định của pháp luật.",
+        "[Khoản 16, Điều 3, Luật Giao dịch điện tử 2023] 16. Hợp đồng điện tử là hợp đồng được thiết lập dưới dạng thông điệp dữ liệu.",
+        "[Điều 10, Luật Giao dịch điện tử 2023] Điều 10. Thông điệp dữ liệu có giá trị như bản gốc\nThông điệp dữ liệu được sử dụng và có giá trị như bản gốc khi đáp ứng đủ các yêu cầu sau đây:"
+      ],
+      "critic_graph_context": null
+    },
+    "final_answer": "Theo Điều 8 của Luật Giao dịch điện tử 2023, thông tin trong thông điệp dữ liệu không bị phủ nhận giá trị pháp lý chỉ vì thông tin đó được thể hiện dưới dạng thông điệp dữ liệu. \n\nĐiều này đồng nghĩa với việc, theo quy định của Luật Giao dịch điện tử 2023, thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thông báo bằng văn bản giấy.\n\nTuy nhiên, cần lưu ý rằng để đảm bảo tính pháp lý của thông điệp dữ liệu, chúng phải đáp ứng các yêu cầu về hình thức theo quy định tại Điều 7, Khoản 1 của Luật Giao dịch điện tử 2023.",
+    "regenerated": false
+  },
+  "usage": {
+    "total": {
+      "prompt_tokens": 879,
+      "completion_tokens": 169,
+      "total_tokens": 1048,
+      "call_count": 1
+    },
+    "final_answer": {
+      "prompt_tokens": 879,
+      "completion_tokens": 169,
+      "total_tokens": 1048,
+      "call_count": 1
+    },
+    "by_tag": {
+      "draft": {
+        "prompt_tokens": 879,
+        "completion_tokens": 169,
+        "total_tokens": 1048,
+        "call_count": 1
+      }
+    }
+  },
+  "warnings": [
+    {
+      "level": "WARNING",
+      "logger": "huggingface_hub.utils._http",
+      "message": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads."
+    },
+    {
+      "level": "WARNING",
+      "logger": "neo4j.notifications",
+      "message": "Received notification from DBMS server: <GqlStatusObject gql_status='01N52', status_description='warn: property key does not exist. The property `ghi_chu` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=5, column=18, offset=284>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 284, 'line': 5, 'column': 18}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '\\n        MATCH (a)-[r:THAM_CHIEU]->(b)\\n        RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,\\n               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,\\n               r.ghi_chu AS note\\n        '"
+    }
+  ],
+  "errors": [],
+  "not_logged_fields": [
+    "per-step wall-clock latency",
+    "candidate article ID inside each individual gate call",
+    "explicit required-fact coverage judgment"
+  ],
+  "evidence_summary": {
+    "testset_id": "cat4_02",
+    "category": "control_no_gap",
+    "question": "Theo Luật Giao dịch điện tử 2023, thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thế nào?",
+    "required_facts": [
+      "Thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thông báo bằng văn bản giấy"
+    ],
+    "gold_dieu_ids": [
+      "lu_t_giao_d_ch_i_n_t_2023_D38"
+    ],
+    "mode": "critic",
+    "top_k": 5,
+    "retrieved_child_ids": [
+      "Lu_t_Giao_d_ch_i_n_t_2023_D38_preamble",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D8_preamble",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D7_K1",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D3_K16",
+      "Lu_t_Giao_d_ch_i_n_t_2023_D10_preamble"
+    ],
+    "retrieved_dieu_ids": [
+      "lu_t_giao_d_ch_i_n_t_2023_D38",
+      "lu_t_giao_d_ch_i_n_t_2023_D8",
+      "lu_t_giao_d_ch_i_n_t_2023_D7",
+      "lu_t_giao_d_ch_i_n_t_2023_D3",
+      "lu_t_giao_d_ch_i_n_t_2023_D10"
+    ],
+    "draft_answer": "Theo Điều 8 của Luật Giao dịch điện tử 2023, thông tin trong thông điệp dữ liệu không bị phủ nhận giá trị pháp lý chỉ vì thông tin đó được thể hiện dưới dạng thông điệp dữ liệu. \n\nĐiều này đồng nghĩa với việc, theo quy định của Luật Giao dịch điện tử 2023, thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thông báo bằng văn bản giấy.\n\nTuy nhiên, cần lưu ý rằng để đảm bảo tính pháp lý của thông điệp dữ liệu, chúng phải đáp ứng các yêu cầu về hình thức theo quy định tại Điều 7, Khoản 1 của Luật Giao dịch điện tử 2023.",
+    "detected_gap_types": [],
+    "candidate_dieu_ids": [],
+    "graph_fetched_dieu_ids": [],
+    "gate_decisions": [],
+    "accepted_dieu_ids": [],
+    "rejected_dieu_ids": [],
+    "final_context_dieu_ids": [
+      "lu_t_giao_d_ch_i_n_t_2023_D10",
+      "lu_t_giao_d_ch_i_n_t_2023_D3",
+      "lu_t_giao_d_ch_i_n_t_2023_D38",
+      "lu_t_giao_d_ch_i_n_t_2023_D7",
+      "lu_t_giao_d_ch_i_n_t_2023_D8"
+    ],
+    "final_answer": "Theo Điều 8 của Luật Giao dịch điện tử 2023, thông tin trong thông điệp dữ liệu không bị phủ nhận giá trị pháp lý chỉ vì thông tin đó được thể hiện dưới dạng thông điệp dữ liệu. \n\nĐiều này đồng nghĩa với việc, theo quy định của Luật Giao dịch điện tử 2023, thông báo dưới dạng thông điệp dữ liệu trong giao kết và thực hiện hợp đồng điện tử có giá trị pháp lý như thông báo bằng văn bản giấy.\n\nTuy nhiên, cần lưu ý rằng để đảm bảo tính pháp lý của thông điệp dữ liệu, chúng phải đáp ứng các yêu cầu về hình thức theo quy định tại Điều 7, Khoản 1 của Luật Giao dịch điện tử 2023.",
+    "required_facts_coverage": "not_logged_by_pipeline",
+    "token_usage": {
+      "prompt_tokens": 879,
+      "completion_tokens": 169,
+      "total_tokens": 1048,
+      "call_count": 1
+    },
+    "llm_call_count": 1,
+    "errors": [],
+    "warnings": [
+      {
+        "level": "WARNING",
+        "logger": "huggingface_hub.utils._http",
+        "message": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads."
+      },
+      {
+        "level": "WARNING",
+        "logger": "neo4j.notifications",
+        "message": "Received notification from DBMS server: <GqlStatusObject gql_status='01N52', status_description='warn: property key does not exist. The property `ghi_chu` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=5, column=18, offset=284>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 284, 'line': 5, 'column': 18}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '\\n        MATCH (a)-[r:THAM_CHIEU]->(b)\\n        RETURN a.id AS a_id, labels(a)[0] AS a_type, a.chunk_id AS a_chunk, a.van_ban_id AS a_vb, a.ten AS a_ten,\\n               b.id AS b_id, labels(b)[0] AS b_type, b.chunk_id AS b_chunk, b.van_ban_id AS b_vb, b.ten AS b_ten,\\n               r.ghi_chu AS note\\n        '"
+      }
+    ]
+  }
+}

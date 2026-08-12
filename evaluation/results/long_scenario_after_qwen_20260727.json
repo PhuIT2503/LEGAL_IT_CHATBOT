@@ -1,0 +1,578 @@
+{
+  "model": "qwen2.5:7b",
+  "normalized_question": "Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng. Kế toán đã chuyển đủ 300.000.000 đồng. Ngân hàng phong tỏa được 180.000.000 đồng. 120.000.000 đồng đã được chuyển tiếp sang tài khoản khác. A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền. Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý.",
+  "question_sections": [
+    "Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng.",
+    "Kế toán đã chuyển đủ 300.000.000 đồng.",
+    "Ngân hàng phong tỏa được 180.000.000 đồng.",
+    "120.000.000 đồng đã được chuyển tiếp sang tài khoản khác.",
+    "A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền.",
+    "Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý."
+  ],
+  "extracted_facts": {
+    "normalized_question": "Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng. Kế toán đã chuyển đủ 300.000.000 đồng. Ngân hàng phong tỏa được 180.000.000 đồng. 120.000.000 đồng đã được chuyển tiếp sang tài khoản khác. A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền. Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý.",
+    "question_sections": [
+      "Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng.",
+      "Kế toán đã chuyển đủ 300.000.000 đồng.",
+      "Ngân hàng phong tỏa được 180.000.000 đồng.",
+      "120.000.000 đồng đã được chuyển tiếp sang tài khoản khác.",
+      "A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền.",
+      "Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý."
+    ],
+    "stated_facts": {
+      "used_ai": true,
+      "voice_impersonation": true,
+      "impersonated_person_role": "giám đốc",
+      "called_accountant": true,
+      "requested_transfer": true,
+      "requested_amount_vnd": 300000000,
+      "transfer_executed": true,
+      "transferred_amount_vnd": 300000000,
+      "frozen_amount_vnd": 180000000,
+      "onward_transferred_amount_vnd": 120000000,
+      "act_was_executed": true,
+      "actor_claimed_experiment": true,
+      "actor_claimed_money_not_used": true
+    },
+    "supported_inferences": {
+      "possible_appropriation_intent": true,
+      "possible_financial_loss": true,
+      "impersonation_used_to_induce_transfer": true
+    },
+    "unknown_legal_elements": {
+      "final_unrecoverable_loss": "Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.",
+      "full_appropriation_intent_evidence": "Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.",
+      "liability_type": "Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.",
+      "complete_sanction_basis": "Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý."
+    }
+  },
+  "behavior_card": {
+    "actions": [
+      "create_ai_deepfake"
+    ],
+    "objects": [
+      "synthetic_media"
+    ],
+    "purposes": [],
+    "conditions": []
+  },
+  "selected_domains": [
+    "cybersecurity",
+    "personal_data",
+    "digital_technology",
+    "electronic_transactions",
+    "telecommunications"
+  ],
+  "retrieval_candidates": [
+    {
+      "chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K2_Pg",
+      "parent_id": "Lu_t_An_ninh_m_ng_2025_D7_PARENT",
+      "text": "[Điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025] g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này;",
+      "dieu_id_raw": "Lu_t_An_ninh_m_ng_2025_D7",
+      "van_ban_id_raw": "Lu_t_An_ninh_m_ng_2025",
+      "source": "Luật An ninh mạng 2025.docx",
+      "metadata": {
+        "doc_id": "Lu_t_An_ninh_m_ng_2025",
+        "dieu_title": "Điều 7. Các hành vi bị nghiêm cấm về an ninh mạng",
+        "source": "Luật An ninh mạng 2025.docx",
+        "legal_domains": [
+          "cybersecurity"
+        ]
+      },
+      "original_rank": 2,
+      "original_rrf_score": 0.5,
+      "reranker_available": true,
+      "cross_encoder_score": 0.18943182356079796,
+      "semantic_score": 0.3417597169212518,
+      "behavior_score": 0.87,
+      "behavior_action_score": 1.0,
+      "behavior_object_score": 1.0,
+      "behavior_purpose_score": 0.0,
+      "behavior_condition_score": 0.0,
+      "matched_behavior_actions": [
+        "create_ai_deepfake"
+      ],
+      "matched_behavior_objects": [
+        "synthetic_media"
+      ],
+      "matched_behavior_purposes": [],
+      "matched_behavior_conditions": [],
+      "score": 0.5323262188296012
+    }
+  ],
+  "recursive_candidate_pool": [
+    {
+      "chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K2_Pg",
+      "parent_id": "Lu_t_An_ninh_m_ng_2025_D7_PARENT",
+      "text": "[Điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025] g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này;",
+      "dieu_id_raw": "Lu_t_An_ninh_m_ng_2025_D7",
+      "van_ban_id_raw": "Lu_t_An_ninh_m_ng_2025",
+      "source": "Luật An ninh mạng 2025.docx",
+      "metadata": {
+        "doc_id": "Lu_t_An_ninh_m_ng_2025",
+        "dieu_title": "Điều 7. Các hành vi bị nghiêm cấm về an ninh mạng",
+        "source": "Luật An ninh mạng 2025.docx",
+        "legal_domains": [
+          "cybersecurity"
+        ]
+      },
+      "original_rank": 2,
+      "original_rrf_score": 0.5,
+      "reranker_available": true,
+      "cross_encoder_score": 0.18943182356079796,
+      "semantic_score": 0.3417597169212518,
+      "behavior_score": 0.87,
+      "behavior_action_score": 1.0,
+      "behavior_object_score": 1.0,
+      "behavior_purpose_score": 0.0,
+      "behavior_condition_score": 0.0,
+      "matched_behavior_actions": [
+        "create_ai_deepfake"
+      ],
+      "matched_behavior_objects": [
+        "synthetic_media"
+      ],
+      "matched_behavior_purposes": [],
+      "matched_behavior_conditions": [],
+      "score": 0.5323262188296012,
+      "document": "Luật An ninh mạng 2025",
+      "article": "7",
+      "clause": "2",
+      "point": "g",
+      "retrieval_score": 0.5323262188296012,
+      "recursive_depth": 0,
+      "is_seed": true,
+      "expansion_reason": "phase2_final_candidate",
+      "provenance_chain": [
+        "Lu_t_An_ninh_m_ng_2025_D7_K2_Pg"
+      ]
+    }
+  ],
+  "applicability_results": [
+    {
+      "latency_ms": 19717.83541700279,
+      "decisions": [
+        {
+          "candidate_id": "A1",
+          "document": "Luật An ninh mạng 2025",
+          "article": "7",
+          "scope": "Sử dụng AI để giả giọng giám đốc, gọi kế toán yêu cầu chuyển tiền.",
+          "situation_behavior": "create_ai_deepfake:MATCH; synthetic_media:NOT_MATCH",
+          "level": "HIGH",
+          "explanation": "Hành vi sử dụng AI để giả giọng giám đốc (create_ai_deepfake) phù hợp với quy định của Điều 7, Khoản 2, Luật An ninh mạng 2025.",
+          "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+          "behavior_matches": [
+            [
+              "create_ai_deepfake",
+              "MATCH"
+            ],
+            [
+              "synthetic_media",
+              "NOT_MATCH"
+            ]
+          ],
+          "behavior_score": 0.87,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability",
+          "required_elements": [
+            "ai_or_new_technology",
+            "impersonated_video_image_or_voice",
+            "falsified_information_or_image"
+          ],
+          "matched_elements": [
+            "ai_or_new_technology",
+            "impersonated_video_image_or_voice",
+            "falsified_information_or_image"
+          ],
+          "missing_required_elements": [],
+          "element_applicability": "MATCH",
+          "element_reason": "Các yếu tố fact có thể kiểm tra của provision đều được tình huống đáp ứng."
+        }
+      ],
+      "retrieval_gap": false,
+      "gap_reason": ""
+    }
+  ],
+  "final_context": [
+    {
+      "chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K2_Pg",
+      "parent_id": "Lu_t_An_ninh_m_ng_2025_D7_PARENT",
+      "text": "[Điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025] g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này;",
+      "dieu_id_raw": "Lu_t_An_ninh_m_ng_2025_D7",
+      "van_ban_id_raw": "Lu_t_An_ninh_m_ng_2025",
+      "source": "Luật An ninh mạng 2025.docx",
+      "metadata": {
+        "doc_id": "Lu_t_An_ninh_m_ng_2025",
+        "dieu_title": "Điều 7. Các hành vi bị nghiêm cấm về an ninh mạng",
+        "source": "Luật An ninh mạng 2025.docx",
+        "legal_domains": [
+          "cybersecurity"
+        ]
+      },
+      "original_rank": 2,
+      "original_rrf_score": 0.5,
+      "reranker_available": true,
+      "cross_encoder_score": 0.18943182356079796,
+      "semantic_score": 0.3417597169212518,
+      "behavior_score": 0.87,
+      "behavior_action_score": 1.0,
+      "behavior_object_score": 1.0,
+      "behavior_purpose_score": 0.0,
+      "behavior_condition_score": 0.0,
+      "matched_behavior_actions": [
+        "create_ai_deepfake"
+      ],
+      "matched_behavior_objects": [
+        "synthetic_media"
+      ],
+      "matched_behavior_purposes": [],
+      "matched_behavior_conditions": [],
+      "score": 0.5323262188296012,
+      "document": "Luật An ninh mạng 2025",
+      "article": "7",
+      "clause": "2",
+      "point": "g",
+      "retrieval_score": 0.5323262188296012,
+      "recursive_depth": 0,
+      "is_seed": true,
+      "expansion_reason": "phase2_final_candidate",
+      "provenance_chain": [
+        "Lu_t_An_ninh_m_ng_2025_D7_K2_Pg"
+      ],
+      "seed_preserved": false,
+      "behavior_preserved": false,
+      "relevance_removed": false,
+      "applicability_removed": false,
+      "reason_removed": "",
+      "decision_stage": "applicability",
+      "relevance_decision": "KEEP",
+      "seed_survived": true,
+      "seed_removed": false,
+      "applicability_decision": "KEEP"
+    }
+  ],
+  "generation_payload": {
+    "normalized_question": "Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng. Kế toán đã chuyển đủ 300.000.000 đồng. Ngân hàng phong tỏa được 180.000.000 đồng. 120.000.000 đồng đã được chuyển tiếp sang tài khoản khác. A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền. Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý.",
+    "question_sections": [
+      "Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng.",
+      "Kế toán đã chuyển đủ 300.000.000 đồng.",
+      "Ngân hàng phong tỏa được 180.000.000 đồng.",
+      "120.000.000 đồng đã được chuyển tiếp sang tài khoản khác.",
+      "A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền.",
+      "Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý."
+    ],
+    "stated_facts": {
+      "used_ai": true,
+      "voice_impersonation": true,
+      "impersonated_person_role": "giám đốc",
+      "called_accountant": true,
+      "requested_transfer": true,
+      "requested_amount_vnd": 300000000,
+      "transfer_executed": true,
+      "transferred_amount_vnd": 300000000,
+      "frozen_amount_vnd": 180000000,
+      "onward_transferred_amount_vnd": 120000000,
+      "act_was_executed": true,
+      "actor_claimed_experiment": true,
+      "actor_claimed_money_not_used": true
+    },
+    "supported_inferences": {
+      "possible_appropriation_intent": true,
+      "possible_financial_loss": true,
+      "impersonation_used_to_induce_transfer": true
+    },
+    "unknown_legal_elements": {
+      "final_unrecoverable_loss": "Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.",
+      "full_appropriation_intent_evidence": "Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.",
+      "liability_type": "Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.",
+      "complete_sanction_basis": "Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý."
+    },
+    "behavior_card": {
+      "actions": [
+        "create_ai_deepfake"
+      ],
+      "objects": [
+        "synthetic_media"
+      ],
+      "purposes": [],
+      "conditions": []
+    },
+    "applicability_results": [
+      {
+        "candidate_id": "A1",
+        "document": "Luật An ninh mạng 2025",
+        "article": "7",
+        "level": "HIGH",
+        "decision": "KEEP",
+        "behavior_matches": [
+          [
+            "create_ai_deepfake",
+            "MATCH"
+          ],
+          [
+            "synthetic_media",
+            "NOT_MATCH"
+          ]
+        ],
+        "behavior_score": 0.87,
+        "validation_status": "VALID",
+        "required_elements": [
+          "ai_or_new_technology",
+          "impersonated_video_image_or_voice",
+          "falsified_information_or_image"
+        ],
+        "matched_elements": [
+          "ai_or_new_technology",
+          "impersonated_video_image_or_voice",
+          "falsified_information_or_image"
+        ],
+        "missing_required_elements": [],
+        "element_applicability": "MATCH",
+        "element_reason": "Các yếu tố fact có thể kiểm tra của provision đều được tình huống đáp ứng."
+      }
+    ],
+    "final_context": "<SOURCE id=\"S1\" citation=\"Luật An ninh mạng 2025, Điều 7, Khoản 2, Điểm g\">\n[Điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025] g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này\n</SOURCE>",
+    "answer_assessment": {
+      "status": "LIKELY_VIOLATION",
+      "matched_facts": [
+        "Có sử dụng trí tuệ nhân tạo.",
+        "Có giả mạo giọng nói của người khác.",
+        "Việc giả mạo được dùng để mạo danh người có thẩm quyền và yêu cầu chuyển tiền.",
+        "A đã gọi kế toán và yêu cầu chuyển 300.000.000 đồng.",
+        "Theo tình huống, kế toán đã thực hiện chuyển 300.000.000 đồng.",
+        "Ngân hàng đã phong tỏa 180.000.000 đồng.",
+        "120.000.000 đồng đã được chuyển tiếp sang tài khoản khác.",
+        "A khai rằng hành vi chỉ nhằm thử nghiệm công nghệ.",
+        "A khai rằng chưa sử dụng số tiền."
+      ],
+      "missing_facts": [
+        "Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.",
+        "Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.",
+        "Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.",
+        "Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý.",
+        "Việc truy xuất căn cứ hiện chưa đầy đủ; có thể còn quy định liên quan chưa được đưa vào ngữ cảnh.",
+        "Loại trách nhiệm cụ thể và mức xử lý chưa có căn cứ trực tiếp trong các nguồn hiện tại."
+      ],
+      "applicable_sources": [
+        {
+          "source_id": "S1",
+          "document": "Luật An ninh mạng 2025",
+          "article": "7",
+          "clause": "2",
+          "point": "g",
+          "body": "g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này",
+          "applicability_decision": "KEEP",
+          "applicability_level": "HIGH",
+          "cross_encoder_score": 0.18943182356079796,
+          "retrieval_score": 0.5323262188296012,
+          "behavior_score": 0.87
+        }
+      ],
+      "sanction_available": false,
+      "next_steps": [
+        "Dừng ngay việc tạo hoặc sử dụng nội dung giả mạo.",
+        "Không chuyển tiền trước khi xác minh yêu cầu qua kênh liên lạc chính thức.",
+        "Lưu giữ bản ghi cuộc gọi, số điện thoại, tin nhắn và chứng từ giao dịch.",
+        "Nếu đã phát sinh giao dịch, thông báo ngay cho doanh nghiệp và ngân hàng.",
+        "Nếu có dấu hiệu chiếm đoạt, thiệt hại hoặc hành vi tiếp diễn, liên hệ cơ quan có thẩm quyền."
+      ],
+      "retrieval_is_complete": false,
+      "context_record_count": 1,
+      "has_partial_match": false,
+      "stated_facts": {
+        "used_ai": true,
+        "voice_impersonation": true,
+        "impersonated_person_role": "giám đốc",
+        "called_accountant": true,
+        "requested_transfer": true,
+        "requested_amount_vnd": 300000000,
+        "transfer_executed": true,
+        "transferred_amount_vnd": 300000000,
+        "frozen_amount_vnd": 180000000,
+        "onward_transferred_amount_vnd": 120000000,
+        "act_was_executed": true,
+        "actor_claimed_experiment": true,
+        "actor_claimed_money_not_used": true
+      },
+      "supported_inferences": {
+        "possible_appropriation_intent": true,
+        "possible_financial_loss": true,
+        "impersonation_used_to_induce_transfer": true
+      },
+      "unknown_legal_elements": {
+        "final_unrecoverable_loss": "Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.",
+        "full_appropriation_intent_evidence": "Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.",
+        "liability_type": "Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.",
+        "complete_sanction_basis": "Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý."
+      },
+      "missing_fact_keys": [
+        "final_unrecoverable_loss",
+        "full_appropriation_intent_evidence",
+        "liability_type",
+        "complete_sanction_basis"
+      ]
+    },
+    "retrieval_is_complete": false
+  },
+  "generation_payload_hash": "298cfe0571a2500a6860e1db772d6bb0aa3c6bb3f75a08a12b42d06ea4935758",
+  "answer_assessment": {
+    "status": "LIKELY_VIOLATION",
+    "matched_facts": [
+      "Có sử dụng trí tuệ nhân tạo.",
+      "Có giả mạo giọng nói của người khác.",
+      "Việc giả mạo được dùng để mạo danh người có thẩm quyền và yêu cầu chuyển tiền.",
+      "A đã gọi kế toán và yêu cầu chuyển 300.000.000 đồng.",
+      "Theo tình huống, kế toán đã thực hiện chuyển 300.000.000 đồng.",
+      "Ngân hàng đã phong tỏa 180.000.000 đồng.",
+      "120.000.000 đồng đã được chuyển tiếp sang tài khoản khác.",
+      "A khai rằng hành vi chỉ nhằm thử nghiệm công nghệ.",
+      "A khai rằng chưa sử dụng số tiền."
+    ],
+    "missing_facts": [
+      "Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.",
+      "Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.",
+      "Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.",
+      "Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý.",
+      "Việc truy xuất căn cứ hiện chưa đầy đủ; có thể còn quy định liên quan chưa được đưa vào ngữ cảnh.",
+      "Loại trách nhiệm cụ thể và mức xử lý chưa có căn cứ trực tiếp trong các nguồn hiện tại."
+    ],
+    "applicable_sources": [
+      {
+        "source_id": "S1",
+        "document": "Luật An ninh mạng 2025",
+        "article": "7",
+        "clause": "2",
+        "point": "g",
+        "body": "g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này",
+        "applicability_decision": "KEEP",
+        "applicability_level": "HIGH",
+        "cross_encoder_score": 0.18943182356079796,
+        "retrieval_score": 0.5323262188296012,
+        "behavior_score": 0.87
+      }
+    ],
+    "sanction_available": false,
+    "next_steps": [
+      "Dừng ngay việc tạo hoặc sử dụng nội dung giả mạo.",
+      "Không chuyển tiền trước khi xác minh yêu cầu qua kênh liên lạc chính thức.",
+      "Lưu giữ bản ghi cuộc gọi, số điện thoại, tin nhắn và chứng từ giao dịch.",
+      "Nếu đã phát sinh giao dịch, thông báo ngay cho doanh nghiệp và ngân hàng.",
+      "Nếu có dấu hiệu chiếm đoạt, thiệt hại hoặc hành vi tiếp diễn, liên hệ cơ quan có thẩm quyền."
+    ],
+    "retrieval_is_complete": false,
+    "context_record_count": 1,
+    "has_partial_match": false,
+    "stated_facts": {
+      "used_ai": true,
+      "voice_impersonation": true,
+      "impersonated_person_role": "giám đốc",
+      "called_accountant": true,
+      "requested_transfer": true,
+      "requested_amount_vnd": 300000000,
+      "transfer_executed": true,
+      "transferred_amount_vnd": 300000000,
+      "frozen_amount_vnd": 180000000,
+      "onward_transferred_amount_vnd": 120000000,
+      "act_was_executed": true,
+      "actor_claimed_experiment": true,
+      "actor_claimed_money_not_used": true
+    },
+    "supported_inferences": {
+      "possible_appropriation_intent": true,
+      "possible_financial_loss": true,
+      "impersonation_used_to_induce_transfer": true
+    },
+    "unknown_legal_elements": {
+      "final_unrecoverable_loss": "Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.",
+      "full_appropriation_intent_evidence": "Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.",
+      "liability_type": "Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.",
+      "complete_sanction_basis": "Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý."
+    },
+    "missing_fact_keys": [
+      "final_unrecoverable_loss",
+      "full_appropriation_intent_evidence",
+      "liability_type",
+      "complete_sanction_basis"
+    ]
+  },
+  "raw_generation": "## Tóm tắt tình huống\nNhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng. Kế toán đã chuyển đủ số tiền. Ngân hàng phong tỏa được 180.000.000 đồng và 120.000.000 đồng đã được chuyển tiếp sang tài khoản khác. A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền.\n\n## Các vấn đề pháp lý\n- Phân tích hành vi, mục đích, hậu quả.\n- Trách nhiệm pháp lý của nhân viên A.\n- Biện pháp xử lý.\n\n## Phân tích\n### Vấn đề 1: Hành vi, mục đích, hậu quả\n\n[[QUOTE:S1]]\n- **Nội dung điều luật:** Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo giọng nói của người khác trái quy định của pháp luật.\n- **Hành vi phù hợp:** Nhân viên A đã sử dụng AI để giả giọng giám đốc và gọi kế toán yêu cầu chuyển tiền, đây là hành vi vi phạm điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025.\n- **Phân tích:** Hành vi của nhân viên A nhằm mục đích lừa đảo kế toán để chiếm đoạt số tiền. Mục đích này được thể hiện qua việc yêu cầu chuyển khoản và sau đó sử dụng số tiền đã chuyển.\n- **Điều kiện còn thiếu:** Cần xác định rõ liệu A có ý định chiếm đoạt tiền hay không, cũng như tình trạng của ngân hàng trong việc phong tỏa số tiền.\n- **Căn cứ pháp lý:** [[CITE:S1]]\n- **Đánh giá:** 🟢 Đủ căn cứ [[CITE:S1]]\n\n### Vấn đề 2: Trách nhiệm pháp lý\n\n- **Trả lời trực tiếp:** Có vi phạm hành vi quy định tại điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025.\n- **Vì sao:** Hành vi của nhân viên A đã sử dụng AI để giả giọng giám đốc nhằm mục đích lừa đảo kế toán chuyển tiền, đây là hành vi trái quy định của pháp luật về an ninh mạng.\n- **Căn cứ:** [[CITE:S1]]\n- **Còn thiếu:** Cần xác định rõ tình trạng ngân hàng trong việc phong tỏa số tiền và xác định liệu A có ý định chiếm đoạt số tiền hay không.\n\n## Chế tài\n\n- **Trả lời trực tiếp:** Có vi phạm hành vi quy định tại điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025.\n- **Vì sao:** Hành vi của nhân viên A đã sử dụng AI để giả giọng giám đốc nhằm mục đích lừa đảo kế toán chuyển tiền, đây là hành vi trái quy định của pháp luật về an ninh mạng.\n- **Căn cứ:** [[CITE:S1]]\n- **Còn thiếu:** Cần xác định rõ tình trạng ngân hàng trong việc phong tỏa số tiền và xác định liệu A có ý định chiếm đoạt số tiền hay không.\n\n## Trả lời câu hỏi của người dùng\n### 1. Nhân viên A dùng AI giả giọng giám đốc, gọi kế toán yêu cầu chuyển 300.000.000 đồng. Kế toán đã chuyển đủ số tiền. Ngân hàng phong tỏa được 180.000.000 đồng và 120.000.000 đồng đã được chuyển tiếp sang tài khoản khác. A khai rằng chỉ thử nghiệm công nghệ và chưa sử dụng số tiền. Hãy phân tích hành vi, mục đích, hậu quả, trách nhiệm pháp lý và biện pháp xử lý.\n- **Trả lời trực tiếp:** Có vi phạm hành vi quy định tại điểm g, Khoản 2, Điều 7, Luật An ninh mạng 2025.\n- **Vì sao:** Hành vi của nhân viên A đã sử dụng AI để giả giọng giám đốc nhằm mục đích lừa đảo kế toán chuyển tiền, đây là hành vi trái quy định của pháp luật về an ninh mạng. Mục đích này được thể hiện qua việc yêu cầu chuyển khoản và sau đó sử dụng số tiền đã chuyển.\n- **Căn cứ:** [[CITE:S1]]\n- **Còn thiếu:** Cần xác định rõ tình trạng ngân hàng trong việc phong tỏa số tiền và xác định liệu A có ý định chiếm đoạt số tiền hay không.",
+  "final_answer": "## Kết luận sơ bộ\n\nTheo thông tin được cung cấp, hành vi này có dấu hiệu thuộc phạm vi điều chỉnh của Luật An ninh mạng 2025. Các nguồn hiện được truy xuất đủ để nhận diện dấu hiệu hành vi, nhưng chưa đủ để xác định chính xác trách nhiệm dân sự, hành chính, hình sự hoặc mức xử lý.\n\n## Vì sao\n\n- Có sử dụng trí tuệ nhân tạo.\n- Có giả mạo giọng nói của người khác.\n- Việc giả mạo được dùng để mạo danh người có thẩm quyền và yêu cầu chuyển tiền.\n- A đã gọi kế toán và yêu cầu chuyển 300.000.000 đồng.\n- Theo tình huống, kế toán đã thực hiện chuyển 300.000.000 đồng.\n- Ngân hàng đã phong tỏa 180.000.000 đồng.\n- 120.000.000 đồng đã được chuyển tiếp sang tài khoản khác.\n- A khai rằng hành vi chỉ nhằm thử nghiệm công nghệ.\n- A khai rằng chưa sử dụng số tiền.\n\n## Quy định pháp luật liên quan\n\n### Luật An ninh mạng 2025 — Điều 7, Khoản 2, Điểm g\n\n> “g) Sử dụng trí tuệ nhân tạo hoặc công nghệ mới để giả mạo video, hình ảnh, giọng nói của người khác trái quy định của pháp luật; tạo lập, đăng tải, phát tán thông tin quy định tại khoản 1 Điều này”\n\nCác tình tiết đã xác định gồm: Có sử dụng trí tuệ nhân tạo; Có giả mạo giọng nói của người khác; Việc giả mạo được dùng để mạo danh người có thẩm quyền và yêu cầu chuyển tiền; A đã gọi kế toán và yêu cầu chuyển 300.000.000 đồng. Những tình tiết này tương ứng trực tiếp với nội dung được trích dẫn, nên hành vi có dấu hiệu thuộc phạm vi điều chỉnh của quy định này.\n\n## Còn cần làm rõ\n\n- Chưa xác định số tiền hoặc tổn thất cuối cùng không thể thu hồi.\n- Chưa có đầy đủ chứng cứ để kết luận chắc chắn ý định chiếm đoạt.\n- Chưa đủ căn cứ xác định đầy đủ loại trách nhiệm pháp lý.\n- Chưa có đầy đủ căn cứ trực tiếp về chế tài và biện pháp xử lý.\n- Việc truy xuất căn cứ hiện chưa đầy đủ; có thể còn quy định liên quan chưa được đưa vào ngữ cảnh.\n- Loại trách nhiệm cụ thể và mức xử lý chưa có căn cứ trực tiếp trong các nguồn hiện tại.\n\n## Nên làm gì tiếp theo\n\n- Dừng ngay việc tạo hoặc sử dụng nội dung giả mạo.\n- Không chuyển tiền trước khi xác minh yêu cầu qua kênh liên lạc chính thức.\n- Lưu giữ bản ghi cuộc gọi, số điện thoại, tin nhắn và chứng từ giao dịch.\n- Nếu đã phát sinh giao dịch, thông báo ngay cho doanh nghiệp và ngân hàng.\n- Nếu có dấu hiệu chiếm đoạt, thiệt hại hoặc hành vi tiếp diễn, liên hệ cơ quan có thẩm quyền.\n\n## Căn cứ pháp lý\n\n- Luật An ninh mạng 2025, Điều 7, Khoản 2, Điểm g.",
+  "token_usage": {
+    "prompt_tokens": 5076,
+    "completion_tokens": 1183,
+    "total_tokens": 6259,
+    "call_count": 2
+  },
+  "latency_ms": {
+    "total": 82695.3111660041,
+    "generation_stage_including_applicability": 72984.16558399913,
+    "applicability": 19717.83541700279
+  },
+  "tracked_provision": {
+    "provision": "Luật An ninh mạng 2025 Điều 7 Khoản 2 Điểm g",
+    "target_chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K2_Pg",
+    "domain_opened": true,
+    "dense_rank": 1,
+    "bm25_rank": null,
+    "hybrid_rank": 2,
+    "hybrid_rrf_score": 0.5,
+    "cross_encoder_score": 0.18943182356079796,
+    "cross_encoder_rank": 9,
+    "post_behavior_rank": 3,
+    "behavior_score": 0.87,
+    "behavior_gate_status": "PASS",
+    "applicability": {
+      "candidate_id": "A1",
+      "document": "Luật An ninh mạng 2025",
+      "article": "7",
+      "scope": "Sử dụng AI để giả giọng giám đốc, gọi kế toán yêu cầu chuyển tiền.",
+      "situation_behavior": "create_ai_deepfake:MATCH; synthetic_media:NOT_MATCH",
+      "level": "HIGH",
+      "explanation": "Hành vi sử dụng AI để giả giọng giám đốc (create_ai_deepfake) phù hợp với quy định của Điều 7, Khoản 2, Luật An ninh mạng 2025.",
+      "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+      "behavior_matches": [
+        [
+          "create_ai_deepfake",
+          "MATCH"
+        ],
+        [
+          "synthetic_media",
+          "NOT_MATCH"
+        ]
+      ],
+      "behavior_score": 0.87,
+      "validation_status": "VALID",
+      "reason_rejected": "",
+      "decision": "KEEP",
+      "is_seed": true,
+      "seed_survived": true,
+      "seed_removed": false,
+      "behavior_preserved": false,
+      "applicability_removed": false,
+      "reason_removed": "",
+      "decision_stage": "applicability",
+      "required_elements": [
+        "ai_or_new_technology",
+        "impersonated_video_image_or_voice",
+        "falsified_information_or_image"
+      ],
+      "matched_elements": [
+        "ai_or_new_technology",
+        "impersonated_video_image_or_voice",
+        "falsified_information_or_image"
+      ],
+      "missing_required_elements": [],
+      "element_applicability": "MATCH",
+      "element_reason": "Các yếu tố fact có thể kiểm tra của provision đều được tình huống đáp ứng."
+    },
+    "in_final_context": true
+  }
+}

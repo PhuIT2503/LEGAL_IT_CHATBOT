@@ -1,0 +1,1070 @@
+[
+  {
+    "id": "sql_injection_easy_001",
+    "category": "SQL Injection",
+    "difficulty": "Easy",
+    "question": "Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?",
+    "status": "completed",
+    "expected": {
+      "domains": [
+        "cybersecurity",
+        "criminal",
+        "administrative_penalty",
+        "data_governance"
+      ],
+      "behaviors": [
+        "unauthorized_access",
+        "exploit_vulnerability",
+        "extract_or_download_data",
+        "website_or_information_system",
+        "database",
+        "data_exfiltration",
+        "without_authorization"
+      ],
+      "legal_units": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "13",
+          "clause": "3",
+          "point": "h"
+        }
+      ]
+    },
+    "actual": {
+      "selected_domains": [
+        "cybersecurity",
+        "data_governance"
+      ],
+      "filtered_domains": [
+        "personal_data",
+        "civil_personality",
+        "advertising",
+        "intellectual_property",
+        "criminal",
+        "administrative_penalty",
+        "consumer_protection",
+        "digital_technology",
+        "artificial_intelligence",
+        "electronic_transactions",
+        "e_commerce",
+        "telecommunications",
+        "digital_content",
+        "finance_payment",
+        "general_legal"
+      ],
+      "domain_scores": {
+        "cybersecurity": 16.0,
+        "data_governance": 2.0
+      },
+      "domain_fallback": false,
+      "behavior_card": {
+        "actions": [
+          "unauthorized_access",
+          "exploit_vulnerability",
+          "extract_or_download_data"
+        ],
+        "objects": [
+          "website_or_information_system",
+          "database"
+        ],
+        "purposes": [
+          "data_exfiltration"
+        ],
+        "conditions": [
+          "without_authorization"
+        ]
+      },
+      "behaviors": [
+        "unauthorized_access",
+        "exploit_vulnerability",
+        "extract_or_download_data",
+        "website_or_information_system",
+        "database",
+        "data_exfiltration",
+        "without_authorization"
+      ],
+      "candidate_count_by_domain": {
+        "cybersecurity": 9,
+        "data_governance": 0
+      },
+      "retrieval_candidates": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "13",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D2_K13",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D2_PARENT",
+          "score": 0.7569234647243517,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.10524688074483936,
+          "behavior_score": 0.6825714285714286,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "text": "[Khoản 13, Điều 2, Luật An ninh mạng 2025] 13. Tấn công mạng là hành vi thực hiện trên không gian mạng bằng việc sử dụng công nghệ thông tin hoặc phương tiện điện tử để chiếm đoạt thông tin, gây rối loạn, gián đoạn, tê liệt hoạt động, phá hoại hoặc kiểm soát hệ thống mạng viễn thông, mạng Internet, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D10_K1",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D10_PARENT",
+          "score": 0.73588,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.1268987436191405,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống\n1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "18",
+          "clause": "1",
+          "point": "d",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D18_K1_Pd",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D18_PARENT",
+          "score": 0.557931052922,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.07662966596223542,
+          "behavior_score": 0.5942857142857142,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "text": "[Điểm d, Khoản 1, Điều 18, Luật An ninh mạng 2025] d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính;"
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "42",
+          "clause": "3",
+          "point": "b",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_K3_Pb",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_PARENT",
+          "score": 0.5312791093846526,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.08824475740829303,
+          "behavior_score": 0.25571428571428567,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [],
+          "text": "[Điểm b, Khoản 3, Điều 42, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự;"
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "80",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_K2_Pa",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_PARENT",
+          "score": 0.47567040608460615,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.07940329909394937,
+          "behavior_score": 0.25571428571428567,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [],
+          "text": "[Điểm a, Khoản 2, Điều 80, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "7",
+          "clause": "5",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K5",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D7_PARENT",
+          "score": 0.4684310444822012,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.07167096519875303,
+          "behavior_score": 0.40571428571428564,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "text": "[Khoản 5, Điều 7, Luật An ninh mạng 2025] 5. Xâm nhập trái phép vào mạng viễn thông, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử của người khác."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "16",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D16_K3",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D16_PARENT",
+          "score": 0.30771221184948244,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.05859925967010392,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "text": "[Khoản 3, Điều 16, Nghị Định 53 2022 NĐ-CP] 3. Trường hợp cần giữ nguyên hiện trạng hệ thống thông tin, phục vụ điều tra, xử lý hành vi vi phạm pháp luật, phát hiện điểm yếu, lỗ hổng bảo mật; hướng dẫn hoặc tham gia khắc phục khi có đề nghị của chủ quản hệ thống thông tin, lực lượng chuyên trách bảo vệ an ninh mạng gửi văn bản đề nghị chủ quản hệ thống thông tin tạm ngừng tiến hành kiểm tra an ninh mạng. Nội dung văn bản phải ghi rõ lý do, mục đích, thời gian tạm ngừng hoạt động kiểm tra an ninh mạng."
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "81",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_K2_Pa",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_PARENT",
+          "score": 0.30618842400857754,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.054359791612751195,
+          "behavior_score": 0.20571428571428568,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [],
+          "text": "[Điểm a, Khoản 2, Điều 81, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập bất hợp pháp vào tài khoản của tổ chức, cá nhân nhằm chiếm đoạt tài sản có trị giá dưới 2.000.000 đồng;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.15359037675001172,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.03401440743719397,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [],
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp;"
+        }
+      ],
+      "recursive_candidates": [],
+      "final_candidate_pool": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "13",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D2_K13",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D2_PARENT",
+          "score": 0.7569234647243517,
+          "retrieval_score": 0.7569234647243517,
+          "cross_encoder_score": 0.10524688074483936,
+          "behavior_score": 0.6825714285714286,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D2_K13"
+          ],
+          "text": "[Khoản 13, Điều 2, Luật An ninh mạng 2025] 13. Tấn công mạng là hành vi thực hiện trên không gian mạng bằng việc sử dụng công nghệ thông tin hoặc phương tiện điện tử để chiếm đoạt thông tin, gây rối loạn, gián đoạn, tê liệt hoạt động, phá hoại hoặc kiểm soát hệ thống mạng viễn thông, mạng Internet, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "18",
+          "clause": "1",
+          "point": "d",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D18_K1_Pd",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D18_PARENT",
+          "score": 0.557931052922,
+          "retrieval_score": 0.557931052922,
+          "cross_encoder_score": 0.07662966596223542,
+          "behavior_score": 0.5942857142857142,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D18_K1_Pd"
+          ],
+          "text": "[Điểm d, Khoản 1, Điều 18, Luật An ninh mạng 2025] d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "7",
+          "clause": "5",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K5",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D7_PARENT",
+          "score": 0.4684310444822012,
+          "retrieval_score": 0.4684310444822012,
+          "cross_encoder_score": 0.07167096519875303,
+          "behavior_score": 0.40571428571428564,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D7_K5"
+          ],
+          "text": "[Khoản 5, Điều 7, Luật An ninh mạng 2025] 5. Xâm nhập trái phép vào mạng viễn thông, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử của người khác."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.15359037675001172,
+          "retrieval_score": 0.15359037675001172,
+          "cross_encoder_score": 0.03401440743719397,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa"
+          ],
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp;"
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D10_K1",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D10_PARENT",
+          "score": 0.73588,
+          "retrieval_score": 0.73588,
+          "cross_encoder_score": 0.1268987436191405,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D10_K1"
+          ],
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống\n1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "42",
+          "clause": "3",
+          "point": "b",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_K3_Pb",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_PARENT",
+          "score": 0.5312791093846526,
+          "retrieval_score": 0.5312791093846526,
+          "cross_encoder_score": 0.08824475740829303,
+          "behavior_score": 0.25571428571428567,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_K3_Pb"
+          ],
+          "text": "[Điểm b, Khoản 3, Điều 42, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự;"
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "80",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_K2_Pa",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_PARENT",
+          "score": 0.47567040608460615,
+          "retrieval_score": 0.47567040608460615,
+          "cross_encoder_score": 0.07940329909394937,
+          "behavior_score": 0.25571428571428567,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_K2_Pa"
+          ],
+          "text": "[Điểm a, Khoản 2, Điều 80, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác;"
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "16",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D16_K3",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D16_PARENT",
+          "score": 0.30771221184948244,
+          "retrieval_score": 0.30771221184948244,
+          "cross_encoder_score": 0.05859925967010392,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D16_K3"
+          ],
+          "text": "[Khoản 3, Điều 16, Nghị Định 53 2022 NĐ-CP] 3. Trường hợp cần giữ nguyên hiện trạng hệ thống thông tin, phục vụ điều tra, xử lý hành vi vi phạm pháp luật, phát hiện điểm yếu, lỗ hổng bảo mật; hướng dẫn hoặc tham gia khắc phục khi có đề nghị của chủ quản hệ thống thông tin, lực lượng chuyên trách bảo vệ an ninh mạng gửi văn bản đề nghị chủ quản hệ thống thông tin tạm ngừng tiến hành kiểm tra an ninh mạng. Nội dung văn bản phải ghi rõ lý do, mục đích, thời gian tạm ngừng hoạt động kiểm tra an ninh mạng."
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "81",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_K2_Pa",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_PARENT",
+          "score": 0.30618842400857754,
+          "retrieval_score": 0.30618842400857754,
+          "cross_encoder_score": 0.054359791612751195,
+          "behavior_score": 0.20571428571428568,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_K2_Pa"
+          ],
+          "text": "[Điểm a, Khoản 2, Điều 81, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập bất hợp pháp vào tài khoản của tổ chức, cá nhân nhằm chiếm đoạt tài sản có trị giá dưới 2.000.000 đồng;"
+        }
+      ],
+      "removed_before_generation": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "2",
+          "clause": "13",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D2_K13",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D2_PARENT",
+          "score": 0.7569234647243517,
+          "retrieval_score": 0.7569234647243517,
+          "cross_encoder_score": 0.10524688074483936,
+          "behavior_score": 0.6825714285714286,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D2_K13"
+          ],
+          "text": "[Khoản 13, Điều 2, Luật An ninh mạng 2025] 13. Tấn công mạng là hành vi thực hiện trên không gian mạng bằng việc sử dụng công nghệ thông tin hoặc phương tiện điện tử để chiếm đoạt thông tin, gây rối loạn, gián đoạn, tê liệt hoạt động, phá hoại hoặc kiểm soát hệ thống mạng viễn thông, mạng Internet, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử."
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "15",
+          "clause": "4",
+          "point": "a",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D15_PARENT",
+          "score": 0.15359037675001172,
+          "retrieval_score": 0.15359037675001172,
+          "cross_encoder_score": 0.03401440743719397,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D15_K4_Pa"
+          ],
+          "text": "[Điểm a, Khoản 4, Điều 15, Luật An ninh mạng 2025] a) Kiểm tra an ninh mạng đối với hệ thống thông tin quan trọng về an ninh quốc gia nhằm phát hiện, loại bỏ mã độc, phần cứng độc hại, khắc phục điểm yếu, lỗ hổng bảo mật; phát hiện, ngăn chặn, xử lý hoạt động xâm nhập bất hợp pháp;"
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "10",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D10_K1",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D10_PARENT",
+          "score": 0.73588,
+          "retrieval_score": 0.73588,
+          "cross_encoder_score": 0.1268987436191405,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D10_K1"
+          ],
+          "text": "[Khoản 1, Điều 10, Nghị Định 53 2022 NĐ-CP] Điều 10. Điều kiện bảo đảm an ninh mạng đối với thiết bị, phần cứng, phần mềm là thành phần hệ thống\n1. Các thiết bị phần cứng là thành phần hệ thống phải được kiểm tra an ninh mạng để phát hiện điểm yếu, lỗ hổng bảo mật, mã độc, thiết bị thu phát, phần cứng độc hại bảo đảm sự tương thích với các thành phần khác trong hệ thống thông tin quan trọng về an ninh quốc gia. Các thiết bị quản trị phải được cài đặt hệ điều hành, phần mềm sạch, có các lớp tường lửa bảo vệ. Hệ thống thông tin xử lý bí mật nhà nước không được kết nối với mạng Internet."
+        },
+        {
+          "document": "Nghị Định 53 2022 NĐ-CP",
+          "article": "16",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Ngh_nh_53_2022_N_CP_D16_K3",
+          "parent_id": "Ngh_nh_53_2022_N_CP_D16_PARENT",
+          "score": 0.30771221184948244,
+          "retrieval_score": 0.30771221184948244,
+          "cross_encoder_score": 0.05859925967010392,
+          "behavior_score": 0.3424285714285714,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_53_2022_N_CP_D16_K3"
+          ],
+          "text": "[Khoản 3, Điều 16, Nghị Định 53 2022 NĐ-CP] 3. Trường hợp cần giữ nguyên hiện trạng hệ thống thông tin, phục vụ điều tra, xử lý hành vi vi phạm pháp luật, phát hiện điểm yếu, lỗ hổng bảo mật; hướng dẫn hoặc tham gia khắc phục khi có đề nghị của chủ quản hệ thống thông tin, lực lượng chuyên trách bảo vệ an ninh mạng gửi văn bản đề nghị chủ quản hệ thống thông tin tạm ngừng tiến hành kiểm tra an ninh mạng. Nội dung văn bản phải ghi rõ lý do, mục đích, thời gian tạm ngừng hoạt động kiểm tra an ninh mạng."
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "81",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_K2_Pa",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_PARENT",
+          "score": 0.30618842400857754,
+          "retrieval_score": 0.30618842400857754,
+          "cross_encoder_score": 0.054359791612751195,
+          "behavior_score": 0.20571428571428568,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D81_K2_Pa"
+          ],
+          "text": "[Điểm a, Khoản 2, Điều 81, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập bất hợp pháp vào tài khoản của tổ chức, cá nhân nhằm chiếm đoạt tài sản có trị giá dưới 2.000.000 đồng;"
+        }
+      ],
+      "final_context": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "18",
+          "clause": "1",
+          "point": "d",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D18_K1_Pd",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D18_PARENT",
+          "score": 0.557931052922,
+          "retrieval_score": 0.557931052922,
+          "cross_encoder_score": 0.07662966596223542,
+          "behavior_score": 0.5942857142857142,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D18_K1_Pd"
+          ],
+          "text": "[Điểm d, Khoản 1, Điều 18, Luật An ninh mạng 2025] d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính;"
+        },
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "7",
+          "clause": "5",
+          "point": "",
+          "chunk_id": "Lu_t_An_ninh_m_ng_2025_D7_K5",
+          "parent_id": "Lu_t_An_ninh_m_ng_2025_D7_PARENT",
+          "score": 0.4684310444822012,
+          "retrieval_score": 0.4684310444822012,
+          "cross_encoder_score": 0.07167096519875303,
+          "behavior_score": 0.40571428571428564,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "cybersecurity"
+          ],
+          "provenance_chain": [
+            "Lu_t_An_ninh_m_ng_2025_D7_K5"
+          ],
+          "text": "[Khoản 5, Điều 7, Luật An ninh mạng 2025] 5. Xâm nhập trái phép vào mạng viễn thông, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử của người khác."
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "42",
+          "clause": "3",
+          "point": "b",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_K3_Pb",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_PARENT",
+          "score": 0.5312791093846526,
+          "retrieval_score": 0.5312791093846526,
+          "cross_encoder_score": 0.08824475740829303,
+          "behavior_score": 0.25571428571428567,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D42_K3_Pb"
+          ],
+          "text": "[Điểm b, Khoản 3, Điều 42, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự;"
+        },
+        {
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "80",
+          "clause": "2",
+          "point": "a",
+          "chunk_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_K2_Pa",
+          "parent_id": "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_PARENT",
+          "score": 0.47567040608460615,
+          "retrieval_score": 0.47567040608460615,
+          "cross_encoder_score": 0.07940329909394937,
+          "behavior_score": 0.25571428571428567,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "reason_removed": "",
+          "legal_domains": [
+            "administrative_penalty",
+            "cybersecurity",
+            "telecommunications",
+            "electronic_transactions",
+            "advertising"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_15_2020_N_CP_s_a_i_b_sung_Ngh_nh_14_2022_D80_K2_Pa"
+          ],
+          "text": "[Điểm a, Khoản 2, Điều 80, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác;"
+        }
+      ],
+      "applicability": [
+        {
+          "latency_ms": 69859.85428199638,
+          "decisions": [
+            {
+              "candidate_id": "A1",
+              "document": "Luật An ninh mạng 2025",
+              "article": "18",
+              "scope": "Xâm nhập, khai thác lỗ hổng bảo mật để chiếm đoạt thông tin.",
+              "situation_behavior": "unauthorized_access:MATCH; exploit_vulnerability:MATCH; extract_or_download_data:MATCH; website_or_information_system:MATCH; database:MATCH; data_exfiltration:NOT_MATCH; without_authorization:MATCH",
+              "level": "HIGH",
+              "explanation": "Điều 18 d) Luật An ninh mạng 2025 trực tiếp điều chỉnh hành vi xâm nhập, khai thác lỗ hổng bảo mật để chiếm đoạt thông tin từ website hoặc hệ thống thông tin mà không có sự ủy quyền.",
+              "missing_conditions": "Không còn điều kiện thiếu vì tình huống đã thể hiện việc truy cập trái phép và khai thác lỗ hổng.",
+              "behavior_matches": [
+                [
+                  "unauthorized_access",
+                  "MATCH"
+                ],
+                [
+                  "exploit_vulnerability",
+                  "MATCH"
+                ],
+                [
+                  "extract_or_download_data",
+                  "MATCH"
+                ],
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ],
+                [
+                  "database",
+                  "MATCH"
+                ],
+                [
+                  "data_exfiltration",
+                  "NOT_MATCH"
+                ],
+                [
+                  "without_authorization",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.5942857142857142,
+              "validation_status": "VALID",
+              "reason_rejected": ""
+            },
+            {
+              "candidate_id": "A2",
+              "document": "Luật An ninh mạng 2025",
+              "article": "7",
+              "scope": "Xâm nhập trái phép vào mạng máy tính, hệ thống thông tin.",
+              "situation_behavior": "unauthorized_access:MATCH; exploit_vulnerability:PARTIAL_MATCH; extract_or_download_data:PARTIAL_MATCH; website_or_information_system:MATCH; database:PARTIAL_MATCH; data_exfiltration:NOT_MATCH; without_authorization:MATCH",
+              "level": "MEDIUM",
+              "explanation": "Điều 7 Khoản 5 Luật An ninh mạng 2025 điều chỉnh hành vi xâm nhập trái phép vào hệ thống thông tin, nhưng không trực tiếp đề cập đến việc khai thác lỗ hổng bảo mật.",
+              "missing_conditions": "Hành vi cốt lõi là truy cập trái phép và khai thác lỗ hổng, nên quy định này chỉ điều chỉnh một phần.",
+              "behavior_matches": [
+                [
+                  "unauthorized_access",
+                  "MATCH"
+                ],
+                [
+                  "exploit_vulnerability",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "extract_or_download_data",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ],
+                [
+                  "database",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "data_exfiltration",
+                  "NOT_MATCH"
+                ],
+                [
+                  "without_authorization",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.40571428571428564,
+              "validation_status": "VALID",
+              "reason_rejected": ""
+            },
+            {
+              "candidate_id": "A3",
+              "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+              "article": "42",
+              "scope": "Xâm nhập trái phép vào mạng máy tính.",
+              "situation_behavior": "unauthorized_access:MATCH; exploit_vulnerability:NOT_MATCH; extract_or_download_data:PARTIAL_MATCH; website_or_information_system:MATCH; database:PARTIAL_MATCH; data_exfiltration:NOT_MATCH; without_authorization:MATCH",
+              "level": "MEDIUM",
+              "explanation": "Điều 42 Khoản 3 Nghị Định 15/2020 điều chỉnh hành vi xâm nhập trái phép vào mạng máy tính, nhưng không đề cập đến việc khai thác lỗ hổng bảo mật.",
+              "missing_conditions": "Hành vi cốt lõi là truy cập trái phép và khai thác lỗ hổng, nên quy định này chỉ điều chỉnh một phần.",
+              "behavior_matches": [
+                [
+                  "unauthorized_access",
+                  "MATCH"
+                ],
+                [
+                  "exploit_vulnerability",
+                  "NOT_MATCH"
+                ],
+                [
+                  "extract_or_download_data",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ],
+                [
+                  "database",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "data_exfiltration",
+                  "NOT_MATCH"
+                ],
+                [
+                  "without_authorization",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.25571428571428567,
+              "validation_status": "VALID",
+              "reason_rejected": ""
+            },
+            {
+              "candidate_id": "A4",
+              "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+              "article": "80",
+              "scope": "Truy cập trái phép vào mạng hoặc thiết bị số.",
+              "situation_behavior": "unauthorized_access:MATCH; exploit_vulnerability:PARTIAL_MATCH; extract_or_download_data:PARTIAL_MATCH; website_or_information_system:MATCH; database:PARTIAL_MATCH; data_exfiltration:NOT_MATCH; without_authorization:MATCH",
+              "level": "MEDIUM",
+              "explanation": "Điều 80 Khoản 2 Nghị Định 15/2020 điều chỉnh hành vi truy cập trái phép vào mạng hoặc thiết bị số, nhưng không đề cập đến việc khai thác lỗ hổng bảo mật.",
+              "missing_conditions": "Hành vi cốt lõi là truy cập trái phép và khai thác lỗ hổng, nên quy định này chỉ điều chỉnh một phần.",
+              "behavior_matches": [
+                [
+                  "unauthorized_access",
+                  "MATCH"
+                ],
+                [
+                  "exploit_vulnerability",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "extract_or_download_data",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "website_or_information_system",
+                  "MATCH"
+                ],
+                [
+                  "database",
+                  "PARTIAL_MATCH"
+                ],
+                [
+                  "data_exfiltration",
+                  "NOT_MATCH"
+                ],
+                [
+                  "without_authorization",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.25571428571428567,
+              "validation_status": "VALID",
+              "reason_rejected": ""
+            }
+          ],
+          "retrieval_gap": false,
+          "gap_reason": ""
+        }
+      ],
+      "grounded_sources": [
+        {
+          "source_id": "S1",
+          "document": "Luật An ninh mạng 2025",
+          "article": "18",
+          "clause": "1",
+          "point": "d",
+          "text": "[Điểm d, Khoản 1, Điều 18, Luật An ninh mạng 2025] d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính"
+        },
+        {
+          "source_id": "S2",
+          "document": "Luật An ninh mạng 2025",
+          "article": "7",
+          "clause": "5",
+          "point": "",
+          "text": "[Khoản 5, Điều 7, Luật An ninh mạng 2025] 5. Xâm nhập trái phép vào mạng viễn thông, mạng máy tính, hệ thống thông tin, hệ thống xử lý và điều khiển thông tin, cơ sở dữ liệu, phương tiện điện tử của người khác."
+        },
+        {
+          "source_id": "S3",
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "80",
+          "clause": "2",
+          "point": "a",
+          "text": "[Điểm a, Khoản 2, Điều 80, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác"
+        },
+        {
+          "source_id": "S4",
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "42",
+          "clause": "3",
+          "point": "b",
+          "text": "[Điểm b, Khoản 3, Điều 42, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự"
+        }
+      ],
+      "citations_by_generation": [
+        {
+          "source_id": "S1",
+          "document": "Luật An ninh mạng 2025",
+          "article": "18",
+          "clause": "1",
+          "point": "d",
+          "text": "[Điểm d, Khoản 1, Điều 18, Luật An ninh mạng 2025] d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính"
+        },
+        {
+          "source_id": "S3",
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "80",
+          "clause": "2",
+          "point": "a",
+          "text": "[Điểm a, Khoản 2, Điều 80, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác"
+        },
+        {
+          "source_id": "S4",
+          "document": "Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)",
+          "article": "42",
+          "clause": "3",
+          "point": "b",
+          "text": "[Điểm b, Khoản 3, Điều 42, Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)] b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự"
+        }
+      ],
+      "citations_in_rendered_answer": [
+        {
+          "document": "Luật An ninh mạng 2025",
+          "article": "18",
+          "clause": "1",
+          "point": "d"
+        }
+      ],
+      "hallucinated_citations": [],
+      "raw_generation": "## Tóm tắt tình huống\nNgười dùng sử dụng SQL Injection để khai thác lỗ hổng trên một website và tải xuống cơ sở dữ liệu của website đó.\n\n## Các vấn đề pháp lý\n1. Xem xét hành vi có phải là truy cập trái phép theo quy định của Luật An ninh mạng 2025.\n2. Kiểm tra xem hành vi có bị xử phạt theo Nghị Định 15/2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14/2022).\n\n## Phân tích\n### Vấn đề 1: Xem xét hành vi có phải là truy cập trái phép theo Luật An ninh mạng 2025\n\n[[QUOTE:S1]]\n- **Nội dung điều luật:** Điểm d, Khoản 1, Điều 18, Luật An ninh mạng 2025 quy định: \"Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính\" được coi là truy cập trái phép.\n- **Hành vi phù hợp:** Người dùng sử dụng SQL Injection để khai thác lỗ hổng trên website và tải xuống cơ sở dữ liệu. Đây là hành vi xâm nhập vào hệ thống thông qua điểm yếu bảo mật, mục đích thu thập thông tin từ hệ thống đó.\n- **Phân tích:** Hành vi của người dùng phù hợp với nội dung điều luật nêu trên, vì họ đã khai thác lỗ hổng bảo mật để chiếm đoạt thông tin (cơ sở dữ liệu).\n- **Điều kiện còn thiếu:** Không có tình tiết/căn cứ cụ thể nào chưa được xác định.\n- **Căn cứ pháp lý:** [[CITE:S1]]\n- **Đánh giá:** 🟢 Đủ căn cứ [[CITE:S1]]\n\n### Vấn đề 2: Kiểm tra xem hành vi có bị xử phạt theo Nghị Định 15/2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14/2022)\n\n[[QUOTE:S3]]\n- **Nội dung điều luật:** Điểm a, Khoản 2, Điều 80, Nghị Định 15/2020 NĐ-CP quy định: \"Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác\" được coi là hành vi truy cập trái phép.\n- **Hành vi phù hợp:** Hành vi tải xuống cơ sở dữ liệu từ website có thể được xem như việc chiếm quyền điều khiển thiết bị số (máy chủ) và thu thập thông tin của người khác.\n- **Phân tích:** Hành vi tải xuống cơ sở dữ liệu từ website có thể thuộc trường hợp truy cập trái phép theo Nghị Định 15/2020 NĐ-CP, vì mục đích chính là chiếm quyền điều khiển thiết bị số và thu thập thông tin của người khác.\n- **Điều kiện còn thiếu:** Không có tình tiết/căn cứ cụ thể nào chưa được xác định.\n- **Căn cứ pháp lý:** [[CITE:S3]]\n- **Đánh giá:** 🟢 Đủ căn cứ [[CITE:S3]]\n\n## Chế tài\n[[QUOTE:S4]]\n- **Nội dung điều luật:** Điểm b, Khoản 3, Điều 42, Nghị Định 15/2020 NĐ-CP quy định: \"Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự\" bị xử phạt.\n- **Hành vi bị xử phạt:** Hành vi tải xuống cơ sở dữ liệu từ website có thể thuộc trường hợp xâm nhập trái phép theo Nghị Định 15/2020 NĐ-CP, vì mục đích chính là chiếm quyền điều khiển thiết bị số và thu thập thông tin của người khác.\n- **Căn cứ pháp lý:** [[CITE:S4]]\n- **Mức xử phạt:** Hành vi này có thể bị xử phạt theo Nghị Định 15/2020 NĐ-CP, mức xử phạt cụ thể phụ thuộc vào quy định chi tiết trong Nghị Định.\n\n## Trả lời câu hỏi của người dùng\n### 1. Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?\n- **Trả lời trực tiếp:** Có.\n- **Vì sao:** Hành vi này phù hợp với các quy định về truy cập trái phép trong Luật An ninh mạng 2025 và Nghị Định 15/2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14/2022).\n- **Căn cứ:** [[CITE:S1],[CITE:S3]]\n- **Còn thiếu:** Không có căn cứ hoặc dữ kiện nào còn thiếu.\n\n### 2. Hành vi này có bị xử phạt theo pháp luật không?\n- **Trả lời trực tiếp:** Có.\n- **Vì sao:** Hành vi này thuộc trường hợp xâm nhập trái phép và truy cập trái phép, được quy định trong Nghị Định 15/2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14/2022).\n- **Căn cứ:** [[CITE:S4]]\n- **Còn thiếu:** Không có căn cứ hoặc dữ kiện nào còn thiếu.",
+      "rendered_answer": "> **Lưu ý:** Câu trả lời có thể chưa đầy đủ vì chưa truy xuất được toàn bộ căn cứ pháp luật.\n\n## Tóm tắt tình huống\nDùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?\n\n## Các vấn đề pháp lý\n- Xác định bản chất pháp lý của các hành vi được mô tả.\n- Xác định điều kiện áp dụng và hậu quả pháp lý trong phạm vi căn cứ đã truy xuất.\n\n## Phân tích\n### Luật An ninh mạng 2025 — Điều 18\n> “d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính”\n>\n> (Trích từ: **Luật An ninh mạng 2025**, Điều 18, Khoản 1, Điểm d)\n\n- **Nội dung điều luật:** Trọng tâm của quy định là: d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính.\n- **Hành vi phù hợp:** Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?\n- **Phân tích:** Tình huống mô tả “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?”. Trọng tâm của quy định là: d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính. Khi đặt hai nội dung cạnh nhau, các yếu tố cần đối chiếu cụ thể là “khai thác”, “lỗ hổng”; việc áp dụng chỉ giới hạn ở các yếu tố được chính đoạn luật này mô tả.\n- **Điều kiện còn thiếu:** Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?” với nội dung đã trích.\n- **Căn cứ pháp lý:** (Căn cứ: **Luật An ninh mạng 2025**, Điều 18, Khoản 1, Điểm d)\n- **Đánh giá:** 🟡 Chưa đủ điều kiện kết luận: Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?” với nội dung đã trích. (Căn cứ: **Luật An ninh mạng 2025**, Điều 18, Khoản 1, Điểm d)\n\n### Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022) — Điều 80\n> “a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác”\n>\n> (Trích từ: **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 80, Khoản 2, Điểm a)\n\n- **Nội dung điều luật:** Trọng tâm của quy định là: a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác.\n- **Hành vi phù hợp:** Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?\n- **Phân tích:** Tình huống mô tả “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?”. Trọng tâm của quy định là: a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác. Khi đặt hai nội dung cạnh nhau, các yếu tố cần đối chiếu cụ thể là “truy cập trái”, “cập trái phép”, “truy cập”, “cập trái”, “trái phép”; việc áp dụng chỉ giới hạn ở các yếu tố được chính đoạn luật này mô tả.\n- **Điều kiện còn thiếu:** Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?” với nội dung đã trích.\n- **Căn cứ pháp lý:** (Căn cứ: **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 80, Khoản 2, Điểm a)\n- **Đánh giá:** 🟡 Chưa đủ điều kiện kết luận: Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?” với nội dung đã trích. (Căn cứ: **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 80, Khoản 2, Điểm a)\n\n### Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022) — Điều 42\n> “b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự”\n>\n> (Trích từ: **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 42, Khoản 3, Điểm b)\n\n- **Nội dung điều luật:** Trọng tâm của quy định là: b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự.\n- **Hành vi phù hợp:** Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?\n- **Phân tích:** Tình huống mô tả “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?”. Trọng tâm của quy định là: b) Xâm nhập trái phép vào mạng máy tính, mạng viễn thông cố định mặt đất, mạng viễn thông di động mặt đất, mạng viễn thông cố định vệ tinh và di động vệ tinh, mạng viễn thông dùng riêng, mạng viễn thông chuyên dùng hoặc đường thuê bao viễn thông khác mà chưa đến mức truy cứu trách nhiệm hình sự. Khi đặt hai nội dung cạnh nhau, các yếu tố cần đối chiếu cụ thể là “trái phép”, “dùng”, “truy”; việc áp dụng chỉ giới hạn ở các yếu tố được chính đoạn luật này mô tả.\n- **Điều kiện còn thiếu:** Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?” với nội dung đã trích.\n- **Căn cứ pháp lý:** (Căn cứ: **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 42, Khoản 3, Điểm b)\n- **Đánh giá:** 🟡 Chưa đủ điều kiện kết luận: Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?” với nội dung đã trích. (Căn cứ: **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 42, Khoản 3, Điểm b)\n\n## Chế tài\n- **Đã xác định được:** Có căn cứ liên quan đến hành vi cần đánh giá.\n- **Chưa xác định được:** Chưa có đủ nội dung để xác định toàn bộ hậu quả và cách áp dụng.\n- **Muốn kết luận cần:** Bổ sung căn cứ trực tiếp về hậu quả và các điều kiện áp dụng còn thiếu.\n\n## Trả lời câu hỏi của người dùng\n### 1. Dùng SQL Injection khai thác lỗ hổng website và tải xuống cơ sở dữ liệu có phải là truy cập trái phép không?\n- **Trả lời trực tiếp:** Chưa đủ căn cứ để kết luận dứt khoát câu hỏi này.\n- **Vì sao:** Các nguồn hiện có xác định được một phần quy tắc liên quan: Trọng tâm của quy định là: d) Xâm nhập, tạo ra hoặc khai thác điểm yếu, lỗ hổng bảo mật và dịch vụ hệ thống để chiếm đoạt thông tin, thu lợi bất chính. Trọng tâm của quy định là: a) Truy cập trái phép vào mạng hoặc thiết bị số của người khác để chiếm quyền điều khiển thiết bị số hoặc thay đổi, xóa bỏ thông tin lưu trữ trên thiết bị số hoặc thay đổi tham số cài đặt thiết bị số hoặc thu thập thông tin của người khác. Việc kết luận chỉ được giới hạn trong các nội dung đó. (Căn cứ: **Luật An ninh mạng 2025**, Điều 18, Khoản 1, Điểm d; **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 80, Khoản 2, Điểm a; **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 42, Khoản 3, Điểm b)\n- **Căn cứ:** (Căn cứ: **Luật An ninh mạng 2025**, Điều 18, Khoản 1, Điểm d; **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 80, Khoản 2, Điểm a; **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 42, Khoản 3, Điểm b)\n- **Còn thiếu:** Cần bổ sung dữ kiện đáp ứng các điều kiện được nêu trong từng nguồn và căn cứ trực tiếp cho phần câu hỏi chưa được bao phủ.\n\n## Căn cứ pháp lý\n\n- **Luật An ninh mạng 2025**, Điều 18, Khoản 1, Điểm d.\n- **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 80, Khoản 2, Điểm a.\n- **Nghị Định 15 2020 NĐ-CP (sửa đổi, bổ sung Nghị Định 14 2022)**, Điều 42, Khoản 3, Điểm b.",
+      "retrieval_is_complete": false,
+      "retrieval_is_relevant": true
+    },
+    "metrics": {
+      "domain_recall": 0.5,
+      "domain_precision": 1.0,
+      "behavior_recall": 1.0,
+      "behavior_precision": 1.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "citation_accuracy": 0.0,
+      "wrong_domain_rate": 0.0,
+      "wrong_behavior_rate": 0.0,
+      "recursive_precision": 1.0,
+      "recursive_noise_rate": 0.0,
+      "applicability_accuracy": 0.0,
+      "retrieval_latency_ms": 8772.772087992053,
+      "total_latency_ms": 142879.15298200096
+    },
+    "errors": [
+      "Wrong Domain",
+      "Wrong Citation",
+      "Missing Relevant Law",
+      "Applicability Error",
+      "Generation Grounding Error"
+    ],
+    "grounding_validation": {
+      "is_valid": false,
+      "issues": [
+        "Retrieval chưa đầy đủ nên không được gắn mức 🟢 Đủ căn cứ.",
+        "Số câu trả lời tổng hợp không khớp số câu hỏi người dùng: cần 1, nhận 2.",
+        "Câu trả lời số 1 có lý do nhưng thiếu citation trên cùng dòng.",
+        "Câu trả lời số 2 có lý do nhưng thiếu citation trên cùng dòng.",
+        "Có kết luận pháp lý chưa gắn citation trong cùng đoạn.",
+        "Phần Chế tài chưa giải thích: cá nhân.",
+        "Phần Chế tài chưa giải thích: tổ chức.",
+        "Phần Chế tài chưa giải thích: điều kiện.",
+        "Thông tin chế tài thiếu citation trên cùng dòng."
+      ],
+      "used_source_ids": [
+        "S1",
+        "S3",
+        "S4"
+      ]
+    },
+    "token_usage": {
+      "prompt_tokens": 4237,
+      "completion_tokens": 2393,
+      "total_tokens": 6630,
+      "call_count": 2
+    }
+  }
+]

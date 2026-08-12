@@ -1,0 +1,1719 @@
+[
+  {
+    "id": "ai_copyright_easy_001",
+    "category": "AI Copyright",
+    "difficulty": "Easy",
+    "question": "Dùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?",
+    "status": "completed",
+    "expected": {
+      "domains": [
+        "intellectual_property",
+        "artificial_intelligence"
+      ],
+      "behaviors": [
+        "use_copyrighted_work",
+        "copyrighted_work_or_recording"
+      ],
+      "legal_units": [
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "",
+          "point": ""
+        }
+      ]
+    },
+    "actual": {
+      "selected_domains": [
+        "intellectual_property"
+      ],
+      "filtered_domains": [
+        "cybersecurity",
+        "personal_data",
+        "civil_personality",
+        "advertising",
+        "criminal",
+        "administrative_penalty",
+        "consumer_protection",
+        "digital_technology",
+        "artificial_intelligence",
+        "data_governance",
+        "electronic_transactions",
+        "e_commerce",
+        "telecommunications",
+        "digital_content",
+        "finance_payment",
+        "general_legal"
+      ],
+      "domain_scores": {
+        "intellectual_property": 10.0
+      },
+      "domain_fallback": false,
+      "behavior_card": {
+        "actions": [],
+        "objects": [
+          "copyrighted_work_or_recording"
+        ],
+        "purposes": [],
+        "conditions": []
+      },
+      "behaviors": [
+        "copyrighted_work_or_recording"
+      ],
+      "candidate_count_by_domain": {
+        "intellectual_property": 10
+      },
+      "retrieval_candidates": [
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D14_K3",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D14_PARENT",
+          "score": 0.7465235897851851,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.08101234627470093,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 14, Nghị Định 17 2023 NĐ-CP] 3. Quyền công bố tác phẩm hoặc cho phép người khác công bố tác phẩm quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ là việc phát hành bản sao tác phẩm dưới bất kỳ hình thức nào với số lượng hợp lý đủ để công chúng tiếp cận được tùy theo bản chất của tác phẩm, do tác giả hoặc chủ sở hữu quyền tác giả thực hiện hoặc do cá nhân, tổ chức khác thực hiện với sự đồng ý của tác giả hoặc chủ sở hữu quyền tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "12a",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D12a_K3",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D12a_PARENT",
+          "score": 0.9020000000000001,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.1031898324537802,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 12a, 2023_361 + 362_11-VBHN-VPQH] 3. Việc thực hiện quyền nhân thân và quyền tài sản đối với tác phẩm có đồng tác giả phải có sự thỏa thuận của các đồng tác giả, trừ trường hợp tác phẩm có phần riêng biệt có thể tách ra sử dụng độc lập mà không làm phương hại đến phần của các đồng tác giả khác hoặc luật khác có quy định khác."
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "clause": "3",
+          "point": "b",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D66_K3_Pb",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D66_PARENT",
+          "score": 0.7362729116329054,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.08027980256745623,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm b, Khoản 3, Điều 66, Nghị Định 17 2023 NĐ-CP] b) Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác;"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "60",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D60_K1",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D60_PARENT",
+          "score": 0.6469528018043459,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.06599715969523495,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 60, Nghị Định 17 2023 NĐ-CP] Điều 60. Thông tin quản lý quyền\n1. Đưa thông tin quản lý quyền nhằm ngăn ngừa hành vi xâm phạm quyền tác giả, quyền liên quan theo quy định tại điểm a khoản 1 Điều 198 của Luật Sở hữu trí tuệ là việc nêu trên bản gốc, bản sao tác phẩm, bản định hình cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng các thông tin xác định về tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng, tín hiệu vệ tinh mang chương trình được mã hóa; về tác giả, người biểu diễn, chủ sở hữu quyền tác giả, chủ sở hữu quyền liên quan và các điều kiện khai thác, sử dụng; số hiệu, mã số thể hiện các thông tin nêu trên có hoặc không có biện pháp công nghệ bảo vệ quyền. Thông tin quản lý quyền không bao gồm thông tin liên quan đến người dùng bản sao về tên, tài khoản, địa chỉ hoặc thông tin liên hệ khác của người dùng.\nThông tin quản lý quyền phải gắn liền với bản sao hoặc xuất hiện đồng thời với tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng khi tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng được truyền đến công chúng."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "19",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D19_K4",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D19_PARENT",
+          "score": 0.5711867049501378,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.05453180119909558,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 19, 2023_361 + 362_11-VBHN-VPQH] 4. Bảo vệ sự toàn vẹn của tác phẩm không cho người khác xuyên tạc; không cho người khác sửa đổi, cắt xén tác phẩm dưới bất kỳ hình thức nào gây phương hại đến danh dự và uy tín của tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "26",
+          "clause": "1",
+          "point": "a",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D26_K1_Pa",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D26_PARENT",
+          "score": 0.42997337656271584,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.032423576199530055,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 1, Điều 26, 2023_361 + 362_11-VBHN-VPQH] a) Tổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng có tài trợ, quảng cáo hoặc thu tiền dưới bất kỳ hình thức nào không phải xin phép nhưng phải trả tiền bản quyền cho chủ sở hữu quyền tác giả kể từ khi sử dụng. Mức tiền bản quyền và phương thức thanh toán do các bên thỏa thuận; trường hợp không đạt được thỏa thuận thì thực hiện theo quy định của Chính phủ.\nTổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng không có tài trợ, quảng cáo hoặc không thu tiền dưới bất kỳ hình thức nào không phải xin phép nhưng phải trả tiền bản quyền cho chủ sở hữu quyền tác giả kể từ khi sử dụng theo quy định của Chính phủ;"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "2",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D20_K2",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D20_PARENT",
+          "score": 0.38588541270864796,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.025524868939141875,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 2, Điều 20, 2023_361 + 362_11-VBHN-VPQH] 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.\nTổ chức, cá nhân khi khai thác, sử dụng một, một số hoặc toàn bộ các quyền quy định tại khoản 1 Điều này và khoản 3 Điều 19 của Luật này phải được sự cho phép của chủ sở hữu quyền tác giả và trả tiền bản quyền, các quyền lợi vật chất khác (nếu có) cho chủ sở hữu quyền tác giả, trừ trường hợp quy định tại khoản 3 Điều này, các điều 25, 25a, 26, 32 và 33 của Luật này. Trường hợp làm tác phẩm phái sinh mà ảnh hưởng đến quyền nhân thân quy định tại khoản 4 Điều 19 của Luật này còn phải được sự đồng ý bằng văn bản của tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "clause": "9",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D4_K9",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D4_PARENT",
+          "score": 0.3853684983463914,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.025520700291725044,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 9, Điều 4, 2023_361 + 362_11-VBHN-VPQH] 9. Tác phẩm, bản ghi âm, ghi hình đã công bố là tác phẩm, bản ghi âm, ghi hình đã được phát hành với sự đồng ý của chủ sở hữu quyền tác giả, chủ sở hữu quyền liên quan để phổ biến đến công chúng bản sao dưới bất kỳ hình thức nào với số lượng hợp lý."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "3",
+          "point": "a",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D20_K3_Pa",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D20_PARENT",
+          "score": 0.34689318381496964,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.01947836085457644,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 3, Điều 20, 2023_361 + 362_11-VBHN-VPQH] a) Sao chép tác phẩm chỉ để thực hiện các quyền khác theo quy định của Luật này; sao chép tạm thời theo một quy trình công nghệ, trong quá trình hoạt động của các thiết bị để truyền phát trong một mạng lưới giữa các bên thứ ba thông qua trung gian hoặc sử dụng hợp pháp tác phẩm, không có mục đích kinh tế độc lập và bản sao bị tự động xóa bỏ, không có khả năng phục hồi lại;"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D4_K3",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D4_PARENT",
+          "score": 0.32896708951563913,
+          "retrieval_score": null,
+          "cross_encoder_score": 0.01612426843720024,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "",
+          "reason_kept": "selected_by_phase2_ranking",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 4, 2023_361 + 362_11-VBHN-VPQH] 3. Quyền liên quan đến quyền tác giả (sau đây gọi là quyền liên quan) là quyền của tổ chức, cá nhân đối với cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng, tín hiệu vệ tinh mang chương trình được mã hóa."
+        }
+      ],
+      "recursive_candidates": [],
+      "final_candidate_pool": [
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D14_K3",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D14_PARENT",
+          "score": 0.7465235897851851,
+          "retrieval_score": 0.7465235897851851,
+          "cross_encoder_score": 0.08101234627470093,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_17_2023_N_CP_D14_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 14, Nghị Định 17 2023 NĐ-CP] 3. Quyền công bố tác phẩm hoặc cho phép người khác công bố tác phẩm quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ là việc phát hành bản sao tác phẩm dưới bất kỳ hình thức nào với số lượng hợp lý đủ để công chúng tiếp cận được tùy theo bản chất của tác phẩm, do tác giả hoặc chủ sở hữu quyền tác giả thực hiện hoặc do cá nhân, tổ chức khác thực hiện với sự đồng ý của tác giả hoặc chủ sở hữu quyền tác giả."
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "clause": "3",
+          "point": "b",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D66_K3_Pb",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D66_PARENT",
+          "score": 0.7362729116329054,
+          "retrieval_score": 0.7362729116329054,
+          "cross_encoder_score": 0.08027980256745623,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_17_2023_N_CP_D66_K3_Pb"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm b, Khoản 3, Điều 66, Nghị Định 17 2023 NĐ-CP] b) Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác;"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "60",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D60_K1",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D60_PARENT",
+          "score": 0.6469528018043459,
+          "retrieval_score": 0.6469528018043459,
+          "cross_encoder_score": 0.06599715969523495,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_17_2023_N_CP_D60_K1"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 1, Điều 60, Nghị Định 17 2023 NĐ-CP] Điều 60. Thông tin quản lý quyền\n1. Đưa thông tin quản lý quyền nhằm ngăn ngừa hành vi xâm phạm quyền tác giả, quyền liên quan theo quy định tại điểm a khoản 1 Điều 198 của Luật Sở hữu trí tuệ là việc nêu trên bản gốc, bản sao tác phẩm, bản định hình cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng các thông tin xác định về tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng, tín hiệu vệ tinh mang chương trình được mã hóa; về tác giả, người biểu diễn, chủ sở hữu quyền tác giả, chủ sở hữu quyền liên quan và các điều kiện khai thác, sử dụng; số hiệu, mã số thể hiện các thông tin nêu trên có hoặc không có biện pháp công nghệ bảo vệ quyền. Thông tin quản lý quyền không bao gồm thông tin liên quan đến người dùng bản sao về tên, tài khoản, địa chỉ hoặc thông tin liên hệ khác của người dùng.\nThông tin quản lý quyền phải gắn liền với bản sao hoặc xuất hiện đồng thời với tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng khi tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng được truyền đến công chúng."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "12a",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D12a_K3",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D12a_PARENT",
+          "score": 0.9020000000000001,
+          "retrieval_score": 0.9020000000000001,
+          "cross_encoder_score": 0.1031898324537802,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D12a_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 12a, 2023_361 + 362_11-VBHN-VPQH] 3. Việc thực hiện quyền nhân thân và quyền tài sản đối với tác phẩm có đồng tác giả phải có sự thỏa thuận của các đồng tác giả, trừ trường hợp tác phẩm có phần riêng biệt có thể tách ra sử dụng độc lập mà không làm phương hại đến phần của các đồng tác giả khác hoặc luật khác có quy định khác."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "19",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D19_K4",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D19_PARENT",
+          "score": 0.5711867049501378,
+          "retrieval_score": 0.5711867049501378,
+          "cross_encoder_score": 0.05453180119909558,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D19_K4"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 4, Điều 19, 2023_361 + 362_11-VBHN-VPQH] 4. Bảo vệ sự toàn vẹn của tác phẩm không cho người khác xuyên tạc; không cho người khác sửa đổi, cắt xén tác phẩm dưới bất kỳ hình thức nào gây phương hại đến danh dự và uy tín của tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "26",
+          "clause": "1",
+          "point": "a",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D26_K1_Pa",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D26_PARENT",
+          "score": 0.42997337656271584,
+          "retrieval_score": 0.42997337656271584,
+          "cross_encoder_score": 0.032423576199530055,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D26_K1_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 1, Điều 26, 2023_361 + 362_11-VBHN-VPQH] a) Tổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng có tài trợ, quảng cáo hoặc thu tiền dưới bất kỳ hình thức nào không phải xin phép nhưng phải trả tiền bản quyền cho chủ sở hữu quyền tác giả kể từ khi sử dụng. Mức tiền bản quyền và phương thức thanh toán do các bên thỏa thuận; trường hợp không đạt được thỏa thuận thì thực hiện theo quy định của Chính phủ.\nTổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng không có tài trợ, quảng cáo hoặc không thu tiền dưới bất kỳ hình thức nào không phải xin phép nhưng phải trả tiền bản quyền cho chủ sở hữu quyền tác giả kể từ khi sử dụng theo quy định của Chính phủ;"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "2",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D20_K2",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D20_PARENT",
+          "score": 0.38588541270864796,
+          "retrieval_score": 0.38588541270864796,
+          "cross_encoder_score": 0.025524868939141875,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D20_K2"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 2, Điều 20, 2023_361 + 362_11-VBHN-VPQH] 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.\nTổ chức, cá nhân khi khai thác, sử dụng một, một số hoặc toàn bộ các quyền quy định tại khoản 1 Điều này và khoản 3 Điều 19 của Luật này phải được sự cho phép của chủ sở hữu quyền tác giả và trả tiền bản quyền, các quyền lợi vật chất khác (nếu có) cho chủ sở hữu quyền tác giả, trừ trường hợp quy định tại khoản 3 Điều này, các điều 25, 25a, 26, 32 và 33 của Luật này. Trường hợp làm tác phẩm phái sinh mà ảnh hưởng đến quyền nhân thân quy định tại khoản 4 Điều 19 của Luật này còn phải được sự đồng ý bằng văn bản của tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "clause": "9",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D4_K9",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D4_PARENT",
+          "score": 0.3853684983463914,
+          "retrieval_score": 0.3853684983463914,
+          "cross_encoder_score": 0.025520700291725044,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D4_K9"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 9, Điều 4, 2023_361 + 362_11-VBHN-VPQH] 9. Tác phẩm, bản ghi âm, ghi hình đã công bố là tác phẩm, bản ghi âm, ghi hình đã được phát hành với sự đồng ý của chủ sở hữu quyền tác giả, chủ sở hữu quyền liên quan để phổ biến đến công chúng bản sao dưới bất kỳ hình thức nào với số lượng hợp lý."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "3",
+          "point": "a",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D20_K3_Pa",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D20_PARENT",
+          "score": 0.34689318381496964,
+          "retrieval_score": 0.34689318381496964,
+          "cross_encoder_score": 0.01947836085457644,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D20_K3_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 3, Điều 20, 2023_361 + 362_11-VBHN-VPQH] a) Sao chép tác phẩm chỉ để thực hiện các quyền khác theo quy định của Luật này; sao chép tạm thời theo một quy trình công nghệ, trong quá trình hoạt động của các thiết bị để truyền phát trong một mạng lưới giữa các bên thứ ba thông qua trung gian hoặc sử dụng hợp pháp tác phẩm, không có mục đích kinh tế độc lập và bản sao bị tự động xóa bỏ, không có khả năng phục hồi lại;"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D4_K3",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D4_PARENT",
+          "score": 0.32896708951563913,
+          "retrieval_score": 0.32896708951563913,
+          "cross_encoder_score": 0.01612426843720024,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D4_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 4, 2023_361 + 362_11-VBHN-VPQH] 3. Quyền liên quan đến quyền tác giả (sau đây gọi là quyền liên quan) là quyền của tổ chức, cá nhân đối với cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng, tín hiệu vệ tinh mang chương trình được mã hóa."
+        }
+      ],
+      "removed_before_generation": [
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "60",
+          "clause": "1",
+          "point": "",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D60_K1",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D60_PARENT",
+          "score": 0.6469528018043459,
+          "retrieval_score": 0.6469528018043459,
+          "cross_encoder_score": 0.06599715969523495,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_17_2023_N_CP_D60_K1"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "text": "[Khoản 1, Điều 60, Nghị Định 17 2023 NĐ-CP] Điều 60. Thông tin quản lý quyền\n1. Đưa thông tin quản lý quyền nhằm ngăn ngừa hành vi xâm phạm quyền tác giả, quyền liên quan theo quy định tại điểm a khoản 1 Điều 198 của Luật Sở hữu trí tuệ là việc nêu trên bản gốc, bản sao tác phẩm, bản định hình cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng các thông tin xác định về tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng, tín hiệu vệ tinh mang chương trình được mã hóa; về tác giả, người biểu diễn, chủ sở hữu quyền tác giả, chủ sở hữu quyền liên quan và các điều kiện khai thác, sử dụng; số hiệu, mã số thể hiện các thông tin nêu trên có hoặc không có biện pháp công nghệ bảo vệ quyền. Thông tin quản lý quyền không bao gồm thông tin liên quan đến người dùng bản sao về tên, tài khoản, địa chỉ hoặc thông tin liên hệ khác của người dùng.\nThông tin quản lý quyền phải gắn liền với bản sao hoặc xuất hiện đồng thời với tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng khi tác phẩm, cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng được truyền đến công chúng."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "12a",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D12a_K3",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D12a_PARENT",
+          "score": 0.9020000000000001,
+          "retrieval_score": 0.9020000000000001,
+          "cross_encoder_score": 0.1031898324537802,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D12a_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "text": "[Khoản 3, Điều 12a, 2023_361 + 362_11-VBHN-VPQH] 3. Việc thực hiện quyền nhân thân và quyền tài sản đối với tác phẩm có đồng tác giả phải có sự thỏa thuận của các đồng tác giả, trừ trường hợp tác phẩm có phần riêng biệt có thể tách ra sử dụng độc lập mà không làm phương hại đến phần của các đồng tác giả khác hoặc luật khác có quy định khác."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "19",
+          "clause": "4",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D19_K4",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D19_PARENT",
+          "score": 0.5711867049501378,
+          "retrieval_score": 0.5711867049501378,
+          "cross_encoder_score": 0.05453180119909558,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D19_K4"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "text": "[Khoản 4, Điều 19, 2023_361 + 362_11-VBHN-VPQH] 4. Bảo vệ sự toàn vẹn của tác phẩm không cho người khác xuyên tạc; không cho người khác sửa đổi, cắt xén tác phẩm dưới bất kỳ hình thức nào gây phương hại đến danh dự và uy tín của tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "26",
+          "clause": "1",
+          "point": "a",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D26_K1_Pa",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D26_PARENT",
+          "score": 0.42997337656271584,
+          "retrieval_score": 0.42997337656271584,
+          "cross_encoder_score": 0.032423576199530055,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D26_K1_Pa"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "text": "[Điểm a, Khoản 1, Điều 26, 2023_361 + 362_11-VBHN-VPQH] a) Tổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng có tài trợ, quảng cáo hoặc thu tiền dưới bất kỳ hình thức nào không phải xin phép nhưng phải trả tiền bản quyền cho chủ sở hữu quyền tác giả kể từ khi sử dụng. Mức tiền bản quyền và phương thức thanh toán do các bên thỏa thuận; trường hợp không đạt được thỏa thuận thì thực hiện theo quy định của Chính phủ.\nTổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng không có tài trợ, quảng cáo hoặc không thu tiền dưới bất kỳ hình thức nào không phải xin phép nhưng phải trả tiền bản quyền cho chủ sở hữu quyền tác giả kể từ khi sử dụng theo quy định của Chính phủ;"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "clause": "9",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D4_K9",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D4_PARENT",
+          "score": 0.3853684983463914,
+          "retrieval_score": 0.3853684983463914,
+          "cross_encoder_score": 0.025520700291725044,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D4_K9"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "text": "[Khoản 9, Điều 4, 2023_361 + 362_11-VBHN-VPQH] 9. Tác phẩm, bản ghi âm, ghi hình đã công bố là tác phẩm, bản ghi âm, ghi hình đã được phát hành với sự đồng ý của chủ sở hữu quyền tác giả, chủ sở hữu quyền liên quan để phổ biến đến công chúng bản sao dưới bất kỳ hình thức nào với số lượng hợp lý."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D4_K3",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D4_PARENT",
+          "score": 0.32896708951563913,
+          "retrieval_score": 0.32896708951563913,
+          "cross_encoder_score": 0.01612426843720024,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D4_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": false,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "",
+          "reason_removed": "removed_by_relevance_or_applicability_before_generation",
+          "text": "[Khoản 3, Điều 4, 2023_361 + 362_11-VBHN-VPQH] 3. Quyền liên quan đến quyền tác giả (sau đây gọi là quyền liên quan) là quyền của tổ chức, cá nhân đối với cuộc biểu diễn, bản ghi âm, ghi hình, chương trình phát sóng, tín hiệu vệ tinh mang chương trình được mã hóa."
+        }
+      ],
+      "final_context": [
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "clause": "3",
+          "point": "",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D14_K3",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D14_PARENT",
+          "score": 0.7465235897851851,
+          "retrieval_score": 0.7465235897851851,
+          "cross_encoder_score": 0.08101234627470093,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_17_2023_N_CP_D14_K3"
+          ],
+          "seed_preserved": false,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 3, Điều 14, Nghị Định 17 2023 NĐ-CP] 3. Quyền công bố tác phẩm hoặc cho phép người khác công bố tác phẩm quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ là việc phát hành bản sao tác phẩm dưới bất kỳ hình thức nào với số lượng hợp lý đủ để công chúng tiếp cận được tùy theo bản chất của tác phẩm, do tác giả hoặc chủ sở hữu quyền tác giả thực hiện hoặc do cá nhân, tổ chức khác thực hiện với sự đồng ý của tác giả hoặc chủ sở hữu quyền tác giả."
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "clause": "3",
+          "point": "b",
+          "chunk_id": "Ngh_nh_17_2023_N_CP_D66_K3_Pb",
+          "parent_id": "Ngh_nh_17_2023_N_CP_D66_PARENT",
+          "score": 0.7362729116329054,
+          "retrieval_score": 0.7362729116329054,
+          "cross_encoder_score": 0.08027980256745623,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "Ngh_nh_17_2023_N_CP_D66_K3_Pb"
+          ],
+          "seed_preserved": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Điểm b, Khoản 3, Điều 66, Nghị Định 17 2023 NĐ-CP] b) Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác;"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "2",
+          "point": "",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D20_K2",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D20_PARENT",
+          "score": 0.38588541270864796,
+          "retrieval_score": 0.38588541270864796,
+          "cross_encoder_score": 0.025524868939141875,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D20_K2"
+          ],
+          "seed_preserved": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Khoản 2, Điều 20, 2023_361 + 362_11-VBHN-VPQH] 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.\nTổ chức, cá nhân khi khai thác, sử dụng một, một số hoặc toàn bộ các quyền quy định tại khoản 1 Điều này và khoản 3 Điều 19 của Luật này phải được sự cho phép của chủ sở hữu quyền tác giả và trả tiền bản quyền, các quyền lợi vật chất khác (nếu có) cho chủ sở hữu quyền tác giả, trừ trường hợp quy định tại khoản 3 Điều này, các điều 25, 25a, 26, 32 và 33 của Luật này. Trường hợp làm tác phẩm phái sinh mà ảnh hưởng đến quyền nhân thân quy định tại khoản 4 Điều 19 của Luật này còn phải được sự đồng ý bằng văn bản của tác giả."
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "3",
+          "point": "a",
+          "chunk_id": "2023_361_362_11_VBHN_VPQH_D20_K3_Pa",
+          "parent_id": "2023_361_362_11_VBHN_VPQH_D20_PARENT",
+          "score": 0.34689318381496964,
+          "retrieval_score": 0.34689318381496964,
+          "cross_encoder_score": 0.01947836085457644,
+          "behavior_score": 0.65,
+          "recursive_depth": 0,
+          "is_seed": true,
+          "expansion_reason": "phase2_final_candidate",
+          "reason_kept": "phase2_final_candidate",
+          "legal_domains": [
+            "intellectual_property"
+          ],
+          "provenance_chain": [
+            "2023_361_362_11_VBHN_VPQH_D20_K3_Pa"
+          ],
+          "seed_preserved": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "applicability_removed": false,
+          "decision_stage": "applicability",
+          "reason_removed": "",
+          "text": "[Điểm a, Khoản 3, Điều 20, 2023_361 + 362_11-VBHN-VPQH] a) Sao chép tác phẩm chỉ để thực hiện các quyền khác theo quy định của Luật này; sao chép tạm thời theo một quy trình công nghệ, trong quá trình hoạt động của các thiết bị để truyền phát trong một mạng lưới giữa các bên thứ ba thông qua trung gian hoặc sử dụng hợp pháp tác phẩm, không có mục đích kinh tế độc lập và bản sao bị tự động xóa bỏ, không có khả năng phục hồi lại;"
+        }
+      ],
+      "applicability": [
+        {
+          "latency_ms": 56676.40850000316,
+          "decisions": [
+            {
+              "candidate_id": "A1",
+              "document": "Nghị Định 17 2023 NĐ-CP",
+              "article": "14",
+              "scope": "Quyền công bố tác phẩm và cho phép người khác công bố tác phẩm.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "HIGH",
+              "explanation": "Hành vi sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI liên quan đến việc công bố tác phẩm, phù hợp với quy định.",
+              "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A2",
+              "document": "Nghị Định 17 2023 NĐ-CP",
+              "article": "66",
+              "scope": "Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "HIGH",
+              "explanation": "Hành vi sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI liên quan đến việc công bố phần tác phẩm, phù hợp với quy định.",
+              "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A3",
+              "document": "Nghị Định 17 2023 NĐ-CP",
+              "article": "60",
+              "scope": "Thông tin quản lý quyền nhằm ngăn ngừa hành vi xâm phạm quyền tác giả, quyền liên quan.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "LOW",
+              "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến thông tin quản lý.",
+              "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "REMOVE",
+              "is_seed": true,
+              "seed_survived": false,
+              "seed_removed": true,
+              "behavior_preserved": false,
+              "applicability_removed": true,
+              "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A4",
+              "document": "2023_361 + 362_11-VBHN-VPQH",
+              "article": "12a",
+              "scope": "Quyền nhân thân và quyền tài sản đối với tác phẩm có đồng tác giả.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "LOW",
+              "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến đồng tác giả.",
+              "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "REMOVE",
+              "is_seed": true,
+              "seed_survived": false,
+              "seed_removed": true,
+              "behavior_preserved": false,
+              "applicability_removed": true,
+              "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A5",
+              "document": "2023_361 + 362_11-VBHN-VPQH",
+              "article": "26",
+              "scope": "Sử dụng tác phẩm công bố để phát sóng thương mại.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "LOW",
+              "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến phát sóng thương mại.",
+              "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "REMOVE",
+              "is_seed": true,
+              "seed_survived": false,
+              "seed_removed": true,
+              "behavior_preserved": false,
+              "applicability_removed": true,
+              "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A6",
+              "document": "2023_361 + 362_11-VBHN-VPQH",
+              "article": "20",
+              "scope": "Sử dụng các quyền của chủ sở hữu tác giả khi khai thác, sử dụng tác phẩm.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "HIGH",
+              "explanation": "Hành vi sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI liên quan đến việc khai thác, sử dụng tác phẩm, phù hợp với quy định.",
+              "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "KEEP",
+              "is_seed": true,
+              "seed_survived": true,
+              "seed_removed": false,
+              "behavior_preserved": false,
+              "applicability_removed": false,
+              "reason_removed": "",
+              "decision_stage": "applicability"
+            },
+            {
+              "candidate_id": "A7",
+              "document": "2023_361 + 362_11-VBHN-VPQH",
+              "article": "4",
+              "scope": "Tác phẩm đã công bố và quyền liên quan.",
+              "situation_behavior": "copyrighted_work_or_recording:MATCH",
+              "level": "LOW",
+              "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến tác phẩm đã công bố.",
+              "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+              "behavior_matches": [
+                [
+                  "copyrighted_work_or_recording",
+                  "MATCH"
+                ]
+              ],
+              "behavior_score": 0.65,
+              "validation_status": "VALID",
+              "reason_rejected": "",
+              "decision": "REMOVE",
+              "is_seed": true,
+              "seed_survived": false,
+              "seed_removed": true,
+              "behavior_preserved": false,
+              "applicability_removed": true,
+              "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+              "decision_stage": "applicability"
+            }
+          ],
+          "retrieval_gap": false,
+          "gap_reason": ""
+        }
+      ],
+      "retrieval_decisions": [
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "scope": "3.",
+          "score": 0.2431207695842583,
+          "relative_score": 0.7945456880703097,
+          "level": "Cao",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "scope": "b) Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác",
+          "score": 0.010925655451021048,
+          "relative_score": 0.03570625595992982,
+          "level": "Thấp",
+          "method": "cross_encoder",
+          "decision": "WEAK_KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": true,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "60",
+          "scope": "Điều 60.",
+          "score": 0.08177756199890304,
+          "relative_score": 0.267258158890502,
+          "level": "Trung bình",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "12a",
+          "scope": "3.",
+          "score": 0.305987148674507,
+          "relative_score": 1.0,
+          "level": "Cao",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "19",
+          "scope": "4.",
+          "score": 0.00879466636878972,
+          "relative_score": 0.02874194686569998,
+          "level": "Thấp",
+          "method": "cross_encoder",
+          "decision": "WEAK_KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": true,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "26",
+          "scope": "a) Tổ chức phát sóng sử dụng tác phẩm đã công bố, tác phẩm đã được chủ sở hữu quyền tác giả cho phép định hình trên bản ghi âm, ghi hình công bố nhằm mục đích thương mại để phát sóng có tài trợ, quảng cáo hoặc thu tiền dưới bất kỳ hình thức nào không phải xin…",
+          "score": 0.04464151286142696,
+          "relative_score": 0.14589342413499284,
+          "level": "Thấp",
+          "method": "cross_encoder",
+          "decision": "WEAK_KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": true,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "scope": "2.",
+          "score": 0.025895039565521288,
+          "relative_score": 0.08462786648947491,
+          "level": "Thấp",
+          "method": "cross_encoder",
+          "decision": "WEAK_KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": true,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "scope": "9.",
+          "score": 0.07395568378451337,
+          "relative_score": 0.24169539179955404,
+          "level": "Trung bình",
+          "method": "cross_encoder",
+          "decision": "KEEP",
+          "is_seed": true,
+          "behavior_score": 0.65,
+          "seed_preserved": false,
+          "behavior_preserved": false,
+          "relevance_removed": false,
+          "reason_removed": "",
+          "decision_stage": "legal_relevance"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "priority_score": 0.2431207695842583,
+          "priority_rank": 2,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": false,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "priority_score": 0.010925655451021048,
+          "priority_rank": 7,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": true,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "60",
+          "priority_score": 0.08177756199890304,
+          "priority_rank": 3,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": false,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "12a",
+          "priority_score": 0.305987148674507,
+          "priority_rank": 1,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": false,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "19",
+          "priority_score": 0.00879466636878972,
+          "priority_rank": 8,
+          "candidate_budget": 7,
+          "decision": "REMOVE",
+          "is_seed": true,
+          "seed_preserved": true,
+          "candidate_budget_selected": false,
+          "candidate_budget_pruned": true,
+          "reason_removed": "Vượt candidate budget=7; priority_rank=8 theo Legal Relevance score.",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "26",
+          "priority_score": 0.04464151286142696,
+          "priority_rank": 5,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": true,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "priority_score": 0.025895039565521288,
+          "priority_rank": 6,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": true,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "priority_score": 0.07395568378451337,
+          "priority_rank": 4,
+          "candidate_budget": 7,
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_preserved": false,
+          "candidate_budget_selected": true,
+          "candidate_budget_pruned": false,
+          "reason_removed": "",
+          "decision_stage": "candidate_budget"
+        },
+        {
+          "candidate_id": "A1",
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "scope": "Quyền công bố tác phẩm và cho phép người khác công bố tác phẩm.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "HIGH",
+          "explanation": "Hành vi sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI liên quan đến việc công bố tác phẩm, phù hợp với quy định.",
+          "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A2",
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "scope": "Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "HIGH",
+          "explanation": "Hành vi sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI liên quan đến việc công bố phần tác phẩm, phù hợp với quy định.",
+          "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A3",
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "60",
+          "scope": "Thông tin quản lý quyền nhằm ngăn ngừa hành vi xâm phạm quyền tác giả, quyền liên quan.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "LOW",
+          "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến thông tin quản lý.",
+          "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "REMOVE",
+          "is_seed": true,
+          "seed_survived": false,
+          "seed_removed": true,
+          "behavior_preserved": false,
+          "applicability_removed": true,
+          "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A4",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "12a",
+          "scope": "Quyền nhân thân và quyền tài sản đối với tác phẩm có đồng tác giả.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "LOW",
+          "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến đồng tác giả.",
+          "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "REMOVE",
+          "is_seed": true,
+          "seed_survived": false,
+          "seed_removed": true,
+          "behavior_preserved": false,
+          "applicability_removed": true,
+          "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A5",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "26",
+          "scope": "Sử dụng tác phẩm công bố để phát sóng thương mại.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "LOW",
+          "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến phát sóng thương mại.",
+          "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "REMOVE",
+          "is_seed": true,
+          "seed_survived": false,
+          "seed_removed": true,
+          "behavior_preserved": false,
+          "applicability_removed": true,
+          "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A6",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "scope": "Sử dụng các quyền của chủ sở hữu tác giả khi khai thác, sử dụng tác phẩm.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "HIGH",
+          "explanation": "Hành vi sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI liên quan đến việc khai thác, sử dụng tác phẩm, phù hợp với quy định.",
+          "missing_conditions": "Không còn điều kiện thiếu được xác định từ tình huống và nội dung Điều.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "KEEP",
+          "is_seed": true,
+          "seed_survived": true,
+          "seed_removed": false,
+          "behavior_preserved": false,
+          "applicability_removed": false,
+          "reason_removed": "",
+          "decision_stage": "applicability"
+        },
+        {
+          "candidate_id": "A7",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "4",
+          "scope": "Tác phẩm đã công bố và quyền liên quan.",
+          "situation_behavior": "copyrighted_work_or_recording:MATCH",
+          "level": "LOW",
+          "explanation": "Hành vi không liên quan trực tiếp đến việc sử dụng tác phẩm có bản quyền làm dữ liệu đầu vào cho AI, chỉ liên quan đến tác phẩm đã công bố.",
+          "missing_conditions": "Chưa xác định được điều kiện áp dụng.",
+          "behavior_matches": [
+            [
+              "copyrighted_work_or_recording",
+              "MATCH"
+            ]
+          ],
+          "behavior_score": 0.65,
+          "validation_status": "VALID",
+          "reason_rejected": "",
+          "decision": "REMOVE",
+          "is_seed": true,
+          "seed_survived": false,
+          "seed_removed": true,
+          "behavior_preserved": false,
+          "applicability_removed": true,
+          "reason_removed": "Applicability đánh giá LOW; candidate không trực tiếp điều chỉnh hành vi.",
+          "decision_stage": "applicability"
+        }
+      ],
+      "grounded_sources": [
+        {
+          "source_id": "S1",
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "14",
+          "clause": "3",
+          "point": "",
+          "text": "[Khoản 3, Điều 14, Nghị Định 17 2023 NĐ-CP] 3. Quyền công bố tác phẩm hoặc cho phép người khác công bố tác phẩm quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ là việc phát hành bản sao tác phẩm dưới bất kỳ hình thức nào với số lượng hợp lý đủ để công chúng tiếp cận được tùy theo bản chất của tác phẩm, do tác giả hoặc chủ sở hữu quyền tác giả thực hiện hoặc do cá nhân, tổ chức khác thực hiện với sự đồng ý của tác giả hoặc chủ sở hữu quyền tác giả."
+        },
+        {
+          "source_id": "S2",
+          "document": "Nghị Định 17 2023 NĐ-CP",
+          "article": "66",
+          "clause": "3",
+          "point": "b",
+          "text": "[Điểm b, Khoản 3, Điều 66, Nghị Định 17 2023 NĐ-CP] b) Tác phẩm (phần tác phẩm) là một phần hoặc toàn bộ tác phẩm đang được bảo hộ của người khác"
+        },
+        {
+          "source_id": "S3",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "2",
+          "point": "",
+          "text": "[Khoản 2, Điều 20, 2023_361 + 362_11-VBHN-VPQH] 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này. Tổ chức, cá nhân khi khai thác, sử dụng một, một số hoặc toàn bộ các quyền quy định tại khoản 1 Điều này và khoản 3 Điều 19 của Luật này phải được sự cho phép của chủ sở hữu quyền tác giả và trả tiền bản quyền, các quyền lợi vật chất khác (nếu có) cho chủ sở hữu quyền tác giả, trừ trường hợp quy định tại khoản 3 Điều này, các điều 25, 25a, 26, 32 và 33 của Luật này. Trường hợp làm tác phẩm phái sinh mà ảnh hưởng đến quyền nhân thân quy định tại khoản 4 Điều 19 của Luật này còn phải được sự đồng ý bằng văn bản của tác giả."
+        },
+        {
+          "source_id": "S4",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "3",
+          "point": "a",
+          "text": "[Điểm a, Khoản 3, Điều 20, 2023_361 + 362_11-VBHN-VPQH] a) Sao chép tác phẩm chỉ để thực hiện các quyền khác theo quy định của Luật này; sao chép tạm thời theo một quy trình công nghệ, trong quá trình hoạt động của các thiết bị để truyền phát trong một mạng lưới giữa các bên thứ ba thông qua trung gian hoặc sử dụng hợp pháp tác phẩm, không có mục đích kinh tế độc lập và bản sao bị tự động xóa bỏ, không có khả năng phục hồi lại"
+        }
+      ],
+      "citations_by_generation": [
+        {
+          "source_id": "S3",
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "2",
+          "point": "",
+          "text": "[Khoản 2, Điều 20, 2023_361 + 362_11-VBHN-VPQH] 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này. Tổ chức, cá nhân khi khai thác, sử dụng một, một số hoặc toàn bộ các quyền quy định tại khoản 1 Điều này và khoản 3 Điều 19 của Luật này phải được sự cho phép của chủ sở hữu quyền tác giả và trả tiền bản quyền, các quyền lợi vật chất khác (nếu có) cho chủ sở hữu quyền tác giả, trừ trường hợp quy định tại khoản 3 Điều này, các điều 25, 25a, 26, 32 và 33 của Luật này. Trường hợp làm tác phẩm phái sinh mà ảnh hưởng đến quyền nhân thân quy định tại khoản 4 Điều 19 của Luật này còn phải được sự đồng ý bằng văn bản của tác giả."
+        }
+      ],
+      "citations_in_rendered_answer": [
+        {
+          "document": "2023_361 + 362_11-VBHN-VPQH",
+          "article": "20",
+          "clause": "2",
+          "point": ""
+        }
+      ],
+      "hallucinated_citations": [],
+      "raw_generation": "## Tóm tắt tình huống\nNgười dùng sử dụng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI. Cần xác định việc này liên quan đến quyền tài sản nào của tác giả.\n\n## Các vấn đề pháp lý\n1. Việc sử dụng tác phẩm có bản quyền của người khác để đào tạo công cụ AI có liên quan đến quyền gì của tác giả?\n\n## Phân tích\n### Vấn đề 1\n[[QUOTE:S3]]\n- **Nội dung điều luật:** Quyền công bố tác phẩm hoặc cho phép người khác công bố tác phẩm quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ là việc phát hành bản sao tác phẩm dưới bất kỳ hình thức nào với số lượng hợp lý đủ để công chúng tiếp cận được.\n- **Hành vi phù hợp:** Sử dụng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI không phải là việc công bố tác phẩm theo nghĩa thông thường, mà mục đích chính là đào tạo và sử dụng công cụ AI.\n- **Phân tích:** Việc sử dụng tác phẩm để đào tạo công cụ AI không thuộc phạm vi quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ. Tuy nhiên, việc này có thể liên quan đến quyền sao chép tác phẩm theo quy định của pháp luật về sở hữu trí tuệ.\n- **Điều kiện còn thiếu:** Cần xác định xem việc sử dụng tác phẩm để đào tạo công cụ AI có thuộc phạm vi quy định tại điểm a, khoản 3 Điều 20 của 2023_361 + 362_11-VBHN-VPQH hay không.\n- **Căn cứ pháp lý:** [[CITE:S3]]\n- **Đánh giá:** 🔴 Chưa đủ căn cứ [[CITE:S3]]\n\n## Chế tài\nChưa xác định được.\n\n## Trả lời câu hỏi của người dùng\n### 1. Việc sử dụng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?\n- **Trả lời trực tiếp:** Chưa đủ căn cứ.\n- **Vì sao:** Việc sử dụng tác phẩm để đào tạo công cụ AI không thuộc phạm vi quy định tại khoản 3 Điều 19 của Luật Sở hữu trí tuệ. Tuy nhiên, cần xác định xem việc này có thuộc phạm vi quy định tại điểm a, khoản 3 Điều 20 của 2023_361 + 362_11-VBHN-VPQH hay không.\n- **Căn cứ:** Không tìm thấy căn cứ trong các nguồn hiện có cho câu hỏi này. [[CITE:S3]]\n- **Còn thiếu:** Cần xác định xem việc sử dụng tác phẩm để đào tạo công cụ AI có thuộc phạm vi quy định tại điểm a, khoản 3 Điều 20 của 2023_361 + 362_11-VBHN-VPQH hay không.",
+      "rendered_answer": "> **Lưu ý:** Câu trả lời có thể chưa đầy đủ vì chưa truy xuất được toàn bộ căn cứ pháp luật.\n\n## Tóm tắt tình huống\nDùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?\n\n## Các vấn đề pháp lý\n- Xác định bản chất pháp lý của các hành vi được mô tả.\n- Xác định điều kiện áp dụng và hậu quả pháp lý trong phạm vi căn cứ đã truy xuất.\n\n## Phân tích\n### 2023_361 + 362_11-VBHN-VPQH — Điều 20\n> “2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.…”\n>\n> (Trích từ: **2023_361 + 362_11-VBHN-VPQH**, Điều 20, Khoản 2)\n\n- **Nội dung điều luật:** Trọng tâm của quy định là: 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.….\n- **Hành vi phù hợp:** Dùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?\n- **Phân tích:** Tình huống mô tả “Dùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?”. Trọng tâm của quy định là: 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.…. Khi đặt hai nội dung cạnh nhau, các yếu tố cần đối chiếu cụ thể là “của tác giả”, “tác phẩm”, “bản quyền”, “đến quyền”, “của tác”, “tác giả”; việc áp dụng chỉ giới hạn ở các yếu tố được chính đoạn luật này mô tả.\n- **Điều kiện còn thiếu:** Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?” với nội dung đã trích.\n- **Căn cứ pháp lý:** (Căn cứ: **2023_361 + 362_11-VBHN-VPQH**, Điều 20, Khoản 2)\n- **Đánh giá:** 🟡 Chưa đủ điều kiện kết luận: Đoạn trích không nêu thêm một điều kiện độc lập; kết luận hiện chỉ giới hạn ở việc đối chiếu hành vi “Dùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?” với nội dung đã trích. (Căn cứ: **2023_361 + 362_11-VBHN-VPQH**, Điều 20, Khoản 2)\n\n## Chế tài\n- **Đã xác định được:** Có căn cứ liên quan đến hành vi cần đánh giá.\n- **Chưa xác định được:** Chưa có đủ nội dung để xác định toàn bộ hậu quả và cách áp dụng.\n- **Muốn kết luận cần:** Bổ sung căn cứ trực tiếp về hậu quả và các điều kiện áp dụng còn thiếu.\n\n## Trả lời câu hỏi của người dùng\n### 1. Dùng tác phẩm có bản quyền của người khác làm dữ liệu đầu vào cho công cụ AI có liên quan đến quyền tài sản nào của tác giả?\n- **Trả lời trực tiếp:** Chưa đủ căn cứ để kết luận dứt khoát câu hỏi này.\n- **Vì sao:** Các nguồn hiện có xác định được một phần quy tắc liên quan: Trọng tâm của quy định là: 2. Các quyền quy định tại khoản 1 Điều này do tác giả, chủ sở hữu quyền tác giả độc quyền thực hiện hoặc cho phép tổ chức, cá nhân khác thực hiện theo quy định của Luật này.…. Việc kết luận chỉ được giới hạn trong các nội dung đó. (Căn cứ: **2023_361 + 362_11-VBHN-VPQH**, Điều 20, Khoản 2)\n- **Căn cứ:** (Căn cứ: **2023_361 + 362_11-VBHN-VPQH**, Điều 20, Khoản 2)\n- **Còn thiếu:** Cần bổ sung dữ kiện đáp ứng các điều kiện được nêu trong từng nguồn và căn cứ trực tiếp cho phần câu hỏi chưa được bao phủ.\n\n## Căn cứ pháp lý\n\n- **2023_361 + 362_11-VBHN-VPQH**, Điều 20, Khoản 2.",
+      "retrieval_is_complete": false,
+      "retrieval_is_relevant": true
+    },
+    "metrics": {
+      "domain_recall": 0.5,
+      "domain_precision": 1.0,
+      "behavior_recall": 0.5,
+      "behavior_precision": 1.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 1.0,
+      "mrr": 0.14285714285714285,
+      "citation_accuracy": 1.0,
+      "wrong_domain_rate": 0.0,
+      "wrong_behavior_rate": 0.0,
+      "recursive_precision": 1.0,
+      "recursive_noise_rate": 0.0,
+      "applicability_accuracy": 0.7142857142857143,
+      "retrieval_latency_ms": 8891.339875000995,
+      "total_latency_ms": 105260.31254199916
+    },
+    "errors": [
+      "Wrong Domain",
+      "Wrong Behavior",
+      "Applicability Error",
+      "Generation Grounding Error"
+    ],
+    "grounding_validation": {
+      "is_valid": false,
+      "issues": [
+        "Câu trả lời số 1 có lý do nhưng thiếu citation trên cùng dòng."
+      ],
+      "used_source_ids": [
+        "S3"
+      ]
+    },
+    "token_usage": {
+      "prompt_tokens": 5527,
+      "completion_tokens": 1522,
+      "total_tokens": 7049,
+      "call_count": 2
+    }
+  }
+]

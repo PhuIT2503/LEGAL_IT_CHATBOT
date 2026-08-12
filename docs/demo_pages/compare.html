@@ -1,0 +1,49 @@
+<!doctype html><html><head><meta charset='utf-8'><style>
+*{box-sizing:border-box}body{margin:0;background:#07111f;color:#eaf2ff;font:17px/1.45 Inter,Arial,sans-serif}
+.page{width:1720px;min-height:980px;padding:48px 58px;background:radial-gradient(circle at 85% 5%,#17365d 0,#07111f 36%)}
+h1{margin:0 0 8px;font-size:34px;letter-spacing:-.4px}.sub{color:#91a9c8;margin-bottom:30px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{background:#0e2036;border:1px solid #294968;border-radius:16px;padding:22px;min-width:0}.wide{grid-column:1/-1}
+h2{font-size:21px;margin:0 0 13px;color:#7dd3fc}.metric{font-size:34px;font-weight:700;color:#f8fafc}.label{color:#9fb4cf;font-size:14px;text-transform:uppercase;letter-spacing:.08em}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 12px;border-bottom:1px solid #24415d;text-align:left;vertical-align:top}th{color:#8ed6ff;font-size:14px}td{overflow-wrap:anywhere}
+code,pre{font-family:"SFMono-Regular",Menlo,monospace}code{color:#d7f0ff}.ok{color:#66e3a4}.warn{color:#ffd166}.no{color:#ff8f8f}
+.flow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.step{padding:12px 16px;border:1px solid #3c6b91;border-radius:12px;background:#102942}.arrow{color:#55c2ff;font-size:22px}
+.answer{white-space:pre-wrap;max-height:220px;overflow:hidden}.mono{font-family:"SFMono-Regular",Menlo,monospace;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pill{display:inline-block;padding:5px 10px;margin:3px;border-radius:999px;background:#173b59;border:1px solid #356382;font-size:14px}.foot{margin-top:20px;color:#7890ad;font-size:13px}
+</style></head><body><main class='page'><h1>So sánh ba chế độ trên cùng câu hỏi</h1><div class='sub'>Naive · Article Expansion · Critic Agent — Base + Qwen2.5 7B</div><section class='card'><h2>Trích xuất từ log CLI thật</h2><pre class='mono'># REAL CLI RUN — thesis demo evidence
+# model: qwen2.5:7b (Ollama native)
+# retriever: Base / AITeamVN/Vietnamese_Embedding_v2
+# question: Doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép thì bị xử phạt như thế nào theo Nghị định 15/2020/NĐ-CP?
+10:31:25 [INFO] src.agents.common.dieu_content_store — Dieu-&gt;parent lookup: 1151 Điều.
+10:31:25 [INFO] src.agents.common.dieu_content_store — Dieu-&gt;so chunk con (Qdrant, doc lap Neo4j): 1151 Điều.
+10:31:32 [INFO] src.agents.agent_retrieval.node_hybrid_search — Retrieved 5 chunk top-k -&gt; 2 Điều (naive/critic); article_expand: 1 Điều khác nhau (quét rộng 20 chunk).
+Số chunk retrieved: 5 | Số Điều: 2
+1. **Hình phạt chính**: Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.
+- **Hình phạt bổ sung**: Không làm thủ tục đề nghị cấp lại Giấy phép thiết lập mạng xã hội trong trường hợp bị mất hoặc bị hư hỏng hoặc sử dụng giấy phép thiết lập mạng xã hội hết hạn (Điểm a, Khoản 1, Điều 98).
+- **Biện pháp khắc phục hậu quả**: Các hành vi khác như không làm thủ tục đề nghị sửa đổi, bổ sung nội dung Giấy phép thiết lập mạng xã hội theo quy định trong trường hợp có thay đổi hoặc bổ sung thông tin trong giấy phép (Khoản 2, Điều 98).
+10:31:55 [INFO] src.agents.agent_retrieval.node_hybrid_search — Retrieved 5 chunk top-k -&gt; 2 Điều (naive/critic); article_expand: 1 Điều khác nhau (quét rộng 20 chunk).
+10:31:55 [INFO] src.agents.agent_article_expand.node_expand_article — Mở rộng toàn văn Điều trong phạm vi (không dùng quan hệ KG, không lọc thêm)...
+10:31:55 [INFO] src.agents.agent_article_expand.node_expand_article — Full-article expand: 1966 ký tự, 1 Điều.
+Chế độ: Kịch bản 2: mở rộng toàn Điều (không dùng quan hệ KG, không có Critic Agent)
+Số chunk retrieved: 5 | Số Điều: 2
+   - Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.
+   - Tịch thu tang vật, phương tiện vi phạm hành chính đối với hành vi vi phạm quy định tại khoản 3 Điều này.
+   - Đình chỉ hoạt động từ 1 tháng đến 3 tháng đối với hành vi vi phạm quy định tại khoản 2 Điều này.
+   - Buộc thu hồi hoặc buộc hoàn trả tên miền do thực hiện hành vi vi phạm quy định tại khoản 3 Điều này.
+Những hình phạt trên được áp dụng cho trường hợp thiết lập mạng xã hội nhưng không có giấy phép, theo Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP).
+--- NGỮ CẢNH MỞ RỘNG (toàn văn Điều, 1966 ký tự) ---
+10:32:23 [INFO] src.agents.agent_retrieval.node_hybrid_search — Retrieved 5 chunk top-k -&gt; 2 Điều (naive/critic); article_expand: 1 Điều khác nhau (quét rộng 20 chunk).
+10:32:23 [INFO] src.agents.agent_generation.node_generate_draft — Critic Agent: sinh câu trả lời nháp từ top-k thuần...
+10:32:35 [INFO] src.agents.agent_critic.node_critic_check — Critic Agent (Neo4j): đối chiếu câu trả lời nháp với Knowledge Graph...
+10:32:35 [INFO] src.agents.agent_critic.node_critic_check — Critic Agent: phạm vi kiểm tra 1/2 Điều (score_ratio=0.6).
+10:32:38 [INFO] src.workflow.node_agent_regenerate — Critic Agent: sinh lại câu trả lời cuối từ ngữ cảnh gốc + phần Critic Agent bổ sung...
+Chế độ: Kịch bản 3: Critic Agent (đề xuất khóa luận)
+Số chunk retrieved: 5 | Số Điều: 2
+--- CÂU TRẢ LỜI NHÁP (trước khi Critic Agent kiểm tra) ---
+Theo ngữ cảnh được cung cấp, doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép sẽ bị xử phạt theo Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP). Cụ thể:
+- Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.
+1. **Hình phạt chính**: Phạt tiền từ 50.000.000 đồng đến 70.000.000 đồng.
+   - Tịch thu tang vật, phương tiện vi phạm hành chính.
+   - Đình chỉ hoạt động từ 1 tháng đến 3 tháng.
+3. **Biện pháp khắc phục hậu quả**: Buộc thu hồi hoặc buộc hoàn trả tên miền do thực hiện hành vi vi phạm quy định tại khoản 3 Điều này.
+Những hình phạt trên được nêu rõ trong Khoản 3, Điều 98 của Nghị Định 15/2020/NĐ-CP (sửa đổi, bổ sung bởi Nghị Định 14/2022/NĐ-CP).
+  [retrieve] Điều ngh_nh_15_2020_n_cp_s_a_i_b_sung_ngh_nh_14_2022_D98 có 9 Khoản/Điểm trong graph nhưng chỉ retrieve được 4 phần — nội dung liên quan có thể nằm ở Khoản/Điểm khác chưa lấy được, cần lấy lại toàn văn Điều.</pre></section><div class='foot'>Nguồn: phiên chạy cục bộ ngày 04/08/2026 · Không chỉnh sửa quyết định retrieval/Critic.</div></main></body></html>

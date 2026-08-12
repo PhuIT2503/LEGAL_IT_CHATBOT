@@ -1,0 +1,11 @@
+# REAL CLI RUN — thesis demo evidence
+# cwd: /Users/nguyengiahuy/Project/LEGAL_IT_CHATBOT
+# model: qwen2.5:7b (Ollama native)
+# retriever: Base / AITeamVN/Vietnamese_Embedding_v2
+# question: Doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép thì bị xử phạt như thế nào theo Nghị định 15/2020/NĐ-CP?
+# exit_code: 2
+
+usage: run_chatbot.py [-h] [--query QUERY]
+                      [--mode {naive,article_expand,critic}] [--compare-all]
+                      [--top-k TOP_K]
+run_chatbot.py: error: unrecognized arguments: Doanh nghiệp thiết lập mạng xã hội nhưng không có giấy phép thì bị xử phạt như thế nào theo Nghị định 15/2020/NĐ-CP?
